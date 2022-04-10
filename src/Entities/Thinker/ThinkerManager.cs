@@ -9,8 +9,6 @@ namespace NEP.BWDOOM.Entities
     {
         public ThinkerManager(System.IntPtr ptr) : base(ptr) { }
 
-        public static ThinkerManager instance;
-
         private Thinker cap;
 
         private float delayT = 1f / 35f;
@@ -46,6 +44,11 @@ namespace NEP.BWDOOM.Entities
 
             while (current != cap)
             {
+                if(current == null)
+                {
+                    break;
+                }
+
                 if (current.thinkerState == ThinkerState.Removed)
                 {
                     current.next.prev = current.prev;
@@ -70,17 +73,6 @@ namespace NEP.BWDOOM.Entities
 
         private void Awake()
         {
-            if (instance == null)
-            {
-                instance = this;
-            }
-            else
-            {
-                Destroy(instance.gameObject);
-            }
-
-            DontDestroyOnLoad(instance.gameObject);
-
             cap = new GameObject("Thinker").AddComponent<Thinker>();
             cap.transform.parent = transform;
             cap.prev = cap.next = cap;

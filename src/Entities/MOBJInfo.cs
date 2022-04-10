@@ -48,7 +48,7 @@ namespace NEP.BWDOOM.Entities
             this.damage = damage;
             this.activesound = activesound;
             this.flags = flags;
-            this.raisestate = this.raisestate;
+            this.raisestate = raisestate;
         }
 
         public int doomednum;

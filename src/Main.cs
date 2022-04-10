@@ -28,7 +28,9 @@ namespace NEP.BWDOOM
 
         public static bool play;
 
-        private ThinkerManager thinkerManager;
+        public static ThinkerManager thinkerManager;
+        public static MOBJManager mobjManager;
+        public static ThingInteraction thingInteraction;
 
         public override void OnApplicationStart()
         {
@@ -52,7 +54,8 @@ namespace NEP.BWDOOM
 
                 // Initialize logic and entity managers
                 thinkerManager = new GameObject("ThinkerManager").AddComponent<ThinkerManager>();
-                MOBJManager mobjManager = new GameObject("MOBJManager").AddComponent<MOBJManager>();
+                mobjManager = new GameObject("MOBJManager").AddComponent<MOBJManager>();
+                thingInteraction = new GameObject("ThingInteraction").AddComponent<ThingInteraction>();
                 DoomRNG doomRNG = new GameObject("DoomRNG").AddComponent<DoomRNG>();
                 DoomGame doomGame = new GameObject("DoomGame").AddComponent<DoomGame>();
 

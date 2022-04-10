@@ -17,7 +17,13 @@ namespace NEP.BWDOOM.Entities
             }
 
             target.flags |= MOBJFlags.MF_CORPSE | MOBJFlags.MF_DROPOFF;
+
             // adjust height
+
+            Vector3 deathBox = new Vector3(target.boxCollider.size.x, target.boxCollider.size.y / 2f, target.boxCollider.size.z);
+
+            target.boxCollider.size = deathBox;
+            target.boxCollider.center = Vector3.zero;
 
             if (target.health < -target.info.spawnhealth && target.info.xdeathstate != 0)
             {
@@ -38,7 +44,7 @@ namespace NEP.BWDOOM.Entities
 
         public static void P_DamageMobj(MOBJ target, MOBJ inflictor, MOBJ source, int damage)
         {
-            if ((target.flags & MOBJFlags.MF_SHOOTABLE) == 0)
+            if ((target.flags & MOBJFlags.MF_SHOOTABLE) != 0)
             {
                 return;
             }
@@ -61,7 +67,7 @@ namespace NEP.BWDOOM.Entities
                 return;
             }
 
-            if ((target.flags & MOBJFlags.MF_SKULLFLY) == 0)
+            if (target.CheckFlag(target, MOBJFlags.MF_SKULLFLY))
             {
                 target.flags |= MOBJFlags.MF_JUSTHIT;
 

@@ -16,19 +16,13 @@ namespace NEP.BWDOOM.Patches
             {
                 float projectileDamage = projectile.bulletObject.ammoVariables.AttackDamage;
 
-                MOBJ hitM = collider.GetComponentInParent<MOBJ>();
+                MelonLoader.MelonLogger.Msg(collider.name);
 
-                if(hitM == null)
-                {
-                    return;
-                }
-
-                int adjustedDamage = Mathf.RoundToInt(projectileDamage);
-
-                ThingInteraction.P_DamageMobj(hitM, null, hitM, adjustedDamage);
+                MOBJ hitM = collider.GetComponent<MOBJ>();
+                    ThingInteraction.P_DamageMobj(hitM, hitM, hitM, 1);
             }
 
-            public static void Prefix(Projectile __instance)
+            public static void Postfix(Projectile __instance)
             {
                 __instance.onCollision.AddListener(new System.Action<Collider, Vector3, Vector3>((collider, world, normal) => OnCollision(__instance, collider, world, normal)));
             }

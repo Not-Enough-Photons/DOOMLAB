@@ -9,22 +9,7 @@ namespace NEP.BWDOOM.Entities
     {
         public MOBJManager(System.IntPtr ptr) : base(ptr) { }
 
-        public static MOBJManager instance;
         public List<MOBJ> mObjList;
-
-        private void Awake()
-        {
-            if (instance == null)
-            {
-                instance = this;
-            }
-            else
-            {
-                Destroy(instance.gameObject);
-            }
-
-            DontDestroyOnLoad(instance.gameObject);
-        }
 
         private void Start()
         {
@@ -69,7 +54,7 @@ namespace NEP.BWDOOM.Entities
             mobj.sprite = state.sprite;
             mobj.frame = state.frame;
 
-            ThinkerManager.instance.Add(mobj);
+            Main.thinkerManager.Add(mobj);
 
             mObjList.Add(mobj);
 

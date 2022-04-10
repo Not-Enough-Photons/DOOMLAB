@@ -334,7 +334,7 @@ namespace NEP.BWDOOM.Entities
                 return;
             }
 
-            MOBJManager.instance.P_SpawnMissile(actor, actor.target, MOBJType.MT_TROOPSHOT);
+            Main.mobjManager.P_SpawnMissile(actor, actor.target, MOBJType.MT_TROOPSHOT);
         }
 
         public void A_Explode(MOBJ actor)

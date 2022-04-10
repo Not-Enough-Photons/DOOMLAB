@@ -33,9 +33,9 @@ namespace NEP.BWDOOM.Rendering
             mobj = GetComponentInParent<MOBJ>();
             meshRenderer = GetComponentInChildren<MeshRenderer>();
             material = meshRenderer.material;
-            material.shader = Shader.Find("Doom/Billboard_Y");
+            material.shader = Main.bundle.LoadAsset("DoomBillboard").Cast<Shader>();
 
-            mainCamera = Camera.main;
+            mainCamera = GameObject.Find("Camera (eye)").GetComponent<Camera>();
 
             R_ProjectSprite(mobj);
         }
@@ -79,6 +79,7 @@ namespace NEP.BWDOOM.Rendering
             if (!rotate)
             {
                 rotIdx = 0;
+                rotFlipIdx = 0;
             }
             else
             {

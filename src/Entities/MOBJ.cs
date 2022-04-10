@@ -108,7 +108,7 @@ namespace NEP.BWDOOM.Entities
 
         private void Start()
         {
-            ThinkerManager.instance.Add(this);
+            Main.thinkerManager.Add(this);
             SetupBounds(info.radius, info.height);
             InitFlags();
         }
@@ -132,6 +132,10 @@ namespace NEP.BWDOOM.Entities
             boxCollider.enabled =
                 (flags &= MOBJFlags.MF_NOCLIP) != 0 ||
                 (flags &= MOBJFlags.MF_SOLID) == 0;
+
+            rb.mass = info.mass;
+
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
         }
 
         private void SetupBounds(float radius, float height)
@@ -146,6 +150,11 @@ namespace NEP.BWDOOM.Entities
             transform.rotation = rotation;
         }
 
+        public bool CheckFlag(MOBJ mobj, MOBJFlags flags)
+        {
+            return !((mobj.flags &= flags) != 0);
+        }
+
         public bool P_SetMobjState(MOBJ mobj, StateNum state)
         {
             do
@@ -153,7 +162,7 @@ namespace NEP.BWDOOM.Entities
                 if (state == StateNum.S_NULL)
                 {
                     mobj.state = Info.StateTable.states[(int)StateNum.S_NULL];
-                    ThinkerManager.instance.Remove(this);
+                    Main.thinkerManager.Remove(this);
                     GameObject.Destroy(gameObject);
                     return false;
                 }

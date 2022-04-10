@@ -31,7 +31,6 @@ namespace NEP.BWDOOM.Entities
         private void Update()
         {
             currentPos = currentThing.position;
-            P_XYMovement(currentThing);
         }
 
         public bool P_CheckThing(MOBJ thing)
