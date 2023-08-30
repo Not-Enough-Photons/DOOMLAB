@@ -1,19 +1,13 @@
-﻿using NEP.BWDOOM.Info;
-using NEP.BWDOOM.WAD;
+﻿using NEP.DOOMLAB.WAD.DataTypes;
+using System.Collections.Generic;
 
-namespace NEP.BWDOOM.Rendering
+namespace NEP.DOOMLAB.Rendering
 {
-    public class SpriteFrame
+    public struct SpriteFrame
     {
-        public bool rotate;
-        public SpriteLump[] lumps;
-        public bool[] flip;
-
-        public SpriteFrame(bool rotate, SpriteLump[] lumps, bool[] flip)
-        {
-            this.rotate = rotate;
-            this.lumps = lumps;
-            this.flip = flip;
-        }
+        public int numRotations;
+        public bool canRotate;
+        public Patch[] patches;
+        public bool[] flipBits;
     }
 }

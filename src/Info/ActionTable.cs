@@ -1,0 +1,84 @@
+﻿using NEP.DOOMLAB.Game;
+
+namespace NEP.DOOMLAB.Data
+{
+    public static class ActionTable
+    {
+        public static void A_Light0(Mobj mobj) { }
+        public static void A_WeaponReady(Mobj mobj){}
+        public static void A_Lower(Mobj mobj){}
+        public static void A_Raise(Mobj mobj){}
+        public static void A_Punch(Mobj mobj){}
+        public static void A_ReFire(Mobj mobj){}
+        public static void A_FirePistol(Mobj mobj){}
+        public static void A_Light1(Mobj mobj){}
+        public static void A_FireShotgun(Mobj mobj){}
+        public static void A_Light2(Mobj mobj){}
+        public static void A_FireShotgun2(Mobj mobj){}
+        public static void A_CheckReload(Mobj mobj){}
+        public static void A_OpenShotgun2(Mobj mobj){}
+        public static void A_LoadShotgun2(Mobj mobj){}
+        public static void A_CloseShotgun2(Mobj mobj){}
+        public static void A_FireCGun(Mobj mobj){}
+        public static void A_GunFlash(Mobj mobj){}
+        public static void A_FireMissile(Mobj mobj){}
+        public static void A_Saw(Mobj mobj){}
+        public static void A_FirePlasma(Mobj mobj){}
+        public static void A_BFGsound(Mobj mobj){}
+        public static void A_FireBFG(Mobj mobj){}
+        public static void A_BFGSpray(Mobj mobj){}
+        public static void A_Explode(Mobj mobj){}
+        public static void A_Pain(Mobj mobj){}
+        public static void A_PlayerScream(Mobj mobj){}
+        public static void A_Fall(Mobj mobj){}
+        public static void A_XScream(Mobj mobj){}
+        public static void A_Look(Mobj mobj){ mobj.GetComponent<MobjBrain>().A_Look(); }
+        public static void A_Chase(Mobj mobj){ mobj.GetComponent<MobjBrain>().A_Chase(); }
+        public static void A_FaceTarget(Mobj mobj){ mobj.GetComponent<MobjBrain>().A_FaceTarget(); }
+        public static void A_PosAttack(Mobj mobj){}
+        public static void A_Scream(Mobj mobj){}
+        public static void A_SPosAttack(Mobj mobj){}
+        public static void A_VileChase(Mobj mobj){}
+        public static void A_VileStart(Mobj mobj){}
+        public static void A_VileTarget(Mobj mobj){}
+        public static void A_VileAttack(Mobj mobj){}
+        public static void A_StartFire(Mobj mobj){}
+        public static void A_Fire(Mobj mobj){}
+        public static void A_FireCrackle(Mobj mobj){}
+        public static void A_Tracer(Mobj mobj){}
+        public static void A_SkelWhoosh(Mobj mobj){}
+        public static void A_SkelFist(Mobj mobj){}
+        public static void A_SkelMissile(Mobj mobj){}
+        public static void A_FatRaise(Mobj mobj){}
+        public static void A_FatAttack1(Mobj mobj){}
+        public static void A_FatAttack2(Mobj mobj){}
+        public static void A_FatAttack3(Mobj mobj){}
+        public static void A_BossDeath(Mobj mobj){}
+        public static void A_CPosAttack(Mobj mobj){}
+        public static void A_CPosRefire(Mobj mobj){}
+        public static void A_TroopAttack(Mobj mobj){ mobj.GetComponent<MobjBrain>().A_TroopAttack(); }
+        public static void A_SargAttack(Mobj mobj){}
+        public static void A_HeadAttack(Mobj mobj){}
+        public static void A_BruisAttack(Mobj mobj){}
+        public static void A_SkullAttack(Mobj mobj){}
+        public static void A_Metal(Mobj mobj){}
+        public static void A_SpidRefire(Mobj mobj){}
+        public static void A_BabyMetal(Mobj mobj){}
+        public static void A_BspiAttack(Mobj mobj){}
+        public static void A_Hoof(Mobj mobj){}
+        public static void A_CyberAttack(Mobj mobj){ mobj.GetComponent<MobjBrain>().A_CyberAttack(); }
+        public static void A_PainAttack(Mobj mobj){}
+        public static void A_PainDie(Mobj mobj){}
+        public static void A_KeenDie(Mobj mobj){}
+        public static void A_BrainPain(Mobj mobj){}
+        public static void A_BrainScream(Mobj mobj){}
+        public static void A_BrainDie(Mobj mobj){}
+        public static void A_BrainAwake(Mobj mobj){}
+        public static void A_BrainSpit(Mobj mobj){}
+        public static void A_SpawnSound(Mobj mobj){}
+        public static void A_SpawnFly(Mobj mobj){}
+        public static void A_BrainExplode(Mobj mobj){}
+        public static void A_Refire(Mobj mobj) { }
+        public static void A_FALL(Mobj mobj) { }
+    }
+}

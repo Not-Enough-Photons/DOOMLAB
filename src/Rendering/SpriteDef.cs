@@ -1,12 +1,27 @@
-﻿namespace NEP.BWDOOM.Rendering
-{
-    public class SpriteDef
-    {
-        public SpriteFrame[] frames;
+﻿
+using System.Collections.Generic;
+using NEP.DOOMLAB.WAD.DataTypes;
 
-        public SpriteDef(SpriteFrame[] frames)
+namespace NEP.DOOMLAB.Rendering
+{
+    public struct SpriteDef
+    {
+        public int numFrames;
+        public SpriteFrame[] spriteFrames;
+
+        public void ResetFrames()
         {
-            this.frames = frames;
+            numFrames = 0;
+        }
+
+        public SpriteFrame GetFrame(int frame)
+        {
+            if (frame > spriteFrames.Length - 1)
+            {
+                return spriteFrames[spriteFrames.Length - 1];
+            }
+
+            return spriteFrames[frame];
         }
     }
 }
