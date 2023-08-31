@@ -199,7 +199,7 @@ namespace NEP.DOOMLAB.WAD
 
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
             tex.filterMode = FilterMode.Point;
-            tex.alphaIsTransparency = false;
+            // tex.alphaIsTransparency = true;
             
             int colIdx = 0;
             while(colIdx != width)
@@ -225,6 +225,7 @@ namespace NEP.DOOMLAB.WAD
 
             tex.Apply();
             patch.output = tex;
+            patch.output.hideFlags = HideFlags.DontUnloadUnusedAsset;
             patches.Add(patch);
         }
     }

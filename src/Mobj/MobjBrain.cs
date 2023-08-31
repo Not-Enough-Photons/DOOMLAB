@@ -4,10 +4,13 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
 
-namespace NEP.DOOMLAB.Game
+namespace NEP.DOOMLAB.Entities
 {
+    [MelonLoader.RegisterTypeInIl2Cpp]
     public class MobjBrain : MonoBehaviour
     {
+        public MobjBrain(System.IntPtr ptr) : base(ptr) { }
+
         public Mobj mobj;
 
         private float[] directions = new float[]
@@ -211,27 +214,106 @@ namespace NEP.DOOMLAB.Game
             SetMoveDirection(Mobj.MoveDirection.NODIR);
         }
 
+        public bool CheckMeleeRange()
+        {
+            if(mobj.target == null)
+            {
+                return false;
+            }
+
+            if(Vector3.Distance(mobj.transform.position, mobj.target.position) >= 0.25f)
+            {
+                return false;
+            }
+
+            if (!CheckSight())
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool CheckMissileRange()
+        {
+            if (!CheckSight())
+            {
+                return false;
+            }
+
+            float distance = Vector3.Distance(mobj.transform.position, mobj.target.transform.position);
+
+            if(mobj.info.meleeState == StateNum.S_NULL)
+            {
+                distance -= 4f;
+            }
+
+            // too far away
+            if(mobj.type == MobjType.MT_VILE && distance > 128f)
+            {
+                return false;
+            }
+
+            if(distance > 6.25f)
+            {
+                distance = 6.25f;
+            }
+
+            if(mobj.type == MobjType.MT_CYBORG && distance > 5f)
+            {
+                distance = 5f;
+            }
+
+            return true;
+        }
+
+        public bool CheckSight()
+        {
+            return mobj.target != null && Physics.Raycast(transform.position, transform.position + mobj.target.transform.position);
+        }
+
+        public bool FindPlayer()
+        {
+            if(mobj.target == null)
+            {
+                return false;
+            }
+
+            Vector3 directionToTarget = mobj.target.position - mobj.transform.position;
+            float angle = Vector3.Angle(directionToTarget, mobj.transform.forward);
+
+            if(angle >= 180f * 0.5f)
+            {
+                return false;
+            }
+
+            if (!CheckSight())
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public void A_Look()
         {
-            Move();
-
-            Action seeyou = delegate
-            {
-                if (mobj.info.seeSound != Sound.SoundType.sfx_None)
-                {
-                    // do sound stuff
-                }
-
-                mobj.SetState(mobj.info.seeState);
-            };
-
             mobj.threshold = 0;
             // use dummy target for now
 
             if (mobj.target != null && mobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
             {
-                seeyou();
+                A_SeeYou();
             }
+        }
+
+        public void A_SeeYou()
+        {
+            if (mobj.info.seeSound != Sound.SoundType.sfx_None)
+            {
+                // do sound stuff
+            }
+
+            mobj.SetState(mobj.info.seeState);
         }
 
         public void A_Chase()
@@ -240,11 +322,6 @@ namespace NEP.DOOMLAB.Game
             {
                 return;
             }
-
-            NavMeshPath path = new NavMeshPath();
-            NavMesh.CalculatePath(mobj.transform.position, mobj.target.position, 0, path);
-
-            return;
 
             if (mobj.reactionTime != 0)
             {

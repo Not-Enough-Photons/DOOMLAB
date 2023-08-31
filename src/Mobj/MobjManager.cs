@@ -4,10 +4,13 @@ using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Rendering;
 using UnityEngine.AI;
 
-namespace NEP.DOOMLAB.Game
+namespace NEP.DOOMLAB.Entities
 {
+    [MelonLoader.RegisterTypeInIl2Cpp]
     public class MobjManager : MonoBehaviour
     {
+        public MobjManager(System.IntPtr ptr) : base(ptr) { }
+
         public static MobjManager Instance { get; private set; }
 
         public GameObject mobjPrefab;
@@ -15,11 +18,12 @@ namespace NEP.DOOMLAB.Game
         private void Awake()
         {
             Instance = this;
+            mobjPrefab = Main.mobjTemplate;
         }
 
         private void Start()
         {
-            SpawnMobj(Vector3.up, MobjType.MT_POSSESSED);
+            SpawnMobj(Vector3.zero, MobjType.MT_TROOP);
         }
 
         public Mobj SpawnMobj(Vector3 position, MobjType type)
@@ -32,7 +36,9 @@ namespace NEP.DOOMLAB.Game
             GameObject mobjBase = GameObject.Instantiate(mobjPrefab, position, Quaternion.identity);
             Mobj mobj = mobjBase.AddComponent<Mobj>();
             mobjBase.AddComponent<MobjBrain>();
-            DoomSpriteRenderer spriteRenderer = mobj.transform.GetChild(0).gameObject.AddComponent<DoomSpriteRenderer>();
+
+            mobjBase.transform.GetChild(0).gameObject.AddComponent<DoomSpriteRenderer>();
+            mobjBase.transform.GetChild(0).gameObject.AddComponent<BillboardLookAt>();
 
             mobj.rigidbody = mobjBase.AddComponent<Rigidbody>();
             mobj.collider = mobjBase.AddComponent<BoxCollider>();
@@ -44,7 +50,12 @@ namespace NEP.DOOMLAB.Game
             mobj.rigidbody.mass = mobj.info.mass / 32f;
             mobj.rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
 
-            mobj.collider.size = new Vector3(mobj.radius / 32f, (mobj.height / 64f), mobj.radius / 32f);
+            mobj.collider.size = new Vector3(mobj.radius / 32f, mobj.height / 32f, mobj.radius / 32f);
+
+            if (!mobj.flags.HasFlag(MobjFlags.MF_SOLID))
+            {
+                mobj.collider.enabled = false;
+            }
 
             if (mobj.flags.HasFlag(MobjFlags.MF_NOGRAVITY))
             {
@@ -53,6 +64,7 @@ namespace NEP.DOOMLAB.Game
 
             if(mobj.flags.HasFlag(MobjFlags.MF_MISSILE))
             {
+                mobj.collider.enabled = true;
                 mobj.rigidbody.drag = 0;
             }
 

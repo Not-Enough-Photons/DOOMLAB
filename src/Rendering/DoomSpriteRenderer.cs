@@ -1,20 +1,22 @@
 ﻿using NEP.DOOMLAB.Data;
+using NEP.DOOMLAB.Entities;
 using NEP.DOOMLAB.Game;
-using NEP.DOOMLAB.WAD.DataTypes;
-using UnityEditor;
 using UnityEngine;
 
 namespace NEP.DOOMLAB.Rendering
 {
+    [MelonLoader.RegisterTypeInIl2Cpp]
     public class DoomSpriteRenderer : MonoBehaviour
     {
+        public DoomSpriteRenderer(System.IntPtr ptr) : base(ptr) { }
+
         public MobjType mobjType;
 
         public DoomGame game;
 
         public Mobj mobj;
 
-        [SerializeField] private MeshRenderer meshRenderer;
+        private MeshRenderer meshRenderer;
         private SpriteDef[] spriteDefs;
 
         private Camera camera;
@@ -27,21 +29,25 @@ namespace NEP.DOOMLAB.Rendering
             meshRenderer = GetComponent<MeshRenderer>();
             mobj = GetComponentInParent<Mobj>();
             spriteDefs = SpriteLumpGenerator.sprites;
-
-            litShader = Shader.Find("Lit.shader");
-            unlitShader = Shader.Find("Unlit.shader");
+            game = DoomGame.Instance;
+            camera = Camera.main;
         }
 
         private void Start()    
         {
             spriteDefs = SpriteLumpGenerator.sprites;
 
-            DoomGame.OnTick += UpdateSprite;
+            DoomGame.Instance.OnTick += UpdateSprite;
+        }
+
+        private void OnEnable()
+        {
+            UpdateSprite();
         }
 
         private void OnDestroy()
         {
-            DoomGame.OnTick -= UpdateSprite;
+            DoomGame.Instance.OnTick -= UpdateSprite;
         }
 
         public void UpdateSprite()
@@ -53,11 +59,18 @@ namespace NEP.DOOMLAB.Rendering
             }
 
             camera = Camera.main;
-            float angle = Vector3.SignedAngle(mobj.transform.forward, camera.transform.forward, Vector3.up);
+
+            Vector3 targetPosition = camera.transform.position - mobj.transform.position;
+
+            // position based instead of camera forward based, since it causes weird rotations
+            // when moving the VR camera around
+            float angle = Vector3.SignedAngle(mobj.transform.forward, targetPosition, Vector3.up);
 
             angle = Mathf.Repeat(angle + 180f, 360f) - 180f;
 
             int index = (int)((angle - (45 / 2) * 9) / 45) & 7;
+
+            index = (index + 8) % 9;
 
             int stateFrame = mobj.frame;
 
@@ -74,8 +87,8 @@ namespace NEP.DOOMLAB.Rendering
             SpriteDef spriteDef = spriteDefs[(int)mobj.sprite];
             SpriteFrame spriteFrame = spriteDef.GetFrame(stateFrame);
             
-            float spriteWidth = (spriteFrame.patches[index].width / 10f + (mobj.info.radius / 32f)) / 10f;
-            float spriteHeight = (spriteFrame.patches[index].height / 10f + (mobj.info.height / 32f)) / 10f;
+            float spriteWidth = spriteFrame.patches[index].width / 32f;
+            float spriteHeight = spriteFrame.patches[index].height / 32f;
 
             if (!spriteFrame.canRotate)
             {

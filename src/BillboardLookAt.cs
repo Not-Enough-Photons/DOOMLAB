@@ -5,8 +5,11 @@ using UnityEngine;
 
 namespace NEP.DOOMLAB
 {
+    [MelonLoader.RegisterTypeInIl2Cpp]
     public class BillboardLookAt : MonoBehaviour
     {
+        public BillboardLookAt(System.IntPtr ptr) : base(ptr) { }
+
         private Camera camera;
 
         private void Update()

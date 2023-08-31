@@ -1,4 +1,4 @@
-﻿using NEP.DOOMLAB.Game;
+﻿using NEP.DOOMLAB.Entities;
 
 namespace NEP.DOOMLAB.Data
 {

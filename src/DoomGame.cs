@@ -8,24 +8,24 @@ using UnityEngine;
 
 namespace NEP.DOOMLAB.Game
 {
-    public class DoomGame : MonoBehaviour
+    public class DoomGame
     {
-        public static Action OnTick;
+        public DoomGame()
+        {
+            Instance = this;
+        }
 
-        public WADManager WADManager;
+        public static DoomGame Instance { get; private set; }
+
+        public Action OnTick;
 
         public List<SpriteDef> SpriteDefs;
 
-        public float timeInterval = (1 / 35f) * 10; // DOOM updates at 1/35th of a second
+        public float timeInterval = 1f / 35f; // DOOM updates at 1/35th of a second
 
         private float ticTimer;
 
-        private void Awake()
-        {
-            Initialize();
-        }
-
-        private void Update()
+        public void Update()
         {
             ticTimer += Time.deltaTime;
 
@@ -38,8 +38,7 @@ namespace NEP.DOOMLAB.Game
 
         public void Initialize()
         {
-            WADManager.LoadWAD(WADManager.pathToWAD);
-            SpriteLumpGenerator.spritePatches = WADManager.file.patches;
+            SpriteLumpGenerator.spritePatches = WADManager.Instance.file.patches;
             SpriteLumpGenerator.InitSpriteDefs();
 
             SpriteDefs = SpriteLumpGenerator.sprites.ToList();

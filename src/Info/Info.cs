@@ -1,4 +1,5 @@
 ﻿using NEP.DOOMLAB.Sound;
+using NEP.DOOMLAB.Entities;
 
 namespace NEP.DOOMLAB.Data
 {

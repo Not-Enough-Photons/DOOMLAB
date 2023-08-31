@@ -2,10 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace NEP.DOOMLAB.Game
+namespace NEP.DOOMLAB.Entities
 {
+    [MelonLoader.RegisterTypeInIl2Cpp]
     public class MobjCollisionEvents : MonoBehaviour
     {
+        public MobjCollisionEvents(System.IntPtr ptr) : base(ptr) { }
+
         private Mobj mobj;
 
         private void Awake()
@@ -28,11 +31,13 @@ namespace NEP.DOOMLAB.Game
             missile.collider.enabled = false;
 
             var hits = Physics.BoxCastAll(missile.transform.position, Vector3.one, missile.transform.position);
+            Player_Health health = null;
             List<Mobj> mobjs = new List<Mobj>();
 
             foreach(var hit in hits)
             {
                 Mobj other = hit.transform.GetComponent<Mobj>();
+                MelonLoader.MelonLogger.Msg(hit.rigidbody?.name);
 
                 if(other != null)
                 {

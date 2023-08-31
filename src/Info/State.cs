@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using NEP.DOOMLAB.Entities;
 
 namespace NEP.DOOMLAB.Data
 {
     [System.Serializable]
-    public struct State
+    public class State
     {
         public State(SpriteNum sprite, int frame, int tics, Action<Mobj> action, StateNum nextstate)
         {
