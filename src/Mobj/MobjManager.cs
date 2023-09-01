@@ -3,6 +3,7 @@ using UnityEngine;
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Rendering;
 using UnityEngine.AI;
+using NEP.DOOMLAB.Sound;
 
 namespace NEP.DOOMLAB.Entities
 {
@@ -85,7 +86,12 @@ namespace NEP.DOOMLAB.Entities
 
             projectile.rigidbody.velocity = (destination.transform.position - source.transform.position).normalized * projectile.info.speed;
 
-            Physics.IgnoreCollision(source.GetComponent<Collider>(), projectile.GetComponent<Collider>());
+            Physics.IgnoreCollision(source.collider, projectile.collider);
+
+            if (projectile.info.seeSound != Sound.SoundType.sfx_None)
+            {
+                SoundManager.Instance.PlaySound(projectile.info.seeSound, projectile.transform.position, false);
+            }
 
             return projectile;
         }

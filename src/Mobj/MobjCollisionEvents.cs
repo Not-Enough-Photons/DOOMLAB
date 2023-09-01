@@ -1,3 +1,4 @@
+using NEP.DOOMLAB.Sound;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -37,7 +38,6 @@ namespace NEP.DOOMLAB.Entities
             foreach(var hit in hits)
             {
                 Mobj other = hit.transform.GetComponent<Mobj>();
-                MelonLoader.MelonLogger.Msg(hit.rigidbody?.name);
 
                 if(other != null)
                 {
@@ -48,6 +48,11 @@ namespace NEP.DOOMLAB.Entities
             foreach(var mobj in mobjs)
             {
                 mobj.TakeDamage(20, missile);
+            }
+
+            if(mobj.info.deathSound != Sound.SoundType.sfx_None)
+            {
+                SoundManager.Instance.PlaySound(mobj.info.deathSound, mobj.transform.position, false);
             }
         }
     }

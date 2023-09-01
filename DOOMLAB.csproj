@@ -56,9 +56,11 @@
     <Compile Include="src\Rendering\SpriteDef.cs" />
     <Compile Include="src\Rendering\SpriteFrame.cs" />
     <Compile Include="src\Rendering\SpriteLumpGenerator.cs" />
+    <Compile Include="src\Sound\SoundManager.cs" />
     <Compile Include="src\Sound\SoundType.cs" />
     <Compile Include="src\TestLoader.cs" />
     <Compile Include="src\WAD\DataTypes\Patch.cs" />
+    <Compile Include="src\WAD\DataTypes\Sound.cs" />
     <Compile Include="src\WAD\WADFile.cs" />
     <Compile Include="src\WAD\WADIndexEntry.cs" />
     <Compile Include="src\WAD\WADManager.cs" />

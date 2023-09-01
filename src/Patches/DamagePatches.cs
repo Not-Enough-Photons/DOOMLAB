@@ -17,9 +17,9 @@ namespace NEP.DOOMLAB.Patches
 
                 if(hitMobj)
                 {
-                    hitMobj.TakeDamage(__instance._data.damageMultiplier * 1f, __instance._proxy.chestTran.GetComponent<Mobj>());
+                    hitMobj.TakeDamage(__instance._data.damageMultiplier * 10f, __instance._proxy.chestTran.GetComponent<Mobj>());
 
-                    if (!hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
+                    if (hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
                     {
                         MobjManager.Instance.SpawnMobj(world, Data.MobjType.MT_BLOOD);
                     }

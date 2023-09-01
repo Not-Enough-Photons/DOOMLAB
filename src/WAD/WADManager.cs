@@ -22,6 +22,7 @@ namespace NEP.DOOMLAB.WAD
             file.ReadHeader();
             file.ReadIndexEntries();
             file.ReadPalette();
+            file.ListSounds();
             file.ListSprites();
         }
     }

@@ -6,6 +6,7 @@ using UnityEngine;
 using SLZ.Marrow.Warehouse;
 using NEP.DOOMLAB.Entities;
 using System.IO;
+using NEP.DOOMLAB.Sound;
 
 namespace NEP.DOOMLAB
 {
@@ -48,7 +49,8 @@ namespace NEP.DOOMLAB
 
         public void OnSceneLoaded(LevelInfo info)
         {
-            new GameObject().AddComponent<MobjManager>();
+            new GameObject("[DOOMLAB] - Sound Manager").AddComponent<SoundManager>();
+            new GameObject("[DOOMLAB] - MOBJ Manager").AddComponent<MobjManager>();
 
             player = BoneLib.Player.physicsRig.m_chest.gameObject.AddComponent<Mobj>();
             player.flags ^= MobjFlags.MF_SHOOTABLE;
