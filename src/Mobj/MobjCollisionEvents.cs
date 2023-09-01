@@ -39,6 +39,8 @@ namespace NEP.DOOMLAB.Entities
             {
                 Mobj other = hit.transform.GetComponent<Mobj>();
 
+                hit.rigidbody?.AddExplosionForce(10f, hit.point, 10f);
+
                 if(other != null)
                 {
                     mobjs.Add(other);
@@ -48,6 +50,11 @@ namespace NEP.DOOMLAB.Entities
             foreach(var mobj in mobjs)
             {
                 mobj.TakeDamage(20, missile);
+
+                if (mobj.playerHealth)
+                {
+                    mobj.playerHealth.TAKEDAMAGE(3.2f);
+                }
             }
 
             if(mobj.info.deathSound != Sound.SoundType.sfx_None)
