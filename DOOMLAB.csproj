@@ -59,6 +59,7 @@
     <Compile Include="src\Sound\SoundType.cs" />
     <Compile Include="src\TestLoader.cs" />
     <Compile Include="src\WAD\DataTypes\Patch.cs" />
+    <Compile Include="src\WAD\DataTypes\Sound.cs" />
     <Compile Include="src\WAD\WADFile.cs" />
     <Compile Include="src\WAD\WADIndexEntry.cs" />
     <Compile Include="src\WAD\WADManager.cs" />

@@ -6,6 +6,10 @@ using System.IO;
 using UnityEngine;
 
 using NEP.DOOMLAB.WAD.DataTypes;
+using HarmonyLib;
+
+using Patch = NEP.DOOMLAB.WAD.DataTypes.Patch;
+using UnhollowerBaseLib;
 
 namespace NEP.DOOMLAB.WAD
 {
@@ -19,6 +23,7 @@ namespace NEP.DOOMLAB.WAD
 
             fileStream = File.OpenRead(filePath);
             reader = new BinaryReader(fileStream);
+            sounds = new List<DataTypes.Sound>();
             patches = new List<Patch>();
             colorPal = new List<Color32>();
         }
@@ -35,7 +40,9 @@ namespace NEP.DOOMLAB.WAD
 
         public List<WADIndexEntry> entries;
         public static List<Color32> colorPal;
+
         public List<Patch> patches;
+        public List<DataTypes.Sound> sounds;
 
         private string filePath;
 
@@ -157,6 +164,19 @@ namespace NEP.DOOMLAB.WAD
             }
         }
 
+        public void ListSounds()
+        {
+            for(int i = 0; i < entries.Count; i++)
+            {
+                if (!entries[i].name.StartsWith("DS"))
+                {
+                    continue;
+                }
+
+                ReadSound(entries[i]);
+            }
+        }
+
         public void ListSprites()
         {
             int targetIndex = 0;
@@ -182,6 +202,28 @@ namespace NEP.DOOMLAB.WAD
 
                 ReadPatch(entries[i]);
             }
+        }
+
+        public void ReadSound(WADIndexEntry entry)
+        {
+            reader.BaseStream.Seek(entry.offset, SeekOrigin.Begin);
+
+            DataTypes.Sound sound = new DataTypes.Sound();
+
+            sound.id = reader.ReadInt16();
+            sound.sampleRate = reader.ReadInt16();
+            sound.sampleCount = reader.ReadUInt16();
+            sound.soundData = reader.ReadBytes(sound.sampleCount);
+
+            MelonLoader.MelonLogger.Msg("Hello");
+            float[] bytes = new float[sound.sampleCount];
+
+            var clip = AudioClip.Create(entry.name, sound.sampleCount, 1, sound.sampleRate, false);
+            clip.SetData(bytes, 0);
+
+            sound.output = clip;
+
+            sounds.Add(sound);
         }
 
         public void ReadPatch(WADIndexEntry entry)
