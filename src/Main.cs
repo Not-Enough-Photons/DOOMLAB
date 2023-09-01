@@ -45,6 +45,27 @@ namespace NEP.DOOMLAB
         public override void OnUpdate()
         {
             DoomGame.Instance.Update();
+
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                MobjManager.Instance.SpawnMobj(player.transform.position + player.transform.forward * 3f, Data.MobjType.MT_POSSESSED);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                MobjManager.Instance.SpawnMobj(player.transform.position + player.transform.forward * 3f, Data.MobjType.MT_SERGEANT);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                MobjManager.Instance.SpawnMobj(player.transform.position + player.transform.forward * 3f, Data.MobjType.MT_BARREL);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha4))
+            {
+                MobjManager.Instance.SpawnMobj(player.transform.position + player.transform.forward * 3f, Data.MobjType.MT_TROOP);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha5))
+            {
+                MobjManager.Instance.SpawnMobj(player.transform.position + player.transform.forward * 3f, Data.MobjType.MT_CYBORG);
+            }
         }
 
         public void OnSceneLoaded(LevelInfo info)
@@ -54,6 +75,7 @@ namespace NEP.DOOMLAB
 
             player = BoneLib.Player.physicsRig.m_chest.gameObject.AddComponent<Mobj>();
             player.flags ^= MobjFlags.MF_SHOOTABLE;
+            player.playerHealth = BoneLib.Player.rigManager.health;
         }
     }
 }

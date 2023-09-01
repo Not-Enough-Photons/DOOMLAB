@@ -28,15 +28,15 @@ namespace NEP.DOOMLAB.Data
         public static void A_FireBFG(Mobj mobj){}
         public static void A_BFGSpray(Mobj mobj){}
         public static void A_Explode(Mobj mobj){}
-        public static void A_Pain(Mobj mobj){}
+        public static void A_Pain(Mobj mobj){ mobj.brain.A_Pain(); }
         public static void A_PlayerScream(Mobj mobj){}
-        public static void A_Fall(Mobj mobj){}
-        public static void A_XScream(Mobj mobj){}
-        public static void A_Look(Mobj mobj){ mobj.GetComponent<MobjBrain>().A_Look(); }
-        public static void A_Chase(Mobj mobj){ mobj.GetComponent<MobjBrain>().A_Chase(); }
-        public static void A_FaceTarget(Mobj mobj){ mobj.GetComponent<MobjBrain>().A_FaceTarget(); }
-        public static void A_PosAttack(Mobj mobj){}
-        public static void A_Scream(Mobj mobj){}
+        public static void A_Fall(Mobj mobj){ mobj.brain.A_Fall(); }
+        public static void A_XScream(Mobj mobj){ mobj.brain.A_XScream(); }
+        public static void A_Look(Mobj mobj){ mobj.brain.A_Look(); }
+        public static void A_Chase(Mobj mobj){ mobj.brain.A_Chase(); }
+        public static void A_FaceTarget(Mobj mobj){ mobj.brain.A_FaceTarget(); }
+        public static void A_PosAttack(Mobj mobj){ mobj.brain.A_PosAttack(); }
+        public static void A_Scream(Mobj mobj){ mobj.brain.A_Scream(); }
         public static void A_SPosAttack(Mobj mobj){}
         public static void A_VileChase(Mobj mobj){}
         public static void A_VileStart(Mobj mobj){}
@@ -56,7 +56,7 @@ namespace NEP.DOOMLAB.Data
         public static void A_BossDeath(Mobj mobj){}
         public static void A_CPosAttack(Mobj mobj){}
         public static void A_CPosRefire(Mobj mobj){}
-        public static void A_TroopAttack(Mobj mobj){ mobj.GetComponent<MobjBrain>().A_TroopAttack(); }
+        public static void A_TroopAttack(Mobj mobj){ mobj.brain.A_TroopAttack(); }
         public static void A_SargAttack(Mobj mobj){}
         public static void A_HeadAttack(Mobj mobj){}
         public static void A_BruisAttack(Mobj mobj){}
@@ -65,15 +65,15 @@ namespace NEP.DOOMLAB.Data
         public static void A_SpidRefire(Mobj mobj){}
         public static void A_BabyMetal(Mobj mobj){}
         public static void A_BspiAttack(Mobj mobj){}
-        public static void A_Hoof(Mobj mobj){}
-        public static void A_CyberAttack(Mobj mobj){ mobj.GetComponent<MobjBrain>().A_CyberAttack(); }
+        public static void A_Hoof(Mobj mobj){ mobj.brain.A_Hoof(); }
+        public static void A_CyberAttack(Mobj mobj){ mobj.brain.A_CyberAttack(); }
         public static void A_PainAttack(Mobj mobj){}
         public static void A_PainDie(Mobj mobj){}
         public static void A_KeenDie(Mobj mobj){}
         public static void A_BrainPain(Mobj mobj){}
         public static void A_BrainScream(Mobj mobj){}
         public static void A_BrainDie(Mobj mobj){}
-        public static void A_BrainAwake(Mobj mobj){}
+        public static void A_BrainAwake(Mobj mobj){ mobj.brain.A_BrainAwake(); }
         public static void A_BrainSpit(Mobj mobj){}
         public static void A_SpawnSound(Mobj mobj){}
         public static void A_SpawnFly(Mobj mobj){}

@@ -5,7 +5,7 @@ namespace NEP.DOOMLAB
 {
     static partial class BuildInfo
     {
-		public const int Epoch = 1693535480;
-		public const string GitCommit = "ac63531082cded45c2402b1b95a4b6cc008a911d";
+		public const int Epoch = 1693553840;
+		public const string GitCommit = "457bee45370e6962fd0823864beb4dddd51a53e3";
     }
 }

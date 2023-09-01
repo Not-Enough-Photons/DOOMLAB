@@ -40,7 +40,7 @@ namespace NEP.DOOMLAB.Game
 
             public static int P_Random()
             {
-                if (prndIndex >= rngTable.Length)
+                if (prndIndex + 1 >= rngTable.Length)
                 {
                     prndIndex = 0;
                 }
@@ -54,7 +54,7 @@ namespace NEP.DOOMLAB.Game
 
             public static int M_Random()
             {
-                if (rndIndex >= rngTable.Length)
+                if (rndIndex + 1 >= rngTable.Length)
                 {
                     rndIndex = 0;
                 }

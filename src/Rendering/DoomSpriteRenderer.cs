@@ -96,6 +96,9 @@ namespace NEP.DOOMLAB.Rendering
                 int rotation = 8 - index;
                 int invertScale = spriteFrame.flipBits[rotation] ? -1 : 1;
 
+                spriteWidth = spriteFrame.patches[rotation].width / 32f;
+                spriteHeight = spriteFrame.patches[rotation].height / 32f;
+
                 meshRenderer.material.mainTexture = spriteFrame.patches[rotation].output;
                 transform.localScale = new Vector3(-spriteWidth, spriteHeight, -1f);
             }

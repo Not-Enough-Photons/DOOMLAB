@@ -4,6 +4,8 @@ using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Rendering;
 using UnityEngine.AI;
 using NEP.DOOMLAB.Sound;
+using System;
+using SLZ.Marrow.Warehouse;
 
 namespace NEP.DOOMLAB.Entities
 {
@@ -16,6 +18,8 @@ namespace NEP.DOOMLAB.Entities
 
         public GameObject mobjPrefab;
 
+        private bool spawnMenuPopulated;
+
         private void Awake()
         {
             Instance = this;
@@ -24,7 +28,7 @@ namespace NEP.DOOMLAB.Entities
 
         private void Start()
         {
-            SpawnMobj(Vector3.zero, MobjType.MT_TROOP);
+            SpawnMobj(Vector3.zero, MobjType.MT_POSSESSED);
         }
 
         public Mobj SpawnMobj(Vector3 position, MobjType type)
@@ -36,7 +40,7 @@ namespace NEP.DOOMLAB.Entities
 
             GameObject mobjBase = GameObject.Instantiate(mobjPrefab, position, Quaternion.identity);
             Mobj mobj = mobjBase.AddComponent<Mobj>();
-            mobjBase.AddComponent<MobjBrain>();
+            mobj.brain = mobjBase.AddComponent<MobjBrain>();
 
             mobjBase.transform.GetChild(0).gameObject.AddComponent<DoomSpriteRenderer>();
             mobjBase.transform.GetChild(0).gameObject.AddComponent<BillboardLookAt>();

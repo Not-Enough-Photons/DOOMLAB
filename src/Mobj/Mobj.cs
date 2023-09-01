@@ -39,6 +39,8 @@ namespace NEP.DOOMLAB.Entities
         public float radius;
         public float height;
 
+        public MobjBrain brain;
+
         public Mobj target;
         public Mobj player;
         public Mobj tracer;
@@ -57,6 +59,8 @@ namespace NEP.DOOMLAB.Entities
 
         public Rigidbody rigidbody;
         public BoxCollider collider;
+
+        public Health playerHealth;
 
         private bool removedMobj;
 
@@ -87,19 +91,14 @@ namespace NEP.DOOMLAB.Entities
 
         public void UpdateThinker()
         {
-            if (tics != 0)
+            if (tics != -1)
             {
                 tics--;
 
                 if (tics <= 0 && !SetState(state.nextstate))
                 {
-                    tics = 0;
                     return;
                 }
-            }
-            else
-            {
-
             }
         }
 
@@ -138,6 +137,7 @@ namespace NEP.DOOMLAB.Entities
             this.height = info.height;
             this.flags = info.flags;
             this.health = info.spawnHealth;
+            this.reactionTime = info.reactionTime;
 
             State st = Info.GetState(info.spawnState);
 
@@ -151,11 +151,9 @@ namespace NEP.DOOMLAB.Entities
 
         public void OnRemove()
         {
-            removedMobj = true;
-
-            /* var spriteRenderer = GetComponentInChildren<NEP.DOOMLAB.Rendering.DoomSpriteRenderer>();
+            var spriteRenderer = GetComponentInChildren<NEP.DOOMLAB.Rendering.DoomSpriteRenderer>();
             Destroy(spriteRenderer);
-            Destroy(gameObject); */
+            Destroy(gameObject);
         }
 
         public void TakeDamage(float damage, Mobj inflictor)
@@ -168,43 +166,26 @@ namespace NEP.DOOMLAB.Entities
             if (health - damage <= 0 && currentState != info.deathState)
             {
                 SetState(info.deathState);
-                flags ^= MobjFlags.MF_SHOOTABLE | MobjFlags.MF_CORPSE;
 
                 inflictor.target = null;
 
-                collider.size = new Vector3(collider.size.x, collider.size.y / 2, collider.size.z);
-
-                if(info.deathSound != Sound.SoundType.sfx_None)
-                {
-                    SoundManager.Instance.PlaySound(info.deathSound, transform.position, false);
-                }
+                collider.size = new Vector3(collider.size.x, collider.size.y / 32f, collider.size.z);
             }
             else if (health - damage <= -16 && currentState != info.xDeathState)
             {
                 StateNum deathType = info.xDeathState != StateNum.S_NULL ? info.xDeathState : info.deathState;
                 SoundType soundType = info.xDeathState != StateNum.S_NULL ? SoundType.sfx_slop : info.deathSound;
                 SetState(deathType);
-                flags ^= MobjFlags.MF_SHOOTABLE | MobjFlags.MF_CORPSE;
 
                 inflictor.target = null;
 
-                collider.size = new Vector3(collider.size.x, collider.size.y / 2, collider.size.z);
-
-                if (info.deathSound != Sound.SoundType.sfx_None)
-                {
-                    SoundManager.Instance.PlaySound(soundType, transform.position, false);
-                }
+                collider.size = new Vector3(collider.size.x, collider.size.y / 32f, collider.size.z);
             }
             else
             {
                 health -= damage;
 
                 SetState(info.painState);
-
-                if (info.painSound != SoundType.sfx_None)
-                {
-                    SoundManager.Instance.PlaySound(info.painSound, transform.position, false);
-                }
             }
         }
     }

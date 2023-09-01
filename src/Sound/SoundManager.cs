@@ -2,6 +2,8 @@
 using NEP.DOOMLAB.Sound;
 
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NEP.DOOMLAB.Sound
 {
@@ -14,11 +16,31 @@ namespace NEP.DOOMLAB.Sound
 
         private static WAD.DataTypes.Sound[] soundLumps;
 
+        private List<GameObject> pooledAudioObjects;
+
         private void Awake()
         {
             Instance = this;
 
             soundLumps = WADManager.Instance.file.sounds.ToArray();
+
+            pooledAudioObjects = new List<GameObject>();
+            GameObject listObj = new GameObject("Pooled Audio");
+            listObj.transform.parent = transform;
+
+            for (int i = 0; i < 64; i++)
+            {
+                GameObject pooledAudio = new GameObject("Poolee Audio");
+                pooledAudio.transform.parent = listObj.transform;
+
+                AudioSource source = pooledAudio.AddComponent<AudioSource>();
+                source.playOnAwake = true;
+                source.volume = 5f;
+
+                pooledAudio.AddComponent<PooledAudio>();
+                pooledAudio.SetActive(false);
+                pooledAudioObjects.Add(pooledAudio);
+            }
         }
 
         private AudioClip GetSound(SoundType soundType)
@@ -45,7 +67,17 @@ namespace NEP.DOOMLAB.Sound
             }
 
             AudioClip sound = GetSound(soundType);
-            AudioSource.PlayClipAtPoint(sound, position, 0.25f);
+
+            GameObject first = pooledAudioObjects.FirstOrDefault((inactive) => !inactive.activeInHierarchy);
+            AudioSource src = first.GetComponent<AudioSource>();
+
+            if (first != null)
+            {
+                src.clip = sound;
+                src.spatialBlend = fullVolume ? 0f : 1f;
+                first.transform.position = position;
+                first.SetActive(true);
+            }
         }
     }
 }

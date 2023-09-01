@@ -56,6 +56,7 @@
     <Compile Include="src\Rendering\SpriteDef.cs" />
     <Compile Include="src\Rendering\SpriteFrame.cs" />
     <Compile Include="src\Rendering\SpriteLumpGenerator.cs" />
+    <Compile Include="src\Sound\PooledAudio.cs" />
     <Compile Include="src\Sound\SoundManager.cs" />
     <Compile Include="src\Sound\SoundType.cs" />
     <Compile Include="src\TestLoader.cs" />
@@ -120,6 +121,10 @@
     <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\BONELAB\MelonLoader\Managed\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Program Files (x86)\Steam\steamapps\common\BONELAB\MelonLoader\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

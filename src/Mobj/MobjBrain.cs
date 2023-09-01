@@ -15,6 +15,8 @@ namespace NEP.DOOMLAB.Entities
 
         public Mobj mobj;
 
+        private Mobj[] brainTargets = new Mobj[128];
+
         private float[] directions = new float[]
         {
             0,
@@ -45,6 +47,11 @@ namespace NEP.DOOMLAB.Entities
             mobj = GetComponent<Mobj>();
         }
 
+        private void OnEnable()
+        {
+            SetMoveDirection(mobj.moveDirection);
+        }
+
         public void SetMoveDirection(Mobj.MoveDirection direction)
         {
             if (mobj == null || direction == Mobj.MoveDirection.NODIR)
@@ -59,29 +66,28 @@ namespace NEP.DOOMLAB.Entities
 
         public bool Move()
         {
-            if(mobj.moveDirection == Mobj.MoveDirection.NODIR)
+            if (mobj.moveDirection == Mobj.MoveDirection.NODIR)
             {
+                print("No direction");
                 return false;
             }
 
-            if((int)mobj.moveDirection >= 8)
+            if ((int)mobj.moveDirection >= 8)
             {
+                print("Weird movedir");
                 return false;
+
             }
+            mobj.rigidbody.position += mobj.transform.forward * mobj.info.speed * Time.deltaTime;
 
             RaycastHit hit;
-            bool tryOk = Physics.BoxCast(mobj.transform.position, mobj.collider.size, mobj.transform.forward, out hit);
+            bool tryOk = Physics.BoxCast(mobj.transform.position, mobj.collider.size / 2f, mobj.transform.forward, out hit);
 
-            if (!tryOk || hit.collider.gameObject.layer == LayerMask.NameToLayer("Static") || !hit.collider.isTrigger)
+            /*if (!tryOk || hit.collider.gameObject.layer == LayerMask.NameToLayer("Static") || !hit.collider.isTrigger)
             {
+                print("Move blocked");
                 return false;
-            }
-
-            float tryX = (mobj.transform.position.x * mobj.info.speed);
-            float tryZ = (mobj.transform.position.z * mobj.info.speed);
-
-            mobj.rigidbody.AddForce(mobj.transform.right * tryX + mobj.transform.forward * tryZ, ForceMode.Force);
-            mobj.rigidbody.velocity = Vector3.ClampMagnitude(mobj.rigidbody.velocity, mobj.info.speed / 32f);
+            }*/
 
             return true;
         }
@@ -99,154 +105,55 @@ namespace NEP.DOOMLAB.Entities
 
         public void NewChaseDir()
         {
-            var oldDirection = mobj.moveDirection;
-            var turnAround = opposite[(int)oldDirection];
-            var forwardDirections = new Mobj.MoveDirection[3];
-            var triedDirection = Mobj.MoveDirection.NODIR;
+            float deltaX = mobj.target.transform.position.x - mobj.transform.position.x;
+            float deltaZ = mobj.target.transform.position.z - mobj.transform.position.z;
 
-            float dx = mobj.target.transform.position.x - mobj.transform.position.x;
-            float dz = mobj.target.transform.position.z - mobj.transform.position.z;
+            Mobj.MoveDirection[] possibleDirections = new Mobj.MoveDirection[3];
 
-            // Too far right, so go their way
-            if (dx > 1.5)
+            if (deltaX > 1f)
             {
-                forwardDirections[1] = Mobj.MoveDirection.EAST;
+                possibleDirections[1] = Mobj.MoveDirection.EAST;
             }
-            else if (dx < -1.5) // Too far left, go their way
+            else if (deltaX < -1f)
             {
-                forwardDirections[1] = Mobj.MoveDirection.WEST;
-            }
-            else // That route is boned
-            {
-                forwardDirections[1] = Mobj.MoveDirection.NODIR;
-            }
-
-            if (dz > 1.5) // Too behind, go south
-            {
-                forwardDirections[2] = Mobj.MoveDirection.SOUTH;
-            }
-            else if (dz < -1.5) // Too ahead, go north
-            {
-                forwardDirections[2] = Mobj.MoveDirection.NORTH;
-            }
-            else // That route is boned
-            {
-                forwardDirections[2] = Mobj.MoveDirection.NODIR;
-            }
-
-            // try direct route
-            if (forwardDirections[1] != Mobj.MoveDirection.NODIR
-            && forwardDirections[2] != Mobj.MoveDirection.NODIR)
-            {
-                int behind = dz < 0 ? 1 : 0;
-                int left = dx > 0 ? 1 : 0;
-                SetMoveDirection(diags[behind + left]);
-
-                if (mobj.moveDirection != turnAround && TryWalk())
-                {
-                    return;
-                }
-            }
-
-            if (DoomGame.RNG.P_Random() > 200 || Mathf.Abs(dz) > Mathf.Abs(dx))
-            {
-                // Swap directions
-                triedDirection = forwardDirections[1];
-                forwardDirections[1] = forwardDirections[2];
-                forwardDirections[2] = triedDirection;
-            }
-
-            if (forwardDirections[1] == turnAround)
-            {
-                forwardDirections[1] = Mobj.MoveDirection.NODIR;
-            }
-
-            if (forwardDirections[2] == turnAround)
-            {
-                forwardDirections[2] = Mobj.MoveDirection.NODIR;
-            }
-
-            if (forwardDirections[1] != Mobj.MoveDirection.NODIR)
-            {
-                SetMoveDirection(forwardDirections[1]);
-
-                if (TryWalk())
-                {
-                    // move forward or attacked
-                    return;
-                }
-            }
-
-            if (forwardDirections[2] != Mobj.MoveDirection.NODIR)
-            {
-                SetMoveDirection(forwardDirections[2]);
-
-                if (TryWalk())
-                {
-                    // move forward or attacked
-                    return;
-                }
-            }
-
-            // no direct path to player, try another direction
-            if (oldDirection != Mobj.MoveDirection.NODIR)
-            {
-                SetMoveDirection(oldDirection);
-
-                if (TryWalk())
-                {
-                    return;
-                }
-            }
-
-            if((DoomGame.RNG.P_Random() & 1) != 0)
-            {
-                for (triedDirection = Mobj.MoveDirection.EAST;
-                triedDirection != Mobj.MoveDirection.NODIR;
-                triedDirection++)
-                {
-                    if (triedDirection != turnAround)
-                    {
-                        SetMoveDirection(triedDirection);
-
-                        if (TryWalk())
-                        {
-                            return;
-                        }
-                    }
-                }
+                possibleDirections[1] = Mobj.MoveDirection.WEST;
             }
             else
             {
-                for (triedDirection = Mobj.MoveDirection.SOUTHEAST;
-                triedDirection != (Mobj.MoveDirection.EAST - 1);
-                triedDirection--)
-                {
-                    if (triedDirection != turnAround)
-                    {
-                        SetMoveDirection(triedDirection);
-
-                        if (TryWalk())
-                        {
-                            return;
-                        }
-                    }
-                }
+                possibleDirections[1] = Mobj.MoveDirection.NODIR;
             }
-            
 
-            if (turnAround != Mobj.MoveDirection.NODIR)
+            if (deltaZ > 1f)
             {
-                SetMoveDirection(turnAround);
+                possibleDirections[2] = Mobj.MoveDirection.NORTH;
+            }
+            else if (deltaZ < -1f)
+            {
+                possibleDirections[2] = Mobj.MoveDirection.SOUTH;
+            }
+            else
+            {
+                possibleDirections[2] = Mobj.MoveDirection.NODIR;
+            }
+
+            if (possibleDirections[1] != Mobj.MoveDirection.NODIR)
+            {
+                SetMoveDirection(possibleDirections[1]);
 
                 if (TryWalk())
                 {
                     return;
                 }
             }
+            else if (possibleDirections[2] != Mobj.MoveDirection.NODIR)
+            {
+                SetMoveDirection(possibleDirections[2]);
 
-            // you can't move! LOL!
-            SetMoveDirection(Mobj.MoveDirection.NODIR);
+                if (TryWalk())
+                {
+                    return;
+                }
+            }
         }
 
         public bool CheckMeleeRange()
@@ -305,7 +212,6 @@ namespace NEP.DOOMLAB.Entities
         public bool CheckSight()
         {
             bool inView = mobj.target != null && Physics.Raycast(transform.position, transform.position + mobj.target.transform.position);
-            MelonLoader.MelonLogger.Msg("In view: " + inView);
             return inView;
         }
 
@@ -349,12 +255,7 @@ namespace NEP.DOOMLAB.Entities
         {
             if (mobj.info.seeSound != Sound.SoundType.sfx_None)
             {
-                switch (mobj.type)
-                {
-                    case MobjType.MT_CYBORG:
-                        SoundManager.Instance.PlaySound(mobj.info.seeSound, mobj.transform.position, true);
-                        break;
-                }
+                SoundManager.Instance.PlaySound(mobj.info.seeSound, mobj.transform.position, true);
             }
 
             mobj.SetState(mobj.info.seeState);
@@ -372,9 +273,9 @@ namespace NEP.DOOMLAB.Entities
                 mobj.reactionTime--;
             }
 
-            if(mobj.threshold != 0)
+            if (mobj.threshold != 0)
             {
-                if(mobj.target != null && mobj.health <= 0)
+                if (mobj.target != null && mobj.health <= 0)
                 {
                     mobj.threshold = 0;
                 }
@@ -392,28 +293,27 @@ namespace NEP.DOOMLAB.Entities
 
             if (mobj.flags.HasFlag(MobjFlags.MF_JUSTATTACKED))
             {
-                mobj.flags &= ~MobjFlags.MF_JUSTATTACKED;
+                mobj.flags ^= MobjFlags.MF_JUSTATTACKED;
                 NewChaseDir();
-                MelonLoader.MelonLogger.Msg("Just attacked!");
                 return;
             }
 
-            if(mobj.info.meleeState != StateNum.S_NULL && CheckMeleeRange())
+            if (mobj.info.meleeState != StateNum.S_NULL && CheckMeleeRange())
             {
-                if(mobj.info.attackSound != SoundType.sfx_None)
+                if (mobj.info.attackSound != SoundType.sfx_None)
                 {
                     SoundManager.Instance.PlaySound(mobj.info.attackSound, mobj.transform.position, false);
                 }
 
                 mobj.SetState(mobj.info.meleeState);
-                MelonLoader.MelonLogger.Msg("Close to target, use melee attack");
                 return;
             }
 
-            if(mobj.info.missileState != StateNum.S_NULL)
+            if (mobj.info.missileState != StateNum.S_NULL)
             {
                 if (mobj.moveCount != 0)
                 {
+                    mobj.moveCount--;
                     A_NoMissile();
                     return;
                 }
@@ -474,6 +374,27 @@ namespace NEP.DOOMLAB.Entities
             MobjManager.Instance.SpawnMissile(mobj, mobj.target, Data.MobjType.MT_TROOPSHOT);
         }
 
+        public void A_PosAttack()
+        {
+            if(mobj.target == null)
+            {
+                return;
+            }
+
+            A_FaceTarget();
+            float randomAngle = (DoomGame.RNG.P_Random() - DoomGame.RNG.P_Random() & 20) / 10f;
+            float damage = ((DoomGame.RNG.P_Random() % 5) + 1) * 3;
+            RaycastHit hit;
+            
+            if(Physics.Raycast(mobj.transform.position, mobj.target.position, out hit))
+            {
+                if (mobj.target.playerHealth)
+                {
+                    mobj.target.playerHealth.TAKEDAMAGE(damage / 10f);
+                }
+            }
+        }
+
         public void A_CyberAttack()
         {
             if (mobj.target == null)
@@ -484,6 +405,91 @@ namespace NEP.DOOMLAB.Entities
             A_FaceTarget();
 
             MobjManager.Instance.SpawnMissile(mobj, mobj.target, Data.MobjType.MT_ROCKET);
+        }
+
+        public void A_Hoof()
+        {
+            SoundManager.Instance.PlaySound(SoundType.sfx_hoof, mobj.transform.position, false);
+            A_Chase();
+        }
+
+        public void A_Scream()
+        {
+            SoundType sound;
+
+            switch (mobj.info.deathSound)
+            {
+                case 0:
+                    return;
+
+                case SoundType.sfx_podth1:
+                case SoundType.sfx_podth2:
+                case SoundType.sfx_podth3:
+                    sound = SoundType.sfx_podth1 + DoomGame.RNG.P_Random() % 3;
+                    break;
+
+                case SoundType.sfx_bgdth1:
+                case SoundType.sfx_bgdth2:
+                    sound = SoundType.sfx_bgdth1 + DoomGame.RNG.P_Random() % 2;
+                    break;
+
+                default:
+                    sound = mobj.info.deathSound;
+                    break;
+            }
+
+            // Check for bosses.
+            if (mobj.type == MobjType.MT_SPIDER || mobj.type == MobjType.MT_CYBORG)
+            {
+                // full volume
+                SoundManager.Instance.PlaySound(sound, UnityEngine.Vector3.zero, true);
+            }
+            else
+            {
+                SoundManager.Instance.PlaySound(sound, mobj.transform.position, false);
+            }
+        }
+
+        public void A_Pain()
+        {
+            if (mobj.info.painSound != SoundType.sfx_None)
+            {
+                SoundManager.Instance.PlaySound(mobj.info.painSound, mobj.transform.position, false);
+            }
+        }
+
+        public void A_XScream()
+        {
+            SoundManager.Instance.PlaySound(SoundType.sfx_slop, mobj.transform.position, false);
+        }
+
+        public void A_Fall()
+        {
+            mobj.flags &= ~MobjFlags.MF_SOLID;
+        }
+
+        public void A_BrainAwake()
+        {
+            // find all the target spots
+            int numbraintargets = 0;
+            int braintargeton = 0;
+
+            Mobj[] mobjs = GameObject.FindObjectsOfType<Mobj>();
+
+            if(mobjs.Length == 0)
+            {
+                return;
+            }
+
+            foreach(var mobj in mobjs)
+            {
+                if(mobj.type == MobjType.MT_BOSSTARGET)
+                {
+                    brainTargets[numbraintargets++] = mobj;
+                }
+            }
+
+            SoundManager.Instance.PlaySound(SoundType.sfx_bossit, Vector3.zero, true);
         }
     }
 }
