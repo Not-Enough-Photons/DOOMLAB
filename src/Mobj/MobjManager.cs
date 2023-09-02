@@ -7,6 +7,7 @@ using NEP.DOOMLAB.Sound;
 using System;
 using SLZ.Marrow.Warehouse;
 using System.Collections.Generic;
+using SLZ.AI;
 
 namespace NEP.DOOMLAB.Entities
 {
@@ -68,6 +69,16 @@ namespace NEP.DOOMLAB.Entities
             GameObject mobjBase = GameObject.Instantiate(mobjPrefab, position, Quaternion.identity);
             Mobj mobj = mobjBase.AddComponent<Mobj>();
             mobj.brain = mobjBase.AddComponent<MobjBrain>();
+            mobj.triggerRefProxy = mobjBase.AddComponent<TriggerRefProxy>();
+
+            mobj.triggerRefProxy.chestTran = mobj.transform;
+            mobj.triggerRefProxy.triggerType = TriggerRefProxy.TriggerType.Npc;
+            mobj.triggerRefProxy.npcType = TriggerRefProxy.NpcType.FordHair | TriggerRefProxy.NpcType.FordShortHair;
+            var trpSphere = mobjBase.AddComponent<SphereCollider>();
+            trpSphere.isTrigger = true;
+            trpSphere.radius = 5f;
+            mobj.triggerRefProxy.targetHead = mobj.rigidbody;
+            mobj.triggerRefProxy.root = mobj.gameObject;
 
             mobjBase.transform.GetChild(0).gameObject.AddComponent<DoomSpriteRenderer>();
             mobjBase.transform.GetChild(0).gameObject.AddComponent<BillboardLookAt>();

@@ -1,6 +1,7 @@
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
+using SLZ.AI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -61,6 +62,7 @@ namespace NEP.DOOMLAB.Entities
         public BoxCollider collider;
 
         public Health playerHealth;
+        public TriggerRefProxy triggerRefProxy;
 
         private bool removedMobj;
 
@@ -157,7 +159,7 @@ namespace NEP.DOOMLAB.Entities
 
         public void OnRemove()
         {
-            var spriteRenderer = GetComponentInChildren<NEP.DOOMLAB.Rendering.DoomSpriteRenderer>();
+            var spriteRenderer = GetComponentInChildren<Rendering.DoomSpriteRenderer>();
             Destroy(spriteRenderer);
             Destroy(gameObject);
         }

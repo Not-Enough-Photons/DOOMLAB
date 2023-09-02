@@ -61,13 +61,13 @@ namespace NEP.DOOMLAB.Data
         public static void A_HeadAttack(Mobj mobj){}
         public static void A_BruisAttack(Mobj mobj){}
         public static void A_SkullAttack(Mobj mobj){}
-        public static void A_Metal(Mobj mobj){}
+        public static void A_Metal(Mobj mobj){ mobj.brain.A_Metal(); }
         public static void A_SpidRefire(Mobj mobj){}
-        public static void A_BabyMetal(Mobj mobj){}
-        public static void A_BspiAttack(Mobj mobj){}
+        public static void A_BabyMetal(Mobj mobj){ mobj.brain.A_BabyMetal(); }
+        public static void A_BspiAttack(Mobj mobj){ mobj.brain.A_BspiAttack(); }
         public static void A_Hoof(Mobj mobj){ mobj.brain.A_Hoof(); }
         public static void A_CyberAttack(Mobj mobj){ mobj.brain.A_CyberAttack(); }
-        public static void A_PainAttack(Mobj mobj){}
+        public static void A_PainAttack(Mobj mobj){ mobj.brain.A_PainAttack(); }
         public static void A_PainDie(Mobj mobj){}
         public static void A_KeenDie(Mobj mobj){}
         public static void A_BrainPain(Mobj mobj){ mobj.brain.A_BrainPain(); }

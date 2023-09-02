@@ -520,6 +520,16 @@ namespace NEP.DOOMLAB.Entities
             SoundManager.Instance.PlaySound(SoundType.sfx_pistol, mobj.transform.position, false);
         }
 
+        public void A_BspiAttack()
+        {
+
+        }
+
+        public void A_PainAttack()
+        {
+            
+        }
+
         public void A_CyberAttack()
         {
             if (mobj.target == null)
@@ -536,6 +546,16 @@ namespace NEP.DOOMLAB.Entities
         {
             SoundManager.Instance.PlaySound(SoundType.sfx_hoof, mobj.transform.position, false);
             A_Chase();
+        }
+
+        public void A_Metal()
+        {
+
+        }
+
+        public void A_BabyMetal()
+        {
+
         }
 
         public void A_Scream()

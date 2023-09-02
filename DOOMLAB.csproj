@@ -54,6 +54,7 @@
     <Compile Include="src\Patches\DamagePatches.cs" />
     <Compile Include="src\Patches\GunPatches.cs" />
     <Compile Include="src\Patches\SpawnGunPatches.cs" />
+    <Compile Include="src\Patches\NPCPatches.cs" />
     <Compile Include="src\Rendering\DoomSpriteRenderer.cs" />
     <Compile Include="src\Rendering\SpriteDef.cs" />
     <Compile Include="src\Rendering\SpriteFrame.cs" />
