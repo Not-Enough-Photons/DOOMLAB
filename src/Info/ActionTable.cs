@@ -70,9 +70,9 @@ namespace NEP.DOOMLAB.Data
         public static void A_PainAttack(Mobj mobj){}
         public static void A_PainDie(Mobj mobj){}
         public static void A_KeenDie(Mobj mobj){}
-        public static void A_BrainPain(Mobj mobj){}
-        public static void A_BrainScream(Mobj mobj){}
-        public static void A_BrainDie(Mobj mobj){}
+        public static void A_BrainPain(Mobj mobj){ mobj.brain.A_BrainPain(); }
+        public static void A_BrainScream(Mobj mobj){ mobj.brain.A_BrainScream(); }
+        public static void A_BrainDie(Mobj mobj){ }
         public static void A_BrainAwake(Mobj mobj){ mobj.brain.A_BrainAwake(); }
         public static void A_BrainSpit(Mobj mobj){}
         public static void A_SpawnSound(Mobj mobj){}

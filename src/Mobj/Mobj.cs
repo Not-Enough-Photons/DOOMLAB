@@ -42,7 +42,7 @@ namespace NEP.DOOMLAB.Entities
         public MobjBrain brain;
 
         public Mobj target;
-        public Mobj player;
+        public static Mobj player;
         public Mobj tracer;
 
         public Vector3 momentum;
@@ -91,6 +91,12 @@ namespace NEP.DOOMLAB.Entities
 
         public void UpdateThinker()
         {
+            // Too far away, stop updating
+            if(Vector3.Distance(transform.position, BoneLib.Player.playerHead.position) > 2048)
+            {
+                return;
+            }
+
             if (tics != -1)
             {
                 tics--;
@@ -158,36 +164,67 @@ namespace NEP.DOOMLAB.Entities
 
         public void TakeDamage(float damage, Mobj inflictor)
         {
+            if(!flags.HasFlag(MobjFlags.MF_SHOOTABLE))
+            {
+                return;
+            }
+
             if (health <= 0f)
             {
                 return;
             }
 
-            if (health - damage <= 0 && currentState != info.deathState)
+            if(flags.HasFlag(MobjFlags.MF_SKULLFLY))
             {
-                SetState(info.deathState);
-
-                inflictor.target = null;
-
-                collider.size = new Vector3(collider.size.x, collider.size.y / 32f, collider.size.z);
+                rigidbody.velocity = Vector3.zero;
             }
-            else if (health - damage <= -16 && currentState != info.xDeathState)
+
+            health -= damage;
+            if(health <= 0)
             {
-                StateNum deathType = info.xDeathState != StateNum.S_NULL ? info.xDeathState : info.deathState;
-                SoundType soundType = info.xDeathState != StateNum.S_NULL ? SoundType.sfx_slop : info.deathSound;
-                SetState(deathType);
+                Kill();
+                return;
+            }
 
-                inflictor.target = null;
+            if(DoomGame.RNG.P_Random() < info.painChance && !flags.HasFlag(MobjFlags.MF_SKULLFLY))
+            {
+                flags ^= MobjFlags.MF_JUSTHIT;
+                SetState(info.painState);
+            }
 
-                collider.size = new Vector3(collider.size.x, collider.size.y / 32f, collider.size.z);
+            reactionTime = 0;
+
+            // TODO: will implement vile logic here later
+        }
+
+        public void Kill()
+        {
+            flags &= ~(MobjFlags.MF_SHOOTABLE | MobjFlags.MF_FLOAT | MobjFlags.MF_SKULLFLY);
+
+            if(type == MobjType.MT_SKULL)
+            {
+                flags &= ~MobjFlags.MF_NOGRAVITY;
+            }
+            
+            collider.size = new Vector3(radius / 32f, (height / 32f) / 4f, radius / 32f);
+
+            if(health < -info.spawnHealth && info.xDeathState != StateNum.S_NULL)
+            {
+                SetState(info.xDeathState);
             }
             else
             {
-                health -= damage;
-
-                SetState(info.painState);
+                SetState(info.deathState);
             }
+
+            tics -= DoomGame.RNG.P_Random() & 3;
+
+            if(tics < 1)
+            {
+                tics = 1;
+            }
+            
+            Mobj.player.playerHealth.curr_Health += 100;
         }
     }
-
 }

@@ -7,6 +7,7 @@ using SLZ.Marrow.Warehouse;
 using NEP.DOOMLAB.Entities;
 using System.IO;
 using NEP.DOOMLAB.Sound;
+using NEP.DOOMLAB.Rendering;
 
 namespace NEP.DOOMLAB
 {
@@ -33,11 +34,10 @@ namespace NEP.DOOMLAB
             mobjTemplate.hideFlags = HideFlags.DontUnloadUnusedAsset;
 
             WADManager manager = new WADManager();
-
             manager.LoadWAD(manager.pathToWAD);
+            SpriteLumpGenerator.Initialize();
 
             DoomGame game = new DoomGame();
-            game.Initialize();
 
             BoneLib.Hooking.OnLevelInitialized += OnSceneLoaded;
         }
@@ -65,6 +65,10 @@ namespace NEP.DOOMLAB
             else if (Input.GetKeyDown(KeyCode.Alpha5))
             {
                 MobjManager.Instance.SpawnMobj(player.transform.position + player.transform.forward * 3f, Data.MobjType.MT_CYBORG);
+            }
+            else if(Input.GetKeyDown(KeyCode.Alpha6))
+            {
+                MobjManager.Instance.SpawnMobj(player.transform.position + player.transform.forward * 3f, Data.MobjType.MT_BOSSBRAIN);
             }
         }
 

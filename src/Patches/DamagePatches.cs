@@ -1,4 +1,5 @@
 ﻿using NEP.DOOMLAB.Entities;
+using NEP.DOOMLAB.Game;
 using SLZ.AI;
 using SLZ.Combat;
 using UnityEngine;
@@ -17,7 +18,17 @@ namespace NEP.DOOMLAB.Patches
 
                 if(hitMobj)
                 {
-                    hitMobj.TakeDamage(__instance._data.damageMultiplier * 10f, __instance._proxy.chestTran.GetComponent<Mobj>());
+                    if(!hitMobj.flags.HasFlag(MobjFlags.MF_SOLID | MobjFlags.MF_SHOOTABLE))
+                    {
+                        return;
+                    }
+
+                    if(hitMobj.flags.HasFlag(MobjFlags.MF_CORPSE))
+                    {
+                        return;
+                    }
+
+                    hitMobj.TakeDamage(__instance._data.damageMultiplier * (DoomGame.RNG.P_Random() & 3) * 6f, Mobj.player);
 
                     if (hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
                     {

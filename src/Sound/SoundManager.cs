@@ -35,7 +35,7 @@ namespace NEP.DOOMLAB.Sound
 
                 AudioSource source = pooledAudio.AddComponent<AudioSource>();
                 source.playOnAwake = true;
-                source.volume = 5f;
+                source.volume = 0.75f;
 
                 pooledAudio.AddComponent<PooledAudio>();
                 pooledAudio.SetActive(false);

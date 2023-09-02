@@ -20,6 +20,12 @@ namespace NEP.DOOMLAB.Rendering
         private static SpriteFrame[] temporaryCacheFrames;
         private static SpriteDef temporarySpriteDef;
 
+        public static void Initialize()
+        {
+            spritePatches = WADManager.Instance.file.patches;
+            InitSpriteDefs();
+        }
+
         public static void InitSpriteDefs()
         {
             sprites = new SpriteDef[Info.SpriteNames.Length];

@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
+
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
+
 using UnityEngine;
-using UnityEngine.AI;
-using UnityEngine.EventSystems;
 
 namespace NEP.DOOMLAB.Entities
 {
@@ -15,7 +16,7 @@ namespace NEP.DOOMLAB.Entities
 
         public Mobj mobj;
 
-        private Mobj[] brainTargets = new Mobj[128];
+        private List<Mobj> listBrainTargets;
 
         private float[] directions = new float[]
         {
@@ -105,55 +106,157 @@ namespace NEP.DOOMLAB.Entities
 
         public void NewChaseDir()
         {
+            if(mobj.target == null)
+            {
+                return;
+            }
+
+            Mobj.MoveDirection oldDir = mobj.moveDirection;
+            Mobj.MoveDirection turnAround = opposite[(int)oldDir];
+            Mobj.MoveDirection tempDir;
+
             float deltaX = mobj.target.transform.position.x - mobj.transform.position.x;
             float deltaZ = mobj.target.transform.position.z - mobj.transform.position.z;
 
-            Mobj.MoveDirection[] possibleDirections = new Mobj.MoveDirection[3];
+            Mobj.MoveDirection[] possibleDirections = new Mobj.MoveDirection[2];
 
-            if (deltaX > 1f)
+            if (deltaX > 1.5f)
             {
-                possibleDirections[1] = Mobj.MoveDirection.EAST;
+                possibleDirections[0] = Mobj.MoveDirection.EAST;
             }
-            else if (deltaX < -1f)
+            else if (deltaX < -1.5f)
             {
-                possibleDirections[1] = Mobj.MoveDirection.WEST;
+                possibleDirections[0] = Mobj.MoveDirection.WEST;
+            }
+            else
+            {
+                possibleDirections[0] = Mobj.MoveDirection.NODIR;
+            }
+
+            if (deltaZ > 1.5f)
+            {
+                possibleDirections[1] = Mobj.MoveDirection.NORTH;
+            }
+            else if (deltaZ < -1.5f)
+            {
+                possibleDirections[1] = Mobj.MoveDirection.SOUTH;
             }
             else
             {
                 possibleDirections[1] = Mobj.MoveDirection.NODIR;
             }
 
-            if (deltaZ > 1f)
+            // try a diagonal/ordinal route
+            // possible choices: north-east
+            //                   north-west
+            //                   south-east
+            //                   south-west
+            if (possibleDirections[0] != Mobj.MoveDirection.NODIR && possibleDirections[1] != Mobj.MoveDirection.NODIR)
             {
-                possibleDirections[2] = Mobj.MoveDirection.NORTH;
-            }
-            else if (deltaZ < -1f)
-            {
-                possibleDirections[2] = Mobj.MoveDirection.SOUTH;
-            }
-            else
-            {
-                possibleDirections[2] = Mobj.MoveDirection.NODIR;
+                int diagChoiceX = deltaX > 0 ? 1 : 0;
+                int diagChoiceZ = deltaZ < 0 ? 2 : 0;
+
+                SetMoveDirection(diags[diagChoiceX + diagChoiceZ]);
+
+                if(mobj.moveDirection != turnAround && TryWalk())
+                {
+                    return;
+                }
             }
 
-            if (possibleDirections[1] != Mobj.MoveDirection.NODIR)
+            if(DoomGame.RNG.P_Random() < 200 || Mathf.Abs(deltaZ) > Mathf.Abs(deltaX))
+            {
+                tempDir = possibleDirections[0];
+                possibleDirections[0] = possibleDirections[1];
+                possibleDirections[1] = tempDir;
+            }
+
+            if(possibleDirections[0] == turnAround)
+            {
+                possibleDirections[0] = Mobj.MoveDirection.NODIR;
+            }
+
+            if(possibleDirections[1] == turnAround)
+            {
+                possibleDirections[1] = Mobj.MoveDirection.NODIR;
+            }
+
+            if(possibleDirections[0] != Mobj.MoveDirection.NODIR)
+            {
+                SetMoveDirection(possibleDirections[0]);
+
+                if(TryWalk())
+                {
+                    return;
+                }
+            }
+
+            if(possibleDirections[1] != Mobj.MoveDirection.NODIR)
             {
                 SetMoveDirection(possibleDirections[1]);
 
-                if (TryWalk())
+                if(TryWalk())
                 {
                     return;
                 }
             }
-            else if (possibleDirections[2] != Mobj.MoveDirection.NODIR)
-            {
-                SetMoveDirection(possibleDirections[2]);
 
+            if(oldDir != Mobj.MoveDirection.NODIR)
+            {
+                SetMoveDirection(oldDir);
+
+                if(TryWalk())
+                {
+                    return;
+                }
+            }
+
+            if((DoomGame.RNG.P_Random() & 1) != 0)
+            {
+                for(tempDir = Mobj.MoveDirection.EAST;
+                    tempDir <= Mobj.MoveDirection.SOUTHEAST;
+                    tempDir++)
+                    {
+                        if(tempDir != turnAround)
+                        {
+                            SetMoveDirection(tempDir);
+
+                            if(TryWalk())
+                            {
+                                return;
+                            }
+                        }
+                    }
+            }
+            else
+            {
+                for(tempDir = Mobj.MoveDirection.SOUTHEAST;
+                    tempDir != Mobj.MoveDirection.EAST - 1;
+                    tempDir--)
+                    {
+                        if(tempDir != turnAround)
+                        {
+                            SetMoveDirection(tempDir);
+
+                            if(TryWalk())
+                            {
+                                return;
+                            }
+                        }
+                    }
+            }
+
+            if(turnAround != Mobj.MoveDirection.NODIR)
+            {
+                SetMoveDirection(turnAround);
+                
                 if (TryWalk())
                 {
                     return;
                 }
             }
+
+            SetMoveDirection(Mobj.MoveDirection.NODIR);
         }
 
         public bool CheckMeleeRange()
@@ -163,12 +266,7 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            if(Vector3.Distance(mobj.transform.position, mobj.target.position) >= 0.25f)
-            {
-                return false;
-            }
-
-            if (!CheckSight())
+            if(Vector3.Distance(mobj.transform.position, mobj.target.position) >= 0.75f)
             {
                 return false;
             }
@@ -253,9 +351,33 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_SeeYou()
         {
-            if (mobj.info.seeSound != Sound.SoundType.sfx_None)
+            SoundType sound;
+
+            switch(mobj.info.seeSound)
             {
-                SoundManager.Instance.PlaySound(mobj.info.seeSound, mobj.transform.position, true);
+                case SoundType.sfx_posit1:
+                case SoundType.sfx_posit2:
+                case SoundType.sfx_posit3:
+                    sound = SoundType.sfx_posit1 + DoomGame.RNG.P_Random() % 3;
+                    break;
+                
+                case SoundType.sfx_bgsit1:
+                case SoundType.sfx_bgsit2:
+                    sound = SoundType.sfx_bgsit1 + DoomGame.RNG.P_Random() % 2;
+                    break;
+
+                default:
+                    sound = mobj.info.seeSound;
+                    break;
+            }
+
+            if(mobj.type == MobjType.MT_SPIDER || mobj.type == MobjType.MT_CYBORG)
+            {
+                SoundManager.Instance.PlaySound(sound, Vector3.zero, true);
+            }
+            else
+            {
+                SoundManager.Instance.PlaySound(sound, mobj.transform.position, false);
             }
 
             mobj.SetState(mobj.info.seeState);
@@ -382,17 +504,20 @@ namespace NEP.DOOMLAB.Entities
             }
 
             A_FaceTarget();
+
             float randomAngle = (DoomGame.RNG.P_Random() - DoomGame.RNG.P_Random() & 20) / 10f;
             float damage = ((DoomGame.RNG.P_Random() % 5) + 1) * 3;
             RaycastHit hit;
             
             if(Physics.Raycast(mobj.transform.position, mobj.target.position, out hit))
             {
-                if (mobj.target.playerHealth)
+                if (mobj.target == Mobj.player)
                 {
                     mobj.target.playerHealth.TAKEDAMAGE(damage / 10f);
                 }
             }
+
+            SoundManager.Instance.PlaySound(SoundType.sfx_pistol, mobj.transform.position, false);
         }
 
         public void A_CyberAttack()
@@ -470,6 +595,8 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_BrainAwake()
         {
+            SoundManager.Instance.PlaySound(SoundType.sfx_bossit, Vector3.zero, true);
+
             // find all the target spots
             int numbraintargets = 0;
             int braintargeton = 0;
@@ -485,11 +612,20 @@ namespace NEP.DOOMLAB.Entities
             {
                 if(mobj.type == MobjType.MT_BOSSTARGET)
                 {
-                    brainTargets[numbraintargets++] = mobj;
+                    listBrainTargets.Add(mobj);
                 }
             }
 
-            SoundManager.Instance.PlaySound(SoundType.sfx_bossit, Vector3.zero, true);
+        }
+
+        public void A_BrainPain()
+        {
+            SoundManager.Instance.PlaySound(SoundType.sfx_bospn, Vector3.zero, true);
+        }
+
+        public void A_BrainScream()
+        {
+            SoundManager.Instance.PlaySound(SoundType.sfx_bosdth, Vector3.zero, true);
         }
     }
 }

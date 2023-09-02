@@ -83,6 +83,8 @@ namespace NEP.DOOMLAB.Rendering
             float spriteWidth = spriteFrame.patches[index].width / 32f;
             float spriteHeight = spriteFrame.patches[index].height / 32f;
 
+            float spriteOffsetTop = spriteFrame.patches[index].topOffset / 100f;
+
             if (!spriteFrame.canRotate)
             {
                 meshRenderer.material.mainTexture = spriteFrame.patches[0].output;
@@ -96,17 +98,19 @@ namespace NEP.DOOMLAB.Rendering
                 int rotation = 8 - index;
                 int invertScale = spriteFrame.flipBits[rotation] ? -1 : 1;
 
-                spriteWidth = spriteFrame.patches[rotation].width / 32f;
+                spriteWidth = invertScale * spriteFrame.patches[rotation].width / 32f;
                 spriteHeight = spriteFrame.patches[rotation].height / 32f;
 
                 meshRenderer.material.mainTexture = spriteFrame.patches[rotation].output;
-                transform.localScale = new Vector3(-spriteWidth, spriteHeight, -1f);
+                transform.localScale = new Vector3(spriteWidth, spriteHeight, -1f);
             }
             else
             {
                 meshRenderer.material.mainTexture = spriteFrame.patches[index].output;
                 transform.localScale = new Vector3(spriteWidth, spriteHeight, -1);
             }
+
+            transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y);
         }
     }
 }

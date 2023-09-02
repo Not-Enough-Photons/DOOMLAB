@@ -6,6 +6,7 @@ using UnityEngine.AI;
 using NEP.DOOMLAB.Sound;
 using System;
 using SLZ.Marrow.Warehouse;
+using System.Collections.Generic;
 
 namespace NEP.DOOMLAB.Entities
 {
@@ -16,13 +17,39 @@ namespace NEP.DOOMLAB.Entities
 
         public static MobjManager Instance { get; private set; }
 
+        public static Dictionary<string, MobjType> npcLookup = new Dictionary<string, MobjType>()
+        {
+            { "Zombieman", MobjType.MT_POSSESSED },
+            { "Shotgun Guy", MobjType.MT_SHOTGUY },
+            { "Chaingun Guy", MobjType.MT_CHAINGUY },
+            { "Imp", MobjType.MT_TROOP },
+            { "Pinky Demon", MobjType.MT_SERGEANT },
+            { "Spectre", MobjType.MT_SHADOWS},
+            { "Lost Soul", MobjType.MT_SKULL },
+            { "Cacodemon", MobjType.MT_HEAD },
+            { "Hell Knight", MobjType.MT_KNIGHT },
+            { "Baron of Hell", MobjType.MT_BRUISER },
+            { "Arachnotron", MobjType.MT_BABY },
+            { "Mancubus", MobjType.MT_FATSO },
+            { "Revenant", MobjType.MT_UNDEAD },
+            { "Pain Elemental", MobjType.MT_PAIN },
+            { "Arch-Vile", MobjType.MT_VILE },
+            { "Spider Mastermind", MobjType.MT_SPIDER },
+            { "Cyberdemon", MobjType.MT_CYBORG },
+            { "SS Soldier", MobjType.MT_WOLFSS },
+            { "Commander Keen", MobjType.MT_KEEN }
+        };
+
         public GameObject mobjPrefab;
+
+        public List<Mobj> mobjs;
 
         private bool spawnMenuPopulated;
 
         private void Awake()
         {
             Instance = this;
+            mobjs = new List<Mobj>();
             mobjPrefab = Main.mobjTemplate;
         }
 
@@ -48,6 +75,9 @@ namespace NEP.DOOMLAB.Entities
             mobj.rigidbody = mobjBase.AddComponent<Rigidbody>();
             mobj.collider = mobjBase.AddComponent<BoxCollider>();
 
+            mobj.gameObject.layer = LayerMask.NameToLayer("EnemyColliders");
+            mobj.collider.gameObject.layer = LayerMask.NameToLayer("EnemyColliders");
+
             mobj.OnSpawn(position, type);
 
             mobj.name = $"[MOBJ] - {mobj.type}";
@@ -72,6 +102,8 @@ namespace NEP.DOOMLAB.Entities
                 mobj.collider.enabled = true;
                 mobj.rigidbody.drag = 0;
             }
+
+            mobjs.Add(mobj);
 
             return mobj;
         }
@@ -103,6 +135,7 @@ namespace NEP.DOOMLAB.Entities
         public void RemoveMobj(Mobj mobj)
         {
             mobj.OnRemove();
+            mobjs.Remove(mobj);
         }
     }
 }
