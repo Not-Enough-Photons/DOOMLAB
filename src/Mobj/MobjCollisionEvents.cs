@@ -1,4 +1,5 @@
 using NEP.DOOMLAB.Sound;
+using SLZ.AI;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -32,7 +33,6 @@ namespace NEP.DOOMLAB.Entities
             missile.collider.enabled = false;
 
             var hits = Physics.BoxCastAll(missile.transform.position, Vector3.one, missile.transform.position);
-            Player_Health health = null;
             List<Mobj> mobjs = new List<Mobj>();
 
             foreach(var hit in hits)
@@ -53,7 +53,7 @@ namespace NEP.DOOMLAB.Entities
 
                 if (mobj.playerHealth)
                 {
-                    mobj.playerHealth.TAKEDAMAGE(3.2f);
+                    mobj.playerHealth.TAKEDAMAGE(1.5f);
                 }
             }
 

@@ -22,7 +22,7 @@ namespace NEP.DOOMLAB.Rendering
 
         public static void Initialize()
         {
-            spritePatches = WADManager.Instance.file.patches;
+            spritePatches = WADManager.Instance.IWAD.patches;
             InitSpriteDefs();
         }
 

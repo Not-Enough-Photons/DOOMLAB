@@ -1,6 +1,8 @@
 using UnityEngine;
 
+using SLZ.AI;
 using SLZ.Props.Weapons;
+
 using NEP.DOOMLAB.Entities;
 
 namespace NEP.DOOMLAB.Patches
@@ -10,10 +12,10 @@ namespace NEP.DOOMLAB.Patches
     {
         public static void Postfix(Gun __instance)
         {
-            PropagateSound();
+            // PropagateSound(__instance.proxyOverride);
         }
 
-        public static void PropagateSound()
+        public static void PropagateSound(TriggerRefProxy source)
         {
             Mobj[] mobjs = MobjManager.Instance.mobjs.ToArray();
 
@@ -33,6 +35,7 @@ namespace NEP.DOOMLAB.Patches
 
                 if(mobj.currentState != mobj.info.seeState)
                 {
+                    mobj.target = source.GetComponent<Mobj>();
                     mobj.SetState(mobj.info.seeState);
                 }
             }

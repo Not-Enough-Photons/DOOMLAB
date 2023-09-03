@@ -2,6 +2,10 @@ using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
 using SLZ.AI;
+using SLZ.Marrow.Data;
+using SLZ.Marrow.Pool;
+using SLZ.Marrow.Warehouse;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +16,8 @@ namespace NEP.DOOMLAB.Entities
     public class Mobj : MonoBehaviour
     {
         public Mobj(System.IntPtr ptr) : base(ptr) { }
+
+        public static Action<Mobj> OnDeath;
 
         public enum MoveDirection
         {
@@ -41,9 +47,10 @@ namespace NEP.DOOMLAB.Entities
         public float height;
 
         public MobjBrain brain;
+        public MobjProxy proxy;
 
         public Mobj target;
-        public static Mobj player;
+        public static Mobj player => Main.player;
         public Mobj tracer;
 
         public Vector3 momentum;
@@ -75,7 +82,7 @@ namespace NEP.DOOMLAB.Entities
         {
             DoomGame.Instance.OnTick += WorldTick;
 
-            target = Main.player;
+            target = Mobj.player;
         }
 
         private void OnDestroy()
@@ -85,14 +92,21 @@ namespace NEP.DOOMLAB.Entities
 
         private void WorldTick()
         {
-            if (!removedMobj)
+            if(Settings.DisableAI)
             {
-                UpdateThinker();
+                return;
             }
+
+            UpdateThinker();
         }
 
         public void UpdateThinker()
         {
+            if(Settings.DisableAI)
+            {
+                return;
+            }
+
             // Too far away, stop updating
             if(Vector3.Distance(transform.position, BoneLib.Player.playerHead.position) > 2048)
             {
@@ -190,7 +204,7 @@ namespace NEP.DOOMLAB.Entities
 
             if(DoomGame.RNG.P_Random() < info.painChance && !flags.HasFlag(MobjFlags.MF_SKULLFLY))
             {
-                flags ^= MobjFlags.MF_JUSTHIT;
+                flags |= MobjFlags.MF_JUSTHIT;
                 SetState(info.painState);
             }
 
@@ -225,8 +239,48 @@ namespace NEP.DOOMLAB.Entities
             {
                 tics = 1;
             }
+
+            // Heavy: c1534c5a-97a9-43f7-be30-6095416d6d6f
+            // Medium: c1534c5a-57d4-4468-b5f0-c795416d6d6f
+            // Light: c1534c5a-683b-4c01-b378-6795416d6d6f
+
+            SpawnMobjAmmo(type);
+
+            OnDeath?.Invoke(this);
+        }
+
+        public void SpawnMobjAmmo(MobjType type)
+        {
+            string lightAmmoBarcode = "c1534c5a-683b-4c01-b378-6795416d6d6f";
+            string mediumAmmoBarcode = "c1534c5a-57d4-4468-b5f0-c795416d6d6f";
+            string heavyAmmoBarcode = "c1534c5a-97a9-43f7-be30-6095416d6d6f";
+
+            string targetBarcode;
+
+            switch(type)
+            {
+                case MobjType.MT_WOLFSS:
+                case MobjType.MT_POSSESSED:
+                    targetBarcode = lightAmmoBarcode;
+                    break;
+                case MobjType.MT_SHOTGUY:
+                    targetBarcode = heavyAmmoBarcode;
+                    break;
+                case MobjType.MT_CHAINGUY:
+                    targetBarcode = mediumAmmoBarcode;
+                    break;
+                default:
+                    return;
+            }
+
+            SpawnableCrateReference ammoCrateRef = new SpawnableCrateReference(targetBarcode);
+            Spawnable ammo = new Spawnable()
+            {
+                crateRef = ammoCrateRef
+            };
             
-            Mobj.player.playerHealth.curr_Health += 100;
+            AssetSpawner.Register(ammo);
+            BoneLib.Nullables.NullableMethodExtensions.PoolManager_Spawn(ammo, transform.position, default, default);
         }
     }
 }

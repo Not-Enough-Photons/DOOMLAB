@@ -17,6 +17,7 @@ namespace NEP.DOOMLAB.WAD.DataTypes
             }
 
             public List<Pixel> colorData;
+            public int offset;
         }
 
         public Patch(string name, short width, short height, short leftOffset, short topOffset)

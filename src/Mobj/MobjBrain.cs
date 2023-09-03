@@ -38,7 +38,7 @@ namespace NEP.DOOMLAB.Entities
 
         private Mobj.MoveDirection[] diags = new Mobj.MoveDirection[]
         {
-            Mobj.MoveDirection.NORTHWEST, Mobj.MoveDirection.NORTHEAST, Mobj.MoveDirection.SOUTHWEST, Mobj.MoveDirection.SOUTHEAST
+           Mobj.MoveDirection.SOUTHEAST, Mobj.MoveDirection.NORTHEAST, Mobj.MoveDirection.SOUTHWEST, Mobj.MoveDirection.NORTHWEST 
         };
 
         private bool test_intersect;
@@ -77,8 +77,8 @@ namespace NEP.DOOMLAB.Entities
             {
                 print("Weird movedir");
                 return false;
-
             }
+
             mobj.rigidbody.position += mobj.transform.forward * mobj.info.speed * Time.deltaTime;
 
             RaycastHit hit;
@@ -120,26 +120,26 @@ namespace NEP.DOOMLAB.Entities
 
             Mobj.MoveDirection[] possibleDirections = new Mobj.MoveDirection[2];
 
-            if (deltaX > 1.5f)
+            if (deltaX > 0.5f)
             {
-                possibleDirections[0] = Mobj.MoveDirection.EAST;
+                possibleDirections[0] = Mobj.MoveDirection.NORTH;
             }
-            else if (deltaX < -1.5f)
+            else if (deltaX < -0.5f)
             {
-                possibleDirections[0] = Mobj.MoveDirection.WEST;
+                possibleDirections[0] = Mobj.MoveDirection.SOUTH;
             }
             else
             {
                 possibleDirections[0] = Mobj.MoveDirection.NODIR;
             }
 
-            if (deltaZ > 1.5f)
+            if (deltaZ > 0.5f)
             {
-                possibleDirections[1] = Mobj.MoveDirection.NORTH;
+                possibleDirections[1] = Mobj.MoveDirection.EAST;
             }
-            else if (deltaZ < -1.5f)
+            else if (deltaZ < -0.5f)
             {
-                possibleDirections[1] = Mobj.MoveDirection.SOUTH;
+                possibleDirections[1] = Mobj.MoveDirection.WEST;
             }
             else
             {
@@ -153,10 +153,7 @@ namespace NEP.DOOMLAB.Entities
             //                   south-west
             if (possibleDirections[0] != Mobj.MoveDirection.NODIR && possibleDirections[1] != Mobj.MoveDirection.NODIR)
             {
-                int diagChoiceX = deltaX > 0 ? 1 : 0;
-                int diagChoiceZ = deltaZ < 0 ? 2 : 0;
-
-                SetMoveDirection(diags[diagChoiceX + diagChoiceZ]);
+                SetMoveDirection(diags[(deltaZ < 0 ? 1 : 0) * 2 + (deltaX > 0 ? 1 : 0)]);
 
                 if(mobj.moveDirection != turnAround && TryWalk())
                 {
@@ -213,8 +210,8 @@ namespace NEP.DOOMLAB.Entities
 
             if((DoomGame.RNG.P_Random() & 1) != 0)
             {
-                for(tempDir = Mobj.MoveDirection.EAST;
-                    tempDir <= Mobj.MoveDirection.SOUTHEAST;
+                for(tempDir = Mobj.MoveDirection.WEST;
+                    tempDir <= Mobj.MoveDirection.SOUTHWEST;
                     tempDir++)
                     {
                         if(tempDir != turnAround)
@@ -230,8 +227,8 @@ namespace NEP.DOOMLAB.Entities
             }
             else
             {
-                for(tempDir = Mobj.MoveDirection.SOUTHEAST;
-                    tempDir != Mobj.MoveDirection.EAST - 1;
+                for(tempDir = Mobj.MoveDirection.SOUTHWEST;
+                    tempDir != Mobj.MoveDirection.WEST - 1;
                     tempDir--)
                     {
                         if(tempDir != turnAround)
@@ -266,7 +263,7 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            if(Vector3.Distance(mobj.transform.position, mobj.target.position) >= 0.75f)
+            if(Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > 0.5f)
             {
                 return false;
             }
@@ -278,8 +275,11 @@ namespace NEP.DOOMLAB.Entities
         {
             if (!CheckSight())
             {
+                MelonLoader.MelonLogger.Msg("Not in sight");
                 return false;
             }
+
+            MelonLoader.MelonLogger.Msg("In sight");
 
             float distance = Vector3.Distance(mobj.transform.position, mobj.target.transform.position);
 
@@ -309,8 +309,12 @@ namespace NEP.DOOMLAB.Entities
 
         public bool CheckSight()
         {
-            bool inView = mobj.target != null && Physics.Raycast(transform.position, transform.position + mobj.target.transform.position);
-            return inView;
+            if(mobj.target == null)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public bool FindPlayer()
@@ -323,7 +327,7 @@ namespace NEP.DOOMLAB.Entities
             Vector3 directionToTarget = mobj.target.position - mobj.transform.position;
             float angle = Vector3.Angle(directionToTarget, mobj.transform.forward);
 
-            if(angle >= 180f * 0.5f)
+            if(angle < 90f * 0.5f)
             {
                 return false;
             }
@@ -520,14 +524,117 @@ namespace NEP.DOOMLAB.Entities
             SoundManager.Instance.PlaySound(SoundType.sfx_pistol, mobj.transform.position, false);
         }
 
+        public void A_CPosAttack()
+        {
+            if(mobj.target == null)
+            {
+                return;
+            }
+
+            SoundManager.Instance.PlaySound(SoundType.sfx_shotgn, mobj.transform.position, false);
+            A_FaceTarget();
+
+            float damage = ((DoomGame.RNG.P_Random() % 5) + 1) * 3;
+        }
+
+        public void A_CPosRefire()
+        {
+            A_FaceTarget();
+
+            if(DoomGame.RNG.P_Random() < 40)
+            {
+                return;
+            }
+
+            if(mobj.target == null || mobj.target.health <= 0 || !CheckSight())
+            {
+                mobj.SetState(mobj.info.seeState);
+            }
+        }
+
+        public void A_SpidRefire()
+        {
+            A_FaceTarget();
+
+            if(DoomGame.RNG.P_Random() < 10)
+            {
+                return;
+            }
+
+            if(mobj.target == null || mobj.target.health == 0 || !CheckSight())
+            {
+                mobj.SetState(mobj.info.seeState);
+            }
+        }
+
         public void A_BspiAttack()
         {
+            if (mobj.target == null)
+            {
+                return;
+            }
 
+            A_FaceTarget();
+
+            // launch a missile
+            MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_ARACHPLAZ);
+        }
+
+        public void A_SargAttack()
+        {
+            if(mobj.target == null)
+            {
+                return;
+            }
+
+            A_FaceTarget();
+
+            if(CheckMeleeRange())
+            {
+                
+            }
+        }
+
+        public void A_SkelWhoosh()
+        {
+            if(mobj.target == null)
+            {
+                return;
+            }
+
+            A_FaceTarget();
+            SoundManager.Instance.PlaySound(SoundType.sfx_skeswg, mobj.transform.position, false);
+        }
+
+        public void A_SkelFist()
+        {
+            if(mobj.target == null)
+            {
+                return;
+            }
+
+            A_FaceTarget();
+
+            if(CheckMeleeRange())
+            {
+                SoundManager.Instance.PlaySound(SoundType.sfx_skepch, mobj.transform.position, false);
+                // damage
+            }
         }
 
         public void A_PainAttack()
         {
             
+        }
+
+        public void A_SkullAttack()
+        {
+            if(mobj.target == null)
+            {
+                return;
+            }
+
+
         }
 
         public void A_CyberAttack()
@@ -542,6 +649,43 @@ namespace NEP.DOOMLAB.Entities
             MobjManager.Instance.SpawnMissile(mobj, mobj.target, Data.MobjType.MT_ROCKET);
         }
 
+        public void A_HeadAttack()
+        {
+            if (mobj.target == null)
+            {
+                return;
+            }
+
+            A_FaceTarget();
+            if(CheckMeleeRange())
+            {
+                float damage = (DoomGame.RNG.P_Random()%6+1)*10;
+                mobj.target.TakeDamage(damage, mobj);
+                return;
+            }
+
+            MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_HEADSHOT);
+        }
+
+        public void A_BruisAttack()
+        {
+            if (mobj.target == null)
+            {
+                return;
+            }
+
+            if (CheckMeleeRange())
+            {
+                SoundManager.Instance.PlaySound(SoundType.sfx_claw, mobj.transform.position, false);
+                float damage = (DoomGame.RNG.P_Random() % 8 + 1) * 10;
+                mobj.target.TakeDamage(damage, mobj);
+                return;
+            }
+
+            // launch a missile
+            MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_BRUISERSHOT);
+        }
+
         public void A_Hoof()
         {
             SoundManager.Instance.PlaySound(SoundType.sfx_hoof, mobj.transform.position, false);
@@ -550,12 +694,14 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_Metal()
         {
-
+            SoundManager.Instance.PlaySound(SoundType.sfx_metal, mobj.transform.position, false);
+            A_Chase();
         }
 
         public void A_BabyMetal()
         {
-
+            SoundManager.Instance.PlaySound(SoundType.sfx_bspwlk, mobj.transform.position, false);
+            A_Chase();
         }
 
         public void A_Scream()

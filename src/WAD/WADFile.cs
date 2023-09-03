@@ -10,6 +10,8 @@ using HarmonyLib;
 
 using Patch = NEP.DOOMLAB.WAD.DataTypes.Patch;
 using UnhollowerBaseLib;
+using MelonLoader;
+using System;
 
 namespace NEP.DOOMLAB.WAD
 {
@@ -53,14 +55,14 @@ namespace NEP.DOOMLAB.WAD
         {
             char[] buffer = new char[count];
 
-            for(int i = 0; i < count; i++)
+            for (int i = 0; i < count; i++)
             {
                 buffer[i] = reader.ReadChar();
             }
 
             return buffer;
         }
-        
+
         public short ReadShort()
         {
             return reader.ReadInt16();
@@ -120,9 +122,9 @@ namespace NEP.DOOMLAB.WAD
 
                 char[] characters = ReadCharacters(8);
 
-                foreach(var c in characters)
+                foreach (var c in characters)
                 {
-                    if(c == '\0')
+                    if (c == '\0')
                     {
                         break;
                     }
@@ -138,7 +140,7 @@ namespace NEP.DOOMLAB.WAD
         {
             WADIndexEntry palette = null;
 
-            for(int i = 0; i < entries.Count; i++)
+            for (int i = 0; i < entries.Count; i++)
             {
                 if (entries[i].name == "PLAYPAL")
                 {
@@ -148,7 +150,7 @@ namespace NEP.DOOMLAB.WAD
 
             reader.BaseStream.Seek(palette.offset, SeekOrigin.Begin);
 
-            for(int i = 0; i < 256; i++)
+            for (int i = 0; i < 256; i++)
             {
                 byte red = reader.ReadByte();
                 byte green = reader.ReadByte();
@@ -164,9 +166,9 @@ namespace NEP.DOOMLAB.WAD
             }
         }
 
-        public void ListSounds()
+        public void ReadAllSounds()
         {
-            for(int i = 0; i < entries.Count; i++)
+            for (int i = 0; i < entries.Count; i++)
             {
                 if (!entries[i].name.StartsWith("DS"))
                 {
@@ -177,12 +179,12 @@ namespace NEP.DOOMLAB.WAD
             }
         }
 
-        public void ListSprites()
+        public void ReadAllSprites()
         {
             int targetIndex = 0;
             WADIndexEntry targetEntry = null;
 
-            for(int i = 0; i < entries.Count; i++)
+            for (int i = 0; i < entries.Count; i++)
             {
                 if (entries[i].name == "S_START")
                 {
@@ -193,7 +195,7 @@ namespace NEP.DOOMLAB.WAD
             }
 
             int patchIdx = 0;
-            for(int i = targetIndex + 1; i < entries.Count; i++, patchIdx++)
+            for (int i = targetIndex + 1; i < entries.Count; i++, patchIdx++)
             {
                 if (entries[i].name == "S_END")
                 {
@@ -206,12 +208,19 @@ namespace NEP.DOOMLAB.WAD
 
         public void ReadSound(WADIndexEntry entry)
         {
+            MelonLogger.Msg(entry.name);
+
+            if(entry.size <= 4)
+            {
+                return;
+            }
+
             reader.BaseStream.Seek(entry.offset, SeekOrigin.Begin);
 
             DataTypes.Sound sound = new DataTypes.Sound();
 
             sound.id = reader.ReadInt16();
-            sound.sampleRate = reader.ReadInt16();
+            sound.sampleRate = reader.ReadUInt16();
             sound.sampleCount = reader.ReadUInt16();
             sound.soundData = reader.ReadBytes(sound.sampleCount - 7);
 
@@ -219,7 +228,7 @@ namespace NEP.DOOMLAB.WAD
 
             float[] samples = new float[sound.soundData.Length];
 
-            for(int i = 0; i < samples.Length; i++)
+            for (int i = 0; i < samples.Length; i++)
             {
                 samples[i] = ((float)sound.soundData[i] - 127) / 127;
             }
@@ -233,6 +242,8 @@ namespace NEP.DOOMLAB.WAD
 
         public void ReadPatch(WADIndexEntry entry)
         {
+            MelonLogger.Msg($"Begin reading {entry.name}");
+
             reader.BaseStream.Seek(entry.offset, SeekOrigin.Begin);
 
             var width = reader.ReadInt16();
@@ -242,30 +253,41 @@ namespace NEP.DOOMLAB.WAD
 
             Patch patch = new Patch(entry.name, width, height, leftOffset, topOffset);
 
-            reader.BaseStream.Seek(width * 4, SeekOrigin.Current);
+            int[] columns = new int[width];
+
+            for(int i = 0; i < width; i++)
+            {
+                columns[i] = reader.ReadInt32();
+            }
 
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
             tex.filterMode = FilterMode.Point;
-            // tex.alphaIsTransparency = true;
-            
-            int colIdx = 0;
-            while(colIdx != width)
+
+            for(int i = 0; i < width; i++)
             {
-                int row = reader.ReadByte();
-                int pixelsInColumn = reader.ReadByte();
-                reader.ReadByte();
+                reader.BaseStream.Seek(entry.offset + columns[i], SeekOrigin.Begin);
 
-                for(int i = 0; i < pixelsInColumn; i++)
-                {
-                    //tex.SetPixel(colIdx, height - row - i - 1, colorPal[reader.ReadByte()]);
-                    tex.SetPixel(colIdx, height - row - i - 1, colorPal[reader.ReadByte()]);
-                }
-
-                reader.ReadByte();
+                int columnY = 0;
                 
-                if(PeekByte() == 255)
+                while(columnY != 255)
                 {
-                    colIdx++;
+                    columnY = reader.ReadByte();
+
+                    if (columnY == 255)
+                    {
+                        break;
+                    }
+
+                    int pixels = reader.ReadByte();
+
+                    reader.ReadByte();
+
+                    for(int j = 0; j < pixels; j++)
+                    {
+                        Color32 color = colorPal[reader.ReadByte()];
+                        tex.SetPixel(i, height - columnY - j - 1, color);
+                    }
+
                     reader.ReadByte();
                 }
             }
@@ -274,6 +296,34 @@ namespace NEP.DOOMLAB.WAD
             patch.output = tex;
             patch.output.hideFlags = HideFlags.DontUnloadUnusedAsset;
             patches.Add(patch);
+
+            /*             int colIdx = 0;
+                        while (colIdx != width)
+                        {
+                            int row = reader.ReadByte();
+                            int pixelsInColumn = reader.ReadByte();
+                            reader.ReadByte();
+
+                            for (int i = 0; i < pixelsInColumn; i++)
+                            {
+                                //tex.SetPixel(colIdx, height - row - i - 1, colorPal[reader.ReadByte()]);
+                                tex.SetPixel(colIdx, height - row - i - 1, colorPal[reader.ReadByte()]);
+                            }
+
+                            reader.ReadByte();
+
+                            if (PeekByte() == 255)
+                            {
+                                colIdx++;
+                                reader.ReadByte();
+                            }
+                        }
+
+                        tex.Apply();
+                        patch.output = tex;
+                        patch.output.hideFlags = HideFlags.DontUnloadUnusedAsset;
+                        patches.Add(patch);
+             */
         }
     }
 }

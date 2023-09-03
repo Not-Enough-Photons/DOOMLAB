@@ -1,45 +1,17 @@
 ﻿using PuppetMasta;
 using SLZ.AI;
+using HarmonyLib;
+using NEP.DOOMLAB.Entities;
 
 namespace NEP.DOOMLAB.Patches
 {
-    [HarmonyLib.HarmonyPatch(typeof(SubBehaviourSensors))]
-    [HarmonyLib.HarmonyPatch(nameof(SubBehaviourSensors.SetAgro))]
-    public static class BehaviourBaseNavPatches1
+    [HarmonyPatch(typeof(TriggerRefProxy), nameof(TriggerRefProxy.Awake))]
+    public static class TRPPatches
     {
-        public static void Postfix(TriggerRefProxy trp)
+        public static void Postfix(TriggerRefProxy __instance)
         {
-            MelonLoader.MelonLogger.Msg("Set agro: " + trp.name);
-        }
-    }
-
-    [HarmonyLib.HarmonyPatch(typeof(SubBehaviourSensors))]
-    [HarmonyLib.HarmonyPatch(nameof(SubBehaviourSensors.SetEngaged))]
-    public static class BehaviourBaseNavPatches2
-    {
-        public static void Postfix(TriggerRefProxy trp)
-        {
-            MelonLoader.MelonLogger.Msg("Set engaged: " + trp.name);
-        }
-    }
-
-    [HarmonyLib.HarmonyPatch(typeof(SubBehaviourSensors))]
-    [HarmonyLib.HarmonyPatch(nameof(SubBehaviourSensors.InitialThreat))]
-    public static class BehaviourBaseNavPatches3
-    {
-        public static void Postfix(TriggerRefProxy trp)
-        {
-            MelonLoader.MelonLogger.Msg("Initial threat: " + trp.name);
-        }
-    }
-
-    [HarmonyLib.HarmonyPatch(typeof(SubBehaviourSensors))]
-    [HarmonyLib.HarmonyPatch(nameof(SubBehaviourSensors.AddThreat))]
-    public static class BehaviourBaseNavPatches4
-    {
-        public static void Postfix(TriggerRefProxy trp, float threat)
-        {
-            MelonLoader.MelonLogger.Msg("Add threat: " + trp.name + " Threat: " + threat);
+            Mobj proxyMobj = __instance.gameObject.AddComponent<Mobj>();
+            proxyMobj.flags ^= MobjFlags.MF_SHOOTABLE;
         }
     }
 }

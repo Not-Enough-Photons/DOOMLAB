@@ -37,6 +37,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\BillboardLookAt.cs" />
     <Compile Include="src\DoomGame.cs" />
+    <Compile Include="src\Settings.cs" />
     <Compile Include="src\Info\ActionTable.cs" />
     <Compile Include="src\Info\Info.cs" />
     <Compile Include="src\Info\MobjType.cs" />
@@ -51,6 +52,7 @@
     <Compile Include="src\Mobj\MobjFlags.cs" />
     <Compile Include="src\Mobj\MobjInfo.cs" />
     <Compile Include="src\Mobj\MobjManager.cs" />
+    <Compile Include="src\Mobj\MobjProxy.cs" />
     <Compile Include="src\Patches\DamagePatches.cs" />
     <Compile Include="src\Patches\GunPatches.cs" />
     <Compile Include="src\Patches\SpawnGunPatches.cs" />

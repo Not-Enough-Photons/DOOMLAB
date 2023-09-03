@@ -22,7 +22,7 @@ namespace NEP.DOOMLAB.Sound
         {
             Instance = this;
 
-            soundLumps = WADManager.Instance.file.sounds.ToArray();
+            soundLumps = WADManager.Instance.IWAD.sounds.ToArray();
 
             pooledAudioObjects = new List<GameObject>();
             GameObject listObj = new GameObject("Pooled Audio");
@@ -74,7 +74,7 @@ namespace NEP.DOOMLAB.Sound
             if (first != null)
             {
                 src.clip = sound;
-                src.spatialBlend = fullVolume ? 0f : 1f;
+                src.spatialBlend = fullVolume ? 0f : 0.75f;
                 first.transform.position = position;
                 first.SetActive(true);
             }

@@ -8,6 +8,7 @@ using System;
 using SLZ.Marrow.Warehouse;
 using System.Collections.Generic;
 using SLZ.AI;
+using SLZ.Combat;
 
 namespace NEP.DOOMLAB.Entities
 {
@@ -38,7 +39,8 @@ namespace NEP.DOOMLAB.Entities
             { "Spider Mastermind", MobjType.MT_SPIDER },
             { "Cyberdemon", MobjType.MT_CYBORG },
             { "SS Soldier", MobjType.MT_WOLFSS },
-            { "Commander Keen", MobjType.MT_KEEN }
+            { "Commander Keen", MobjType.MT_KEEN },
+            { "Icon of Sin", MobjType.MT_BOSSBRAIN}
         };
 
         public GameObject mobjPrefab;
@@ -69,22 +71,19 @@ namespace NEP.DOOMLAB.Entities
             GameObject mobjBase = GameObject.Instantiate(mobjPrefab, position, Quaternion.identity);
             Mobj mobj = mobjBase.AddComponent<Mobj>();
             mobj.brain = mobjBase.AddComponent<MobjBrain>();
-            mobj.triggerRefProxy = mobjBase.AddComponent<TriggerRefProxy>();
 
-            mobj.triggerRefProxy.chestTran = mobj.transform;
-            mobj.triggerRefProxy.triggerType = TriggerRefProxy.TriggerType.Npc;
-            mobj.triggerRefProxy.npcType = TriggerRefProxy.NpcType.FordHair | TriggerRefProxy.NpcType.FordShortHair;
-            var trpSphere = mobjBase.AddComponent<SphereCollider>();
-            trpSphere.isTrigger = true;
-            trpSphere.radius = 5f;
-            mobj.triggerRefProxy.targetHead = mobj.rigidbody;
-            mobj.triggerRefProxy.root = mobj.gameObject;
+            // var trpSphere = new GameObject();
+            // trpSphere.transform.parent = mobj.transform;
+            // trpSphere.AddComponent<MobjProxy>();
 
             mobjBase.transform.GetChild(0).gameObject.AddComponent<DoomSpriteRenderer>();
             mobjBase.transform.GetChild(0).gameObject.AddComponent<BillboardLookAt>();
 
             mobj.rigidbody = mobjBase.AddComponent<Rigidbody>();
             mobj.collider = mobjBase.AddComponent<BoxCollider>();
+
+            var impactPropertiesManager = mobj.gameObject.AddComponent<ImpactPropertiesManager>();
+            impactPropertiesManager.surfaceData = BoneLib.Player.physicsRig.GetComponent<ImpactPropertiesManager>().surfaceData;
 
             mobj.gameObject.layer = LayerMask.NameToLayer("EnemyColliders");
             mobj.collider.gameObject.layer = LayerMask.NameToLayer("EnemyColliders");

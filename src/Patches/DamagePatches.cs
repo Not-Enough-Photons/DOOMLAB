@@ -30,7 +30,7 @@ namespace NEP.DOOMLAB.Patches
 
                     hitMobj.TakeDamage(__instance._data.damageMultiplier * (DoomGame.RNG.P_Random() & 3) * 6f, Mobj.player);
 
-                    if (hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
+                    if (!hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
                     {
                         MobjManager.Instance.SpawnMobj(world, Data.MobjType.MT_BLOOD);
                     }

@@ -4,6 +4,8 @@ using HarmonyLib;
 
 using NEP.DOOMLAB.Entities;
 using SLZ.Marrow.Warehouse;
+using NEP.DOOMLAB.Data;
+using NEP.DOOMLAB.Sound;
 
 [HarmonyPatch(typeof(SpawnGun), nameof(SpawnGun.OnFire))]
 public static class SpawnGunPatch
@@ -33,7 +35,17 @@ public static class SpawnGunPatch
 
         if(MobjManager.npcLookup.ContainsKey(selectedCrate.Title))
         {
-            MobjManager.Instance.SpawnMobj(__instance.truePlacePosition, MobjManager.npcLookup[selectedCrate.Title]);
+            MobjType mobjType = MobjManager.npcLookup[selectedCrate.Title];
+            MobjInfo mobjInfo = Info.MobjInfos[(int)mobjType];
+
+            Vector3 truePlacePosition = __instance.truePlacePosition;
+            Vector3 placePosition = new Vector3(truePlacePosition.x, truePlacePosition.y + mobjInfo.height / 32f, truePlacePosition.z);
+
+            var mobj = MobjManager.Instance.SpawnMobj(placePosition, MobjManager.npcLookup[selectedCrate.Title]);
+
+            MobjManager.Instance.SpawnMobj(placePosition, MobjType.MT_TFOG);
+            SoundManager.Instance.PlaySound(SoundType.sfx_telept, mobj.transform.position, false);
+
             return false;
         }
 

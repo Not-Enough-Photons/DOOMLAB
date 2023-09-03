@@ -79,6 +79,8 @@ namespace NEP.DOOMLAB.Game
 
         public float timeInterval = 1f / 35f; // DOOM updates at 1/35th of a second
 
+        public bool fastMonsters = false;
+
         private float ticTimer;
 
         public void Update()

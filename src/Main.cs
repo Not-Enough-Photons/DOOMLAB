@@ -3,11 +3,13 @@ using NEP.DOOMLAB.WAD;
 using BoneLib;
 using NEP.DOOMLAB.Game;
 using UnityEngine;
-using SLZ.Marrow.Warehouse;
 using NEP.DOOMLAB.Entities;
 using System.IO;
 using NEP.DOOMLAB.Sound;
 using NEP.DOOMLAB.Rendering;
+using BoneLib.BoneMenu.Elements;
+using BoneLib.BoneMenu;
+using MK.Glow;
 
 namespace NEP.DOOMLAB
 {
@@ -33,44 +35,18 @@ namespace NEP.DOOMLAB
             mobjTemplate = bundle.LoadAsset("[MOBJ] - Null").Cast<GameObject>();
             mobjTemplate.hideFlags = HideFlags.DontUnloadUnusedAsset;
 
-            WADManager manager = new WADManager();
-            manager.LoadWAD(manager.pathToWAD);
+            new WADManager();
+            WADManager.Instance.IWAD = WADManager.Instance.LoadWAD(WADManager.Instance.GetIWAD());
             SpriteLumpGenerator.Initialize();
 
             DoomGame game = new DoomGame();
 
             BoneLib.Hooking.OnLevelInitialized += OnSceneLoaded;
+
+            BoneMenuStuff();
         }
 
-        public override void OnUpdate()
-        {
-            DoomGame.Instance.Update();
-
-            if (Input.GetKeyDown(KeyCode.Alpha1))
-            {
-                MobjManager.Instance.SpawnMobj(player.transform.position + player.transform.forward * 3f, Data.MobjType.MT_POSSESSED);
-            }
-            else if (Input.GetKeyDown(KeyCode.Alpha2))
-            {
-                MobjManager.Instance.SpawnMobj(player.transform.position + player.transform.forward * 3f, Data.MobjType.MT_SERGEANT);
-            }
-            else if (Input.GetKeyDown(KeyCode.Alpha3))
-            {
-                MobjManager.Instance.SpawnMobj(player.transform.position + player.transform.forward * 3f, Data.MobjType.MT_BARREL);
-            }
-            else if (Input.GetKeyDown(KeyCode.Alpha4))
-            {
-                MobjManager.Instance.SpawnMobj(player.transform.position + player.transform.forward * 3f, Data.MobjType.MT_TROOP);
-            }
-            else if (Input.GetKeyDown(KeyCode.Alpha5))
-            {
-                MobjManager.Instance.SpawnMobj(player.transform.position + player.transform.forward * 3f, Data.MobjType.MT_CYBORG);
-            }
-            else if(Input.GetKeyDown(KeyCode.Alpha6))
-            {
-                MobjManager.Instance.SpawnMobj(player.transform.position + player.transform.forward * 3f, Data.MobjType.MT_BOSSBRAIN);
-            }
-        }
+        public override void OnUpdate() => DoomGame.Instance.Update();
 
         public void OnSceneLoaded(LevelInfo info)
         {
@@ -80,6 +56,14 @@ namespace NEP.DOOMLAB
             player = BoneLib.Player.physicsRig.m_chest.gameObject.AddComponent<Mobj>();
             player.flags ^= MobjFlags.MF_SHOOTABLE;
             player.playerHealth = BoneLib.Player.rigManager.health;
+        }
+
+        internal void BoneMenuStuff()
+        {
+            MenuCategory menuCategory = MenuManager.CreateCategory("Not Enough Photons", Color.white);
+            var doomCategory = menuCategory.CreateCategory("DOOMLAB", Color.white);
+
+            doomCategory.CreateBoolElement("Disable AI", Color.white, false, (value) => Settings.DisableAI = value);
         }
     }
 }

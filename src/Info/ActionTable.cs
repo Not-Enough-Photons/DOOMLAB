@@ -46,23 +46,23 @@ namespace NEP.DOOMLAB.Data
         public static void A_Fire(Mobj mobj){}
         public static void A_FireCrackle(Mobj mobj){}
         public static void A_Tracer(Mobj mobj){}
-        public static void A_SkelWhoosh(Mobj mobj){}
-        public static void A_SkelFist(Mobj mobj){}
+        public static void A_SkelWhoosh(Mobj mobj){ mobj.brain.A_SkelWhoosh(); }
+        public static void A_SkelFist(Mobj mobj){ mobj.brain.A_SkelFist(); }
         public static void A_SkelMissile(Mobj mobj){}
         public static void A_FatRaise(Mobj mobj){}
         public static void A_FatAttack1(Mobj mobj){}
         public static void A_FatAttack2(Mobj mobj){}
         public static void A_FatAttack3(Mobj mobj){}
         public static void A_BossDeath(Mobj mobj){}
-        public static void A_CPosAttack(Mobj mobj){}
-        public static void A_CPosRefire(Mobj mobj){}
+        public static void A_CPosAttack(Mobj mobj){ mobj.brain.A_CPosAttack(); }
+        public static void A_CPosRefire(Mobj mobj){ mobj.brain.A_CPosRefire(); }
         public static void A_TroopAttack(Mobj mobj){ mobj.brain.A_TroopAttack(); }
-        public static void A_SargAttack(Mobj mobj){}
-        public static void A_HeadAttack(Mobj mobj){}
-        public static void A_BruisAttack(Mobj mobj){}
-        public static void A_SkullAttack(Mobj mobj){}
+        public static void A_SargAttack(Mobj mobj){ mobj.brain.A_SargAttack(); }
+        public static void A_HeadAttack(Mobj mobj){ mobj.brain.A_HeadAttack(); }
+        public static void A_BruisAttack(Mobj mobj){ mobj.brain.A_BruisAttack(); }
+        public static void A_SkullAttack(Mobj mobj){ mobj.brain.A_SkullAttack(); }
         public static void A_Metal(Mobj mobj){ mobj.brain.A_Metal(); }
-        public static void A_SpidRefire(Mobj mobj){}
+        public static void A_SpidRefire(Mobj mobj){ mobj.brain.A_SpidRefire(); }
         public static void A_BabyMetal(Mobj mobj){ mobj.brain.A_BabyMetal(); }
         public static void A_BspiAttack(Mobj mobj){ mobj.brain.A_BspiAttack(); }
         public static void A_Hoof(Mobj mobj){ mobj.brain.A_Hoof(); }
