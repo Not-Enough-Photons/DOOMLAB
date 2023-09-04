@@ -9,6 +9,7 @@ using SLZ.Marrow.Warehouse;
 using System.Collections.Generic;
 using SLZ.AI;
 using SLZ.Combat;
+using NEP.DOOMLAB.Game;
 
 namespace NEP.DOOMLAB.Entities
 {
@@ -59,6 +60,64 @@ namespace NEP.DOOMLAB.Entities
         private void Start()
         {
             SpawnMobj(Vector3.zero, MobjType.MT_POSSESSED);
+        }
+
+        public bool CheckThing(Mobj thing, Mobj other)
+        {
+            if(!thing.flags.HasFlag(MobjFlags.MF_SOLID | MobjFlags.MF_SPECIAL | MobjFlags.MF_SHOOTABLE))
+            {
+                return true;
+            }
+
+            if(thing == other)
+            {
+                return true;
+            }
+
+            if(other.flags.HasFlag(MobjFlags.MF_SKULLFLY))
+            {
+                float damage = ((DoomGame.RNG.P_Random() % 8) + 1) * other.info.damage;
+
+                thing.TakeDamage(damage, other, other);
+
+                other.flags &= ~MobjFlags.MF_SKULLFLY;
+                other.rigidbody.velocity = Vector3.zero;
+                
+                other.SetState(other.info.spawnState);
+
+                return false;
+            }
+
+            if (other.flags.HasFlag(MobjFlags.MF_MISSILE))
+            {
+                if (other.target != null && (
+                other.target.type == thing.type ||
+                (other.target.type == MobjType.MT_KNIGHT && thing.type == MobjType.MT_BRUISER) ||
+                (other.target.type == MobjType.MT_BRUISER && thing.type == MobjType.MT_KNIGHT)))
+                {
+                    if (thing == other.target)
+                    {
+                        return true;
+                    }
+
+                    if (thing.type != MobjType.MT_PLAYER)
+                    {
+                        return false;
+                    }
+                }
+
+                if (!thing.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
+                {
+                    return !thing.flags.HasFlag(MobjFlags.MF_SOLID);
+                }
+
+                float damage = ((DoomGame.RNG.P_Random() % 8) + 1) * other.info.damage;
+                thing.TakeDamage(damage, other, other.target);
+
+                return false;
+            }
+
+            return !thing.flags.HasFlag(MobjFlags.MF_SOLID);
         }
 
         public Mobj SpawnMobj(Vector3 position, MobjType type)

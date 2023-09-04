@@ -178,7 +178,7 @@ namespace NEP.DOOMLAB.Entities
             Destroy(gameObject);
         }
 
-        public void TakeDamage(float damage, Mobj inflictor)
+        public void TakeDamage(float damage, Mobj source, Mobj inflictor)
         {
             if(!flags.HasFlag(MobjFlags.MF_SHOOTABLE))
             {
@@ -210,7 +210,18 @@ namespace NEP.DOOMLAB.Entities
 
             reactionTime = 0;
 
-            // TODO: will implement vile logic here later
+            if (threshold == 0 || target.type == MobjType.MT_VILE
+                && source != null && source != target
+                && source.type != MobjType.MT_VILE)
+            {
+                target.target = source;
+                target.threshold = 8;
+
+                if(target.state == Info.GetState(target.info.spawnState))
+                {
+                    target.SetState(target.info.seeState);
+                }
+            }
         }
 
         public void Kill()

@@ -633,8 +633,6 @@ namespace NEP.DOOMLAB.Entities
             {
                 return;
             }
-
-
         }
 
         public void A_CyberAttack()
@@ -660,7 +658,7 @@ namespace NEP.DOOMLAB.Entities
             if(CheckMeleeRange())
             {
                 float damage = (DoomGame.RNG.P_Random()%6+1)*10;
-                mobj.target.TakeDamage(damage, mobj);
+                mobj.target.TakeDamage(damage, mobj, mobj);
                 return;
             }
 
@@ -678,7 +676,7 @@ namespace NEP.DOOMLAB.Entities
             {
                 SoundManager.Instance.PlaySound(SoundType.sfx_claw, mobj.transform.position, false);
                 float damage = (DoomGame.RNG.P_Random() % 8 + 1) * 10;
-                mobj.target.TakeDamage(damage, mobj);
+                mobj.target.TakeDamage(damage, mobj, mobj);
                 return;
             }
 

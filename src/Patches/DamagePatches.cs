@@ -28,7 +28,7 @@ namespace NEP.DOOMLAB.Patches
                         return;
                     }
 
-                    hitMobj.TakeDamage(__instance._data.damageMultiplier * (DoomGame.RNG.P_Random() & 3) * 6f, Mobj.player);
+                    hitMobj.TakeDamage(__instance._data.damageMultiplier * (DoomGame.RNG.P_Random() & 3) * 6f, Mobj.player, Mobj.player);
 
                     if (!hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
                     {

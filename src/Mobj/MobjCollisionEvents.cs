@@ -1,3 +1,4 @@
+using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
 using SLZ.AI;
 using System.Collections;
@@ -28,38 +29,32 @@ namespace NEP.DOOMLAB.Entities
 
         private void ExplodeMissile(Mobj missile)
         {
-            missile.SetState(mobj.info.deathState);
             missile.rigidbody.velocity = Vector3.zero;
+            missile.SetState(mobj.info.deathState);
             missile.collider.enabled = false;
 
-            var hits = Physics.BoxCastAll(missile.transform.position, Vector3.one, missile.transform.position);
-            List<Mobj> mobjs = new List<Mobj>();
+            mobj.tics -= DoomGame.RNG.P_Random() & 3;
 
-            foreach(var hit in hits)
+            if(mobj.tics < 1)
             {
-                Mobj other = hit.transform.GetComponent<Mobj>();
-
-                hit.rigidbody?.AddExplosionForce(10f, hit.point, 10f);
-
-                if(other != null)
-                {
-                    mobjs.Add(other);
-                }
+                mobj.tics = 1;
             }
 
-            foreach(var mobj in mobjs)
-            {
-                mobj.TakeDamage(20, missile);
-
-                if (mobj.playerHealth)
-                {
-                    mobj.playerHealth.TAKEDAMAGE(1.5f);
-                }
-            }
+            mobj.flags &= MobjFlags.MF_MISSILE;
 
             if(mobj.info.deathSound != Sound.SoundType.sfx_None)
             {
                 SoundManager.Instance.PlaySound(mobj.info.deathSound, mobj.transform.position, false);
+            }
+
+            RaycastHit hit;
+            Physics.SphereCast(transform.position, 1f, transform.position, out hit);
+
+            Mobj hitMobj = hit.collider.GetComponent<Mobj>();
+
+            if(hitMobj != null && MobjManager.Instance.CheckThing(hitMobj, missile))
+            {
+                hitMobj.TakeDamage(1f, missile, missile.target);
             }
         }
     }
