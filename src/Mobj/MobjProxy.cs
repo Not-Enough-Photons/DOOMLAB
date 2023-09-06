@@ -9,6 +9,8 @@ namespace NEP.DOOMLAB.Entities
     {
         public MobjProxy(System.IntPtr ptr) : base(ptr) { }
 
+        public AIBrain AIBrain => aiBrain;
+
         private Mobj mobj;
         private AIBrain aiBrain;
         private TriggerRefProxy triggerRefProxy;
@@ -42,6 +44,16 @@ namespace NEP.DOOMLAB.Entities
             InitializeRefProxy();
         }
 
+        private void OnEnable()
+        {
+            Mobj.OnDeath += (mobj) => OnAIBrainDeath();
+        }
+
+        private void OnDisable()
+        {
+            Mobj.OnDeath -= (mobj) => OnAIBrainDeath();
+        }
+
         private void InitializeRefProxy()
         {
             triggerRefProxy.triggerType = TriggerRefProxy.TriggerType.Npc;
@@ -50,6 +62,11 @@ namespace NEP.DOOMLAB.Entities
             triggerRefProxy.chestTran = mobj.transform;
             triggerRefProxy.targetHead = mobj.rigidbody;
             triggerRefProxy._aiManager = aiBrain;
+        }
+
+        private void OnAIBrainDeath()
+        {
+            aiBrain.onNPC_DeathDelegate?.Invoke(aiBrain);
         }
     }
 }

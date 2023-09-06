@@ -44,22 +44,20 @@ namespace NEP.DOOMLAB.Entities
             { "Icon of Sin", MobjType.MT_BOSSBRAIN}
         };
 
+        public static Dictionary<string, MobjType> itemLookup = new Dictionary<string, MobjType>()
+        {
+            { "Megasphere", MobjType.MT_MEGA }
+        };
+
         public GameObject mobjPrefab;
 
         public List<Mobj> mobjs;
-
-        private bool spawnMenuPopulated;
 
         private void Awake()
         {
             Instance = this;
             mobjs = new List<Mobj>();
             mobjPrefab = Main.mobjTemplate;
-        }
-
-        private void Start()
-        {
-            SpawnMobj(Vector3.zero, MobjType.MT_POSSESSED);
         }
 
         public bool CheckThing(Mobj thing, Mobj other)
@@ -131,9 +129,12 @@ namespace NEP.DOOMLAB.Entities
             Mobj mobj = mobjBase.AddComponent<Mobj>();
             mobj.brain = mobjBase.AddComponent<MobjBrain>();
 
-            // var trpSphere = new GameObject();
-            // trpSphere.transform.parent = mobj.transform;
-            // trpSphere.AddComponent<MobjProxy>();
+            if(mobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE) || mobj.flags.HasFlag(MobjFlags.MF_COUNTKILL))
+            {
+                var trpSphere = new GameObject();
+                trpSphere.transform.parent = mobj.transform;
+                trpSphere.AddComponent<MobjProxy>();
+            }
 
             mobjBase.transform.GetChild(0).gameObject.AddComponent<DoomSpriteRenderer>();
             mobjBase.transform.GetChild(0).gameObject.AddComponent<BillboardLookAt>();

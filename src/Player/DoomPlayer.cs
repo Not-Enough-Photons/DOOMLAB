@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using SLZ.Rig;
 using UnityEngine;
 
@@ -10,7 +12,7 @@ namespace NEP.DOOMLAB.Player
 
         private PhysicsRig physicsRig;
 
-        private Collider[] playerColliders;
+        private List<Collider> playerColliders;
 
         private void Awake()
         {
@@ -19,7 +21,17 @@ namespace NEP.DOOMLAB.Player
 
         private void Start()
         {
-            playerColliders = new Collider[physicsRig.selfRbs.Count];
+            playerColliders = new List<Collider>();
+
+            foreach(var rigidbody in physicsRig.selfRbs)
+            {
+                playerColliders.Add(rigidbody.GetComponent<Collider>());
+            }
+        }
+
+        public Collider GetCollider(Collider collider)
+        {
+            return playerColliders.First((col) => col == collider);
         }
     }
 }

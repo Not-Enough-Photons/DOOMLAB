@@ -13,10 +13,12 @@ namespace NEP.DOOMLAB.Entities
         public MobjCollisionEvents(System.IntPtr ptr) : base(ptr) { }
 
         private Mobj mobj;
+        private RigidbodyProjectile rigidbodyProjectile;
 
         private void Awake()
         {
             mobj = GetComponent<Mobj>();
+            rigidbodyProjectile = gameObject.AddComponent<RigidbodyProjectile>();
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -47,14 +49,33 @@ namespace NEP.DOOMLAB.Entities
                 SoundManager.Instance.PlaySound(mobj.info.deathSound, mobj.transform.position, false);
             }
 
-            RaycastHit hit;
-            Physics.SphereCast(transform.position, 1f, transform.position, out hit);
+            var hitObjects = Physics.SphereCastAll(transform.position, 1f, transform.position);
 
-            Mobj hitMobj = hit.collider.GetComponent<Mobj>();
-
-            if(hitMobj != null && MobjManager.Instance.CheckThing(hitMobj, missile))
+            for(int i = 0; i < hitObjects.Length; i++)
             {
-                hitMobj.TakeDamage(1f, missile, missile.target);
+                var hitObject = hitObjects[i];
+
+                if(hitObject.rigidbody)
+                {
+                    hitObject.rigidbody.AddExplosionForce(250f, transform.position, 1.5f);
+                }
+
+                Mobj mobj = hitObject.collider.GetComponent<Mobj>();
+
+                if(mobj == null)
+                {
+                    continue;
+                }
+
+                if(!MobjManager.Instance.CheckThing(mobj, missile))
+                {
+                    continue;
+                }
+
+                if(mobj == Mobj.player)
+                {
+                    Mobj.player.playerHealth.TAKEDAMAGE(1f);
+                }
             }
         }
     }

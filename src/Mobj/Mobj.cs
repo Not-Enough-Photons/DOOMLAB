@@ -68,7 +68,7 @@ namespace NEP.DOOMLAB.Entities
         public Rigidbody rigidbody;
         public BoxCollider collider;
 
-        public Health playerHealth;
+        public Player_Health playerHealth;
         public TriggerRefProxy triggerRefProxy;
 
         private bool removedMobj;
@@ -76,13 +76,12 @@ namespace NEP.DOOMLAB.Entities
         private void Awake()
         {
             info = Info.MobjInfos[(int)type];
+            playerHealth = BoneLib.Player.rigManager.GetComponent<Player_Health>();
         }
 
         private void Start()
         {
             DoomGame.Instance.OnTick += WorldTick;
-
-            target = Mobj.player;
         }
 
         private void OnDestroy()
@@ -178,6 +177,14 @@ namespace NEP.DOOMLAB.Entities
             Destroy(gameObject);
         }
 
+        public void SetFlag(MobjFlags flags)
+        {
+            this.flags ^= flags;
+
+            collider.enabled = flags.HasFlag(MobjFlags.MF_SOLID);
+            rigidbody.useGravity = !flags.HasFlag(MobjFlags.MF_NOGRAVITY);
+        }
+
         public void TakeDamage(float damage, Mobj source, Mobj inflictor)
         {
             if(!flags.HasFlag(MobjFlags.MF_SHOOTABLE))
@@ -228,6 +235,11 @@ namespace NEP.DOOMLAB.Entities
         {
             flags &= ~(MobjFlags.MF_SHOOTABLE | MobjFlags.MF_FLOAT | MobjFlags.MF_SKULLFLY);
 
+            if (!flags.HasFlag(MobjFlags.MF_FLOAT))
+            {
+                rigidbody.useGravity = true;
+            }
+
             if(type == MobjType.MT_SKULL)
             {
                 flags &= ~MobjFlags.MF_NOGRAVITY;
@@ -251,9 +263,13 @@ namespace NEP.DOOMLAB.Entities
                 tics = 1;
             }
 
-            // Heavy: c1534c5a-97a9-43f7-be30-6095416d6d6f
-            // Medium: c1534c5a-57d4-4468-b5f0-c795416d6d6f
-            // Light: c1534c5a-683b-4c01-b378-6795416d6d6f
+            if(flags.HasFlag(MobjFlags.MF_COUNTKILL))
+            {
+                if(Mobj.player.playerHealth.deathIsImminent)
+                {
+                    Mobj.player.playerHealth.LifeSavingDamgeDealt();
+                }
+            }
 
             SpawnMobjAmmo(type);
 

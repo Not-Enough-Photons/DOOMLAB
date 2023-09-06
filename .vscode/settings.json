@@ -1,3 +1,8 @@
 {
-    "dotnet.defaultSolution": "DOOMLAB.sln"
+    "dotnet.defaultSolution": "DOOMLAB.sln",
+    "files.associations": {
+        "M_MISC.C": "cpp",
+        "P_TICK.C": "cpp",
+        "M_RANDOM.C": "cpp"
+    }
 }

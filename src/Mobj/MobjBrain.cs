@@ -30,6 +30,8 @@ namespace NEP.DOOMLAB.Entities
             315
         };
 
+        private int moveIndex = 0;
+
         private Mobj.MoveDirection[] opposite = new Mobj.MoveDirection[]
         {
             Mobj.MoveDirection.WEST, Mobj.MoveDirection.SOUTHWEST, Mobj.MoveDirection.SOUTH, Mobj.MoveDirection.SOUTHEAST,
@@ -77,18 +79,26 @@ namespace NEP.DOOMLAB.Entities
             {
                 print("Weird movedir");
                 return false;
+
+            }
+
+            if(Physics.Raycast(mobj.transform.position, mobj.transform.forward, out RaycastHit hit, 2f))
+            {
+                if(hit.rigidbody != null)
+                {
+                    if(hit.rigidbody.isKinematic)
+                    {
+                        return false;
+                    }
+                }
+
+                if(hit.collider.gameObject.isStatic)
+                {
+                    return false;
+                }
             }
 
             mobj.rigidbody.position += mobj.transform.forward * mobj.info.speed * Time.deltaTime;
-
-            RaycastHit hit;
-            bool tryOk = Physics.BoxCast(mobj.transform.position, mobj.collider.size / 2f, mobj.transform.forward, out hit);
-
-            /*if (!tryOk || hit.collider.gameObject.layer == LayerMask.NameToLayer("Static") || !hit.collider.isTrigger)
-            {
-                print("Move blocked");
-                return false;
-            }*/
 
             return true;
         }
@@ -120,11 +130,11 @@ namespace NEP.DOOMLAB.Entities
 
             Mobj.MoveDirection[] possibleDirections = new Mobj.MoveDirection[2];
 
-            if (deltaX > 0.5f)
+            if (deltaX > 1.5f)
             {
                 possibleDirections[0] = Mobj.MoveDirection.NORTH;
             }
-            else if (deltaX < -0.5f)
+            else if (deltaX < -1.5f)
             {
                 possibleDirections[0] = Mobj.MoveDirection.SOUTH;
             }
@@ -133,11 +143,11 @@ namespace NEP.DOOMLAB.Entities
                 possibleDirections[0] = Mobj.MoveDirection.NODIR;
             }
 
-            if (deltaZ > 0.5f)
+            if (deltaZ > 1.5f)
             {
                 possibleDirections[1] = Mobj.MoveDirection.EAST;
             }
-            else if (deltaZ < -0.5f)
+            else if (deltaZ < -1.5f)
             {
                 possibleDirections[1] = Mobj.MoveDirection.WEST;
             }
@@ -153,7 +163,7 @@ namespace NEP.DOOMLAB.Entities
             //                   south-west
             if (possibleDirections[0] != Mobj.MoveDirection.NODIR && possibleDirections[1] != Mobj.MoveDirection.NODIR)
             {
-                SetMoveDirection(diags[(deltaZ < 0 ? 1 : 0) * 2 + (deltaX > 0 ? 1 : 0)]);
+                mobj.moveDirection = diags[(deltaZ < 0 ? 1 : 0) * 2 + (deltaX > 0 ? 1 : 0)];
 
                 if(mobj.moveDirection != turnAround && TryWalk())
                 {
@@ -180,7 +190,7 @@ namespace NEP.DOOMLAB.Entities
 
             if(possibleDirections[0] != Mobj.MoveDirection.NODIR)
             {
-                SetMoveDirection(possibleDirections[0]);
+                mobj.moveDirection = possibleDirections[0];
 
                 if(TryWalk())
                 {
@@ -190,7 +200,7 @@ namespace NEP.DOOMLAB.Entities
 
             if(possibleDirections[1] != Mobj.MoveDirection.NODIR)
             {
-                SetMoveDirection(possibleDirections[1]);
+                mobj.moveDirection = possibleDirections[1];
 
                 if(TryWalk())
                 {
@@ -200,7 +210,7 @@ namespace NEP.DOOMLAB.Entities
 
             if(oldDir != Mobj.MoveDirection.NODIR)
             {
-                SetMoveDirection(oldDir);
+                mobj.moveDirection = oldDir;
 
                 if(TryWalk())
                 {
@@ -216,7 +226,7 @@ namespace NEP.DOOMLAB.Entities
                     {
                         if(tempDir != turnAround)
                         {
-                            SetMoveDirection(tempDir);
+                        mobj.moveDirection = tempDir;
 
                             if(TryWalk())
                             {
@@ -233,7 +243,7 @@ namespace NEP.DOOMLAB.Entities
                     {
                         if(tempDir != turnAround)
                         {
-                            SetMoveDirection(tempDir);
+                        mobj.moveDirection = tempDir;
 
                             if(TryWalk())
                             {
@@ -245,7 +255,7 @@ namespace NEP.DOOMLAB.Entities
 
             if(turnAround != Mobj.MoveDirection.NODIR)
             {
-                SetMoveDirection(turnAround);
+                mobj.moveDirection = turnAround;
                 
                 if (TryWalk())
                 {
@@ -253,7 +263,7 @@ namespace NEP.DOOMLAB.Entities
                 }
             }
 
-            SetMoveDirection(Mobj.MoveDirection.NODIR);
+            mobj.moveDirection = Mobj.MoveDirection.NODIR;
         }
 
         public bool CheckMeleeRange()
@@ -273,7 +283,7 @@ namespace NEP.DOOMLAB.Entities
 
         public bool CheckMissileRange()
         {
-            if (!CheckSight())
+            if (!CheckSight(mobj.target))
             {
                 MelonLoader.MelonLogger.Msg("Not in sight");
                 return false;
@@ -307,11 +317,32 @@ namespace NEP.DOOMLAB.Entities
             return true;
         }
 
-        public bool CheckSight()
+        // Checks if a raycast line is unobstructed.
+        public bool CheckSight(Mobj other)
         {
-            if(mobj.target == null)
+            if(other == null)
             {
                 return false;
+            }
+
+            Vector3 direction = other.transform.position - mobj.transform.position;
+            
+            if (Physics.Raycast(mobj.transform.position, direction, out RaycastHit hit))
+            {
+                if(hit.collider.gameObject.isStatic)
+                {
+                    return false;
+                }
+
+                if(hit.collider.gameObject.layer == LayerMask.NameToLayer("Static"))
+                {
+                    return false;
+                }
+
+                if(hit.rigidbody.isKinematic)
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -319,24 +350,24 @@ namespace NEP.DOOMLAB.Entities
 
         public bool FindPlayer()
         {
-            if(mobj.target == null)
+            Vector3 direction = Mobj.player.transform.position - mobj.transform.position;
+            float angle = Vector3.Angle(direction, mobj.transform.forward);
+
+            if (!CheckSight(Mobj.player))
             {
+                // Out of sight
                 return false;
             }
 
-            Vector3 directionToTarget = mobj.target.position - mobj.transform.position;
-            float angle = Vector3.Angle(directionToTarget, mobj.transform.forward);
-
-            if(angle < 90f * 0.5f)
+            if(angle > 45f)
             {
-                return false;
+                if(Vector3.Distance(Mobj.player.position, mobj.transform.position) > 1.5f)
+                {
+                    return false;
+                }
             }
 
-            if (!CheckSight())
-            {
-                return false;
-            }
-
+            mobj.target = Mobj.player;
             return true;
         }
 
@@ -411,6 +442,21 @@ namespace NEP.DOOMLAB.Entities
                 }
             }
 
+            if(mobj.moveDirection < Mobj.MoveDirection.NODIR || moveIndex < 8)
+            {
+                moveIndex = (int)mobj.moveDirection;
+                float angleDelta = mobj.transform.eulerAngles.y - directions[moveIndex];
+
+                if (angleDelta > 0)
+                {
+                    mobj.transform.eulerAngles = Vector3.up * directions[moveIndex--];
+                }
+                else if (angleDelta < 0)
+                {
+                    mobj.transform.eulerAngles = Vector3.up * directions[moveIndex++];
+                }
+            }
+
             if (mobj.target == null || !mobj.target.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
             {
                 mobj.SetState(mobj.info.spawnState);
@@ -439,7 +485,6 @@ namespace NEP.DOOMLAB.Entities
             {
                 if (mobj.moveCount != 0)
                 {
-                    mobj.moveCount--;
                     A_NoMissile();
                     return;
                 }
@@ -452,13 +497,12 @@ namespace NEP.DOOMLAB.Entities
 
                 mobj.SetState(mobj.info.missileState);
                 mobj.flags ^= MobjFlags.MF_JUSTATTACKED;
-                return;
             }
         }
 
         public void A_NoMissile()
         {
-            if (mobj.threshold == 0 && !CheckSight())
+            if (mobj.threshold == 0 && !CheckSight(mobj.target))
             {
                 if (FindPlayer())
                 {
@@ -546,7 +590,7 @@ namespace NEP.DOOMLAB.Entities
                 return;
             }
 
-            if(mobj.target == null || mobj.target.health <= 0 || !CheckSight())
+            if(mobj.target == null || mobj.target.health <= 0 || !CheckSight(mobj.target))
             {
                 mobj.SetState(mobj.info.seeState);
             }
@@ -561,7 +605,7 @@ namespace NEP.DOOMLAB.Entities
                 return;
             }
 
-            if(mobj.target == null || mobj.target.health == 0 || !CheckSight())
+            if(mobj.target == null || mobj.target.health == 0 || !CheckSight(mobj.target))
             {
                 mobj.SetState(mobj.info.seeState);
             }

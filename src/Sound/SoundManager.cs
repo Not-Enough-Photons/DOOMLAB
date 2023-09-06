@@ -43,7 +43,7 @@ namespace NEP.DOOMLAB.Sound
             }
         }
 
-        private AudioClip GetSound(SoundType soundType)
+        public AudioClip GetSound(SoundType soundType)
         {
             string name = soundType.ToString();
             string cleanedName = "DS" + name.Split('_')[1].ToUpper();
