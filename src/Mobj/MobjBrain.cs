@@ -99,6 +99,7 @@ namespace NEP.DOOMLAB.Entities
             }
 
             mobj.rigidbody.position += mobj.transform.forward * mobj.info.speed * Time.deltaTime;
+            
 
             return true;
         }
@@ -273,7 +274,7 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            if(Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > 0.5f)
+            if(Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > 1f)
             {
                 return false;
             }
@@ -285,11 +286,8 @@ namespace NEP.DOOMLAB.Entities
         {
             if (!CheckSight(mobj.target))
             {
-                MelonLoader.MelonLogger.Msg("Not in sight");
                 return false;
             }
-
-            MelonLoader.MelonLogger.Msg("In sight");
 
             float distance = Vector3.Distance(mobj.transform.position, mobj.target.transform.position);
 
@@ -339,7 +337,7 @@ namespace NEP.DOOMLAB.Entities
                     return false;
                 }
 
-                if(hit.rigidbody.isKinematic)
+                if(hit.rigidbody != null && hit.rigidbody.isKinematic)
                 {
                     return false;
                 }

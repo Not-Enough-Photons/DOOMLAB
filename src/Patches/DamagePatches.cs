@@ -16,24 +16,26 @@ namespace NEP.DOOMLAB.Patches
             {
                 Mobj hitMobj = hitCol.GetComponent<Mobj>();
 
-                if(hitMobj)
+                if (hitMobj == null)
                 {
-                    if(!hitMobj.flags.HasFlag(MobjFlags.MF_SOLID | MobjFlags.MF_SHOOTABLE))
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    if(hitMobj.flags.HasFlag(MobjFlags.MF_CORPSE))
-                    {
-                        return;
-                    }
+                if (!hitMobj.flags.HasFlag(MobjFlags.MF_SOLID | MobjFlags.MF_SHOOTABLE))
+                {
+                    return;
+                }
 
-                    hitMobj.TakeDamage(__instance._data.damageMultiplier * (DoomGame.RNG.P_Random() & 3) * 6f, Mobj.player, Mobj.player);
+                if (hitMobj.flags.HasFlag(MobjFlags.MF_CORPSE))
+                {
+                    return;
+                }
 
-                    if (!hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
-                    {
-                        MobjManager.Instance.SpawnMobj(world, Data.MobjType.MT_BLOOD);
-                    }
+                hitMobj.TakeDamage(__instance._data.damageMultiplier * (DoomGame.RNG.P_Random() & 3) * 6f, Mobj.player, Mobj.player);
+
+                if (!hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
+                {
+                    MobjManager.Instance.SpawnMobj(world, Data.MobjType.MT_BLOOD);
                 }
             }));
         }

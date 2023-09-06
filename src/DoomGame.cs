@@ -7,65 +7,7 @@ namespace NEP.DOOMLAB.Game
     {
         public static class RNG
         {
-            public enum PRandomType
-            {
-                pr_skullfly,                // #1
-                pr_damage,                  // #2
-                pr_crush,                   // #3
-                pr_genlift,                 // #4
-                pr_killtics,                // #5
-                pr_damagemobj,              // #6
-                pr_painchance,              // #7
-                pr_lights,                  // #8
-                pr_explode,                 // #9
-                pr_respawn,                 // #10
-                pr_lastlook,                // #11
-                pr_spawnthing,              // #12
-                pr_spawnpuff,               // #13
-                pr_spawnblood,              // #14
-                pr_missile,                 // #15
-                pr_shadow,                  // #16
-                pr_plats,                   // #17
-                pr_punch,                   // #18
-                pr_punchangle,              // #19
-                pr_saw,                     // #20
-                pr_plasma,                  // #21
-                pr_gunshot,                 // #22
-                pr_misfire,                 // #23
-                pr_shotgun,                 // #24
-                pr_bfg,                     // #25
-                pr_slimehurt,               // #26
-                pr_dmspawn,                 // #27
-                pr_missrange,               // #28
-                pr_trywalk,                 // #29
-                pr_newchase,                // #30
-                pr_newchasedir,             // #31
-                pr_see,                     // #32
-                pr_facetarget,              // #33
-                pr_posattack,               // #34
-                pr_sposattack,              // #35
-                pr_cposattack,              // #36
-                pr_spidrefire,              // #37
-                pr_troopattack,             // #38
-                pr_sargattack,              // #39
-                pr_headattack,              // #40
-                pr_bruisattack,             // #41
-                pr_tracer,                  // #42
-                pr_skelfist,                // #43
-                pr_scream,                  // #44
-                pr_brainscream,             // #45
-                pr_cposrefire,              // #46
-                pr_brainexp,                // #47
-                pr_spawnfly,                // #48
-                pr_misc,                    // #49
-                pr_all_in_one,              // #50
-                                            // Start new entries -- add new entries below
-
-                // End of new entries
-                NUMPRCLASS               // MUST be last item in list
-            }
-
-            public static readonly int[] rngTable = new int[]
+            public static int[] rngTable = new int[]
             {
                 0,   8, 109, 220, 222, 241, 149, 107,  75, 248, 254, 140,  16,  66 ,
                 74,  21, 211,  47,  80, 242, 154,  27, 205, 128, 161,  89,  77,  36 ,
@@ -90,26 +32,6 @@ namespace NEP.DOOMLAB.Game
 
             private static int rndIndex = 0;
             private static int prndIndex = 0;
-
-            private static int seed = 1993; // killough 3/26/98: The seed
-
-            private static long[] rngSeeder = new long[(int)PRandomType.NUMPRCLASS];
-
-            // using killough's RNG method for a more normally distributed probability
-            public static int P_Random(PRandomType prClass = PRandomType.pr_all_in_one)
-            {
-                long boom;
-
-                boom = rngSeeder[(int)prClass] * seed;
-
-                // killough 3/26/98: add pr_class*2 to addend
-
-                rngSeeder[(int)prClass] = boom * 1664525 + 221297 + (int)prClass * 2;
-
-                boom >>= 20;
-
-                return (int)boom & 255;
-            }
 
             public static int P_Random()
             {

@@ -46,7 +46,13 @@ namespace NEP.DOOMLAB.Entities
 
         public static Dictionary<string, MobjType> itemLookup = new Dictionary<string, MobjType>()
         {
-            { "Megasphere", MobjType.MT_MEGA }
+            { "Megasphere", MobjType.MT_MEGA },
+            { "Partial Invisibility", MobjType.MT_INV },
+        };
+
+        public static Dictionary<string, MobjType> decorationLookup = new Dictionary<string, MobjType>()
+        {
+            //{ "" }
         };
 
         public GameObject mobjPrefab;
@@ -137,7 +143,6 @@ namespace NEP.DOOMLAB.Entities
             }
 
             mobjBase.transform.GetChild(0).gameObject.AddComponent<DoomSpriteRenderer>();
-            mobjBase.transform.GetChild(0).gameObject.AddComponent<BillboardLookAt>();
 
             mobj.rigidbody = mobjBase.AddComponent<Rigidbody>();
             mobj.collider = mobjBase.AddComponent<BoxCollider>();

@@ -55,7 +55,7 @@ namespace NEP.DOOMLAB
 
             player = BoneLib.Player.physicsRig.m_chest.gameObject.AddComponent<Mobj>();
             player.flags ^= MobjFlags.MF_SHOOTABLE;
-            player.playerHealth = BoneLib.Player.rigManager.health;
+            player.playerHealth = BoneLib.Player.rigManager.GetComponent<Player_Health>();
         }
 
         internal void BoneMenuStuff()

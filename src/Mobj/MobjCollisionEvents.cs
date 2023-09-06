@@ -25,11 +25,11 @@ namespace NEP.DOOMLAB.Entities
         {
             if(mobj.flags.HasFlag(MobjFlags.MF_MISSILE))
             {
-                ExplodeMissile(mobj);
+                ExplodeMissile(mobj, collision);
             }
         }
 
-        private void ExplodeMissile(Mobj missile)
+        private void ExplodeMissile(Mobj missile, Collision collision)
         {
             missile.rigidbody.velocity = Vector3.zero;
             missile.SetState(mobj.info.deathState);
@@ -47,6 +47,14 @@ namespace NEP.DOOMLAB.Entities
             if(mobj.info.deathSound != Sound.SoundType.sfx_None)
             {
                 SoundManager.Instance.PlaySound(mobj.info.deathSound, mobj.transform.position, false);
+            }
+
+            Mobj collidedMobj = collision.collider.GetComponent<Mobj>();
+
+            // Direct impact
+            if(collidedMobj != null)
+            {
+                collidedMobj.TakeDamage(1f, mobj.target, mobj);
             }
 
             var hitObjects = Physics.SphereCastAll(transform.position, 1f, transform.position);
@@ -76,6 +84,8 @@ namespace NEP.DOOMLAB.Entities
                 {
                     Mobj.player.playerHealth.TAKEDAMAGE(1f);
                 }
+
+                mobj.TakeDamage(1f, mobj.target, mobj);
             }
         }
     }

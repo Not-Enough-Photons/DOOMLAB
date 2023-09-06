@@ -21,9 +21,6 @@ namespace NEP.DOOMLAB.Rendering
 
         private Camera camera;
 
-        private Shader litShader;
-        private Shader unlitShader;
-
         private void Awake()
         {
             meshRenderer = GetComponent<MeshRenderer>();
@@ -48,6 +45,15 @@ namespace NEP.DOOMLAB.Rendering
         private void OnDestroy()
         {
             DoomGame.Instance.OnTick -= UpdateSprite;
+        }
+
+        private void Update()
+        {
+            camera = Camera.main;
+            Vector3 cameraPosition = camera.transform.position;
+            Quaternion rotation = Quaternion.LookRotation(cameraPosition - transform.position, Vector3.up);
+            Vector3 targetRotationEuler = new Vector3(transform.eulerAngles.x, rotation.eulerAngles.y, transform.eulerAngles.z);
+            transform.rotation = Quaternion.Euler(targetRotationEuler);
         }
 
         public void UpdateSprite()

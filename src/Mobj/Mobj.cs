@@ -217,12 +217,12 @@ namespace NEP.DOOMLAB.Entities
 
             reactionTime = 0;
 
-            if (threshold == 0 || target.type == MobjType.MT_VILE
+            if (threshold == 0 || type == MobjType.MT_VILE
                 && source != null && source != target
                 && source.type != MobjType.MT_VILE)
             {
-                target.target = source;
-                target.threshold = 8;
+                target = source;
+                threshold = 8;
 
                 if(target.state == Info.GetState(target.info.spawnState))
                 {
