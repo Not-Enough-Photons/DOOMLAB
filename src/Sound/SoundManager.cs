@@ -22,7 +22,7 @@ namespace NEP.DOOMLAB.Sound
         {
             Instance = this;
 
-            soundLumps = WADManager.Instance.IWAD.sounds.ToArray();
+            LoadWADAudio(WADManager.Instance.IWAD.sounds);
 
             pooledAudioObjects = new List<GameObject>();
             GameObject listObj = new GameObject("Pooled Audio");
@@ -41,6 +41,16 @@ namespace NEP.DOOMLAB.Sound
                 pooledAudio.SetActive(false);
                 pooledAudioObjects.Add(pooledAudio);
             }
+        }
+
+        public void LoadWADAudio(List<WAD.DataTypes.Sound> sounds)
+        {
+            LoadWADAudio(sounds.ToArray());
+        }
+
+        public void LoadWADAudio(WAD.DataTypes.Sound[] sounds)
+        {
+            soundLumps = sounds;
         }
 
         public AudioClip GetSound(SoundType soundType)

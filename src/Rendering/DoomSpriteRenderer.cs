@@ -49,7 +49,6 @@ namespace NEP.DOOMLAB.Rendering
 
         private void Update()
         {
-            camera = Camera.main;
             Vector3 cameraPosition = camera.transform.position;
             Quaternion rotation = Quaternion.LookRotation(cameraPosition - transform.position, Vector3.up);
             Vector3 targetRotationEuler = new Vector3(transform.eulerAngles.x, rotation.eulerAngles.y, transform.eulerAngles.z);
@@ -64,7 +63,6 @@ namespace NEP.DOOMLAB.Rendering
                 return;
             }
 
-            camera = Camera.main;
             float angle = Vector3.SignedAngle(mobj.transform.forward, camera.transform.forward, Vector3.up);
 
             angle = Mathf.Repeat(angle + 180f, 360f) - 180f;
@@ -85,6 +83,13 @@ namespace NEP.DOOMLAB.Rendering
 
             SpriteDef spriteDef = spriteDefs[(int)mobj.sprite];
             SpriteFrame spriteFrame = spriteDef.GetFrame(stateFrame);
+
+            // absolutely do NOT render anything if
+            // the patch array is null/empty
+            if(spriteFrame.patches == null)
+            {
+                return;
+            }
 
             float spriteWidth = spriteFrame.patches[index].width / 32f;
             float spriteHeight = spriteFrame.patches[index].height / 32f;

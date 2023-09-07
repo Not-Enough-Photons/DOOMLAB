@@ -145,6 +145,7 @@ namespace NEP.DOOMLAB.WAD
                 if (entries[i].name == "PLAYPAL")
                 {
                     palette = entries[i];
+                    break;
                 }
             }
 

@@ -24,11 +24,15 @@ namespace NEP.DOOMLAB.WAD
             "PLUTONIA",
             "FREEDOOM1",
             "FREEDOOM2",
+            "CHEX",
+            "HERETIC",
+            "HEXEN"
         };
 
         public WADFile LoadWAD(string file)
         {
             var wadFile = new WADFile(file);
+
             wadFile.ReadHeader();
             wadFile.ReadIndexEntries();
             wadFile.ReadPalette();

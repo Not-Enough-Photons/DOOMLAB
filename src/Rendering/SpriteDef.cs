@@ -16,6 +16,12 @@ namespace NEP.DOOMLAB.Rendering
 
         public SpriteFrame GetFrame(int frame)
         {
+            if(spriteFrames == null)
+            {
+                // return an empty sprite frame
+                return new SpriteFrame();
+            }
+
             if (frame > spriteFrames.Length - 1)
             {
                 return spriteFrames[spriteFrames.Length - 1];
