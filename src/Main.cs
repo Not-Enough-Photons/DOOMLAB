@@ -64,6 +64,8 @@ namespace NEP.DOOMLAB
             var doomCategory = menuCategory.CreateCategory("DOOMLAB", Color.white);
 
             doomCategory.CreateBoolElement("Disable AI", Color.white, false, (value) => Settings.DisableAI = value);
+
+            var wadCategory = 
         }
     }
 }
