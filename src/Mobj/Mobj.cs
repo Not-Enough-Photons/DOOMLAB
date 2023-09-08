@@ -172,7 +172,7 @@ namespace NEP.DOOMLAB.Entities
 
         public void OnRemove()
         {
-            var spriteRenderer = GetComponentInChildren<Rendering.DoomSpriteRenderer>();
+            var spriteRenderer = GetComponentInChildren<Rendering.MobjRenderer>();
             Destroy(spriteRenderer);
             Destroy(gameObject);
         }

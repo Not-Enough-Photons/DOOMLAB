@@ -6,9 +6,9 @@ using UnityEngine;
 namespace NEP.DOOMLAB.Rendering
 {
     [MelonLoader.RegisterTypeInIl2Cpp]
-    public class DoomSpriteRenderer : MonoBehaviour
+    public class MobjRenderer : MonoBehaviour
     {
-        public DoomSpriteRenderer(System.IntPtr ptr) : base(ptr) { }
+        public MobjRenderer(System.IntPtr ptr) : base(ptr) { }
 
         public MobjType mobjType;
 
@@ -17,7 +17,7 @@ namespace NEP.DOOMLAB.Rendering
         public Mobj mobj;
 
         private MeshRenderer meshRenderer;
-        private SpriteDef[] spriteDefs;
+        private static SpriteDef[] spriteDefs;
 
         private Camera camera;
 
@@ -25,20 +25,18 @@ namespace NEP.DOOMLAB.Rendering
         {
             meshRenderer = GetComponent<MeshRenderer>();
             mobj = GetComponentInParent<Mobj>();
-            spriteDefs = SpriteLumpGenerator.sprites;
             game = DoomGame.Instance;
             camera = Camera.main;
         }
 
         private void Start()    
         {
-            spriteDefs = SpriteLumpGenerator.sprites;
-
             DoomGame.Instance.OnTick += UpdateSprite;
         }
 
         private void OnEnable()
         {
+            LoadSpriteDefs();
             UpdateSprite();
         }
 
@@ -55,14 +53,13 @@ namespace NEP.DOOMLAB.Rendering
             transform.rotation = Quaternion.Euler(targetRotationEuler);
         }
 
+        public static void LoadSpriteDefs()
+        {
+            spriteDefs = SpriteLumpGenerator.sprites;
+        }
+
         public void UpdateSprite()
         {
-            if (spriteDefs == null)
-            {
-                spriteDefs = SpriteLumpGenerator.sprites;
-                return;
-            }
-
             float angle = Vector3.SignedAngle(mobj.transform.forward, camera.transform.forward, Vector3.up);
 
             angle = Mathf.Repeat(angle + 180f, 360f) - 180f;

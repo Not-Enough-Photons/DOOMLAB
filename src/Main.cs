@@ -10,6 +10,8 @@ using NEP.DOOMLAB.Rendering;
 using BoneLib.BoneMenu.Elements;
 using BoneLib.BoneMenu;
 using MK.Glow;
+using HarmonyLib;
+using System.Collections.Generic;
 
 namespace NEP.DOOMLAB
 {
@@ -31,12 +33,12 @@ namespace NEP.DOOMLAB
 
         public override void OnInitializeMelon()
         {
-            bundle = AssetBundle.LoadFromFile(Path.Combine(MelonUtils.UserDataDirectory, "doomlab.pack"));
+            bundle = AssetBundle.LoadFromFile(Path.Combine(MelonUtils.UserDataDirectory + "/Not Enough Photons/DOOMLAB", "doomlab.pack"));
             mobjTemplate = bundle.LoadAsset("[MOBJ] - Null").Cast<GameObject>();
             mobjTemplate.hideFlags = HideFlags.DontUnloadUnusedAsset;
 
             new WADManager();
-            WADManager.Instance.IWAD = WADManager.Instance.LoadWAD(WADManager.Instance.GetIWAD());
+            WADManager.Instance.LoadWAD(WADManager.Instance.GetIWAD());
             SpriteLumpGenerator.Initialize();
 
             DoomGame game = new DoomGame();
@@ -63,9 +65,35 @@ namespace NEP.DOOMLAB
             MenuCategory menuCategory = MenuManager.CreateCategory("Not Enough Photons", Color.white);
             var doomCategory = menuCategory.CreateCategory("DOOMLAB", Color.white);
 
-            doomCategory.CreateBoolElement("Disable AI", Color.white, false, (value) => Settings.DisableAI = value);
+            doomCategory.CreateBoolElement("Disable Thinking", Color.white, false, (value) => Settings.DisableAI = value);
 
-            var wadCategory = 
+            var wadCategory = doomCategory.CreateSubPanel("WADS", Color.white);
+            string[] iwadNames = WADManager.Instance.GetWADsInFolder(WADFile.WADType.IWAD, false);
+            string[] pwadNames = WADManager.Instance.GetWADsInFolder(WADFile.WADType.PWAD, false);
+
+            for(int i = 0; i < iwadNames.Length; i++)
+            {
+                int index = i;
+                wadCategory.CreateFunctionElement(iwadNames[index], Color.white, () =>
+                {
+                    WADManager.Instance.LoadWAD(WADManager.Instance.IWADS[index]);
+                    SpriteLumpGenerator.Initialize();
+                    MobjRenderer.LoadSpriteDefs();
+                    SoundManager.Instance.LoadWADAudio(WADManager.Instance.LoadedWAD.sounds);
+                });
+            }
+
+            for(int i = 0; i < pwadNames.Length; i++)
+            {
+                int index = i;
+                wadCategory.CreateFunctionElement(pwadNames[index], Color.white, () =>
+                {
+                    WADManager.Instance.LoadWAD(WADManager.Instance.PWADS[index]);
+                    SpriteLumpGenerator.Initialize();
+                    MobjRenderer.LoadSpriteDefs();
+                    SoundManager.Instance.LoadWADAudio(WADManager.Instance.LoadedWAD.sounds);
+                });
+            }
         }
     }
 }

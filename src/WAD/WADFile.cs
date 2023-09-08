@@ -209,8 +209,6 @@ namespace NEP.DOOMLAB.WAD
 
         public void ReadSound(WADIndexEntry entry)
         {
-            MelonLogger.Msg(entry.name);
-
             if(entry.size <= 4)
             {
                 return;
@@ -224,9 +222,7 @@ namespace NEP.DOOMLAB.WAD
             sound.sampleRate = reader.ReadUInt16();
             sound.sampleCount = reader.ReadUInt16();
             sound.soundData = reader.ReadBytes(sound.sampleCount - 7);
-
-            MelonLoader.MelonLogger.Msg(sound.sampleRate);
-
+            
             float[] samples = new float[sound.soundData.Length];
 
             for (int i = 0; i < samples.Length; i++)
@@ -243,8 +239,6 @@ namespace NEP.DOOMLAB.WAD
 
         public void ReadPatch(WADIndexEntry entry)
         {
-            MelonLogger.Msg($"Begin reading {entry.name}");
-
             reader.BaseStream.Seek(entry.offset, SeekOrigin.Begin);
 
             var width = reader.ReadInt16();
@@ -297,34 +291,6 @@ namespace NEP.DOOMLAB.WAD
             patch.output = tex;
             patch.output.hideFlags = HideFlags.DontUnloadUnusedAsset;
             patches.Add(patch);
-
-            /*             int colIdx = 0;
-                        while (colIdx != width)
-                        {
-                            int row = reader.ReadByte();
-                            int pixelsInColumn = reader.ReadByte();
-                            reader.ReadByte();
-
-                            for (int i = 0; i < pixelsInColumn; i++)
-                            {
-                                //tex.SetPixel(colIdx, height - row - i - 1, colorPal[reader.ReadByte()]);
-                                tex.SetPixel(colIdx, height - row - i - 1, colorPal[reader.ReadByte()]);
-                            }
-
-                            reader.ReadByte();
-
-                            if (PeekByte() == 255)
-                            {
-                                colIdx++;
-                                reader.ReadByte();
-                            }
-                        }
-
-                        tex.Apply();
-                        patch.output = tex;
-                        patch.output.hideFlags = HideFlags.DontUnloadUnusedAsset;
-                        patches.Add(patch);
-             */
         }
     }
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace NEP.DOOMLAB.WAD
 {
@@ -14,7 +15,16 @@ namespace NEP.DOOMLAB.WAD
 
         public static WADManager Instance { get; private set; }
 
-        public WADFile IWAD;
+        public Dictionary<string, WADFile> LoadedWADs { get; private set; } = new Dictionary<string, WADFile>();
+
+        public WADFile LoadedWAD { get; private set; }
+
+        public string FolderPath => Path.Combine(MelonLoader.MelonUtils.UserDataDirectory, "Not Enough Photons/DOOMLAB");
+        public string IWADPath => Path.Combine(FolderPath, "IWADS");
+        public string PWADPath => Path.Combine(FolderPath, "PWADS");
+
+        public string[] IWADS => GetWADsInFolder(WADFile.WADType.IWAD, true);
+        public string[] PWADS => GetWADsInFolder(WADFile.WADType.PWAD, true);
 
         private readonly string[] iwads = new string[]
         {
@@ -29,8 +39,16 @@ namespace NEP.DOOMLAB.WAD
             "HEXEN"
         };
 
-        public WADFile LoadWAD(string file)
+        public void LoadWAD(string file)
         {
+            string fileName = GetWADFileName(file);
+
+            if(LoadedWADs.ContainsKey(fileName))
+            {
+                LoadedWAD = LoadedWADs[fileName];
+                return;
+            }
+
             var wadFile = new WADFile(file);
 
             wadFile.ReadHeader();
@@ -39,13 +57,13 @@ namespace NEP.DOOMLAB.WAD
             wadFile.ReadAllSounds();
             wadFile.ReadAllSprites();
 
-            return wadFile;
+            LoadedWAD = wadFile;
+            LoadedWADs.Add(fileName, wadFile);
         }
 
         public string GetIWAD()
         {
-            string path = MelonLoader.MelonUtils.UserDataDirectory;
-            string[] files = Directory.GetFiles(path);
+            string[] files = Directory.GetFiles(IWADPath);
             string result = "";
 
             for(int i = 0; i < iwads.Length; i++)
@@ -58,7 +76,6 @@ namespace NEP.DOOMLAB.WAD
 
                     if (fileName.ToLower() == iwadName.ToLower())
                     {
-                        Debug.Log(file);
                         result = file;
                         break;
                     }
@@ -66,6 +83,32 @@ namespace NEP.DOOMLAB.WAD
             }
 
             return result;
+        }
+    
+        public string[] GetWADsInFolder(WADFile.WADType wadType, bool fullPath = false)
+        {
+            string path = wadType == WADFile.WADType.IWAD ? IWADPath : PWADPath;
+            string[] files = Directory.GetFiles(path);
+
+            if(fullPath)
+            {
+                return files;
+            }
+
+            string[] wadFileNames = new string[files.Length];
+
+            for(int i = 0; i < wadFileNames.Length; i++)
+            {
+                wadFileNames[i] = GetWADFileName(files[i]);
+            }
+
+            return wadFileNames;
+        }
+
+        public string GetWADFileName(string pathToWad)
+        {
+            string[] splitPath = pathToWad.Split((char)92);
+            return splitPath[splitPath.Length - 1];
         }
     }
 }

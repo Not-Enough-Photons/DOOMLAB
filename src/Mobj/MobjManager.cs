@@ -142,7 +142,7 @@ namespace NEP.DOOMLAB.Entities
                 trpSphere.AddComponent<MobjProxy>();
             }
 
-            mobjBase.transform.GetChild(0).gameObject.AddComponent<DoomSpriteRenderer>();
+            mobjBase.transform.GetChild(0).gameObject.AddComponent<MobjRenderer>();
 
             mobj.rigidbody = mobjBase.AddComponent<Rigidbody>();
             mobj.collider = mobjBase.AddComponent<BoxCollider>();

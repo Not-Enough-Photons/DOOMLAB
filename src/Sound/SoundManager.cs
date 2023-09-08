@@ -22,7 +22,7 @@ namespace NEP.DOOMLAB.Sound
         {
             Instance = this;
 
-            LoadWADAudio(WADManager.Instance.IWAD.sounds);
+            LoadWADAudio(WADManager.Instance.LoadedWAD.sounds);
 
             pooledAudioObjects = new List<GameObject>();
             GameObject listObj = new GameObject("Pooled Audio");
