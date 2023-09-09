@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-
+using MelonLoader;
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
@@ -343,6 +343,7 @@ namespace NEP.DOOMLAB.Entities
                 }
             }
 
+            MelonLogger.Msg($"{mobj.type} sees {Mobj.player.name}!");
             return true;
         }
 
@@ -555,7 +556,7 @@ namespace NEP.DOOMLAB.Entities
             float damage = ((DoomGame.RNG.P_Random() % 5) + 1) * 3;
             RaycastHit hit;
             
-            if(Physics.Raycast(mobj.transform.position, mobj.target.position, out hit))
+            if(Physics.Raycast(mobj.transform.position, mobj.target.position - mobj.transform.position, out hit))
             {
                 if (mobj.target == Mobj.player)
                 {

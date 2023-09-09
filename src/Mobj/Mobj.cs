@@ -91,6 +91,8 @@ namespace NEP.DOOMLAB.Entities
 
         private void WorldTick()
         {
+            Mobj.player.health = Mobj.player.playerHealth.curr_Health;
+
             if(Settings.DisableAI)
             {
                 return;
