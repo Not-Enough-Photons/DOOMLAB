@@ -1,8 +1,4 @@
-﻿
-using System.Collections.Generic;
-using NEP.DOOMLAB.WAD.DataTypes;
-
-namespace NEP.DOOMLAB.Rendering
+﻿namespace NEP.DOOMLAB.Rendering
 {
     public struct SpriteDef
     {

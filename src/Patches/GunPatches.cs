@@ -1,5 +1,3 @@
-using UnityEngine;
-
 using SLZ.AI;
 using SLZ.Props.Weapons;
 

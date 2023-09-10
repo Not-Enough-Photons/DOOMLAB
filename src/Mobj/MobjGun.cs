@@ -2,6 +2,7 @@ using UnityEngine;
 
 using SLZ.Props.Weapons;
 using SLZ.SFX;
+
 using NEP.DOOMLAB.Sound;
 
 namespace NEP.DOOMLAB.Entities

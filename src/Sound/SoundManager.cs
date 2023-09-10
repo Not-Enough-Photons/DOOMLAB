@@ -69,6 +69,30 @@ namespace NEP.DOOMLAB.Sound
             return null;
         }
 
+        public void PlaySound(SoundType soundType, AudioSource source, bool fullVolume)
+        {
+            if(source == null)
+            {
+                return;
+            }
+
+            if((int)soundType < 1 || soundType == SoundType.sfx_None)
+            {
+                return;
+            }
+
+            AudioClip sound = GetSound(soundType);
+
+            if (sound == null)
+            {
+                return;
+            }
+
+            source.clip = sound;
+            source.spatialBlend = fullVolume ? 0f : 0.75f;
+            source.Play();
+        }
+
         public void PlaySound(SoundType soundType, Vector3 position, bool fullVolume)
         {
             if((int)soundType < 1 || soundType == SoundType.sfx_None)
@@ -77,6 +101,11 @@ namespace NEP.DOOMLAB.Sound
             }
 
             AudioClip sound = GetSound(soundType);
+
+            if (sound == null)
+            {
+                return;
+            }
 
             GameObject first = pooledAudioObjects.FirstOrDefault((inactive) => !inactive.activeInHierarchy);
             AudioSource src = first.GetComponent<AudioSource>();

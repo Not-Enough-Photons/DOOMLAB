@@ -45,6 +45,7 @@ if not os.path.exists("Links"):
 
 debug_build = "--debug" in sys.argv
 run_after = False
+quest_build = False
 
 if "clean" in sys.argv:
     command = "dotnet clean"
@@ -60,6 +61,11 @@ if "clean" in sys.argv:
 if "run" in sys.argv:
     print("[Build] Will run BONELAB after building...")
     run_after = True
+
+if "quest" in sys.argv:
+    print("[Build] Building for Quest... make sure the Quest is connected!")
+    quest_build = True
+
 
 command = "dotnet build"
 
@@ -99,6 +105,13 @@ else:
 out_path += "DOOMLAB.dll"
 
 print("[Build] Output is located at '" + out_path + "'")
+
+if quest_build:
+    with open(out_path, "rb") as out_file:
+        with open('Quest 2/sdcard/Android/data/com.StressLevelZero.BONELAB/files/Mods' , 'wb') as dst_file:
+            dst_file.write(out_file.read())
+
+    print("[Build] Copied DOOMLAB.dll to the Quest mods folder!")
 
 if run_after:
     # Forces an overwrite of the existing file

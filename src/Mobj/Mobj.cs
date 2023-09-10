@@ -1,14 +1,14 @@
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Game;
-using NEP.DOOMLAB.Sound;
+
 using SLZ.AI;
 using SLZ.Combat;
 using SLZ.Marrow.Data;
 using SLZ.Marrow.Pool;
 using SLZ.Marrow.Warehouse;
+
 using System;
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 
 namespace NEP.DOOMLAB.Entities
@@ -71,6 +71,8 @@ namespace NEP.DOOMLAB.Entities
 
         public Player_Health playerHealth;
         public TriggerRefProxy triggerRefProxy;
+
+        public AudioSource audioSource;
 
         private bool removedMobj;
 
@@ -190,18 +192,30 @@ namespace NEP.DOOMLAB.Entities
 
         public bool LineAttack(float damage, float distance)
         {
-            if(Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, distance))
+            if(target == null)
+            {
+                return false;
+            }
+
+            Ray ray = new Ray(transform.position, target.transform.position);
+
+            if(Physics.Raycast(ray, out RaycastHit hit, distance))
             {
                 Collider collider = hit.collider;
                 ImpactProperties impactProperties = collider.GetComponent<ImpactProperties>();
 
-                if(impactProperties)
+                if(impactProperties != null)
                 {
                     MobjManager.Instance.SpawnMobj(hit.point, MobjType.MT_PUFF);
                     return false;
                 }
 
                 Mobj hitMobj = collider.GetComponent<Mobj>();
+
+                if(hitMobj == null)
+                {
+                    return false;
+                }
 
                 if(hitMobj == this)
                 {
@@ -262,7 +276,7 @@ namespace NEP.DOOMLAB.Entities
                 return true;
             }
 
-            if(brain.CheckSight(spot))
+            if(target.brain.CheckSight(spot))
             {
                 target.TakeDamage(bombDamage  - distance, this, spot);
             }
@@ -318,11 +332,19 @@ namespace NEP.DOOMLAB.Entities
 
         public void Kill()
         {
+            if(this == player)
+            {
+                return;
+            }
+
             flags &= ~(MobjFlags.MF_SHOOTABLE | MobjFlags.MF_FLOAT | MobjFlags.MF_SKULLFLY);
 
             if (!flags.HasFlag(MobjFlags.MF_FLOAT))
             {
-                rigidbody.useGravity = true;
+                if(rigidbody != null)
+                {
+                    rigidbody.useGravity = true;
+                }
             }
 
             if(type == MobjType.MT_SKULL)
@@ -330,9 +352,12 @@ namespace NEP.DOOMLAB.Entities
                 flags &= ~MobjFlags.MF_NOGRAVITY;
             }
             
-            collider.size = new Vector3(radius / 32f, (height / 32f) / 4f, radius / 32f);
+            if(collider != null)
+            {
+                collider.size = new Vector3(radius / 32f, (height / 32f) / 4f, radius / 32f);
+            }
 
-            if(health < -info.spawnHealth && info.xDeathState != StateNum.S_NULL)
+            if (health < -info.spawnHealth && info.xDeathState != StateNum.S_NULL)
             {
                 SetState(info.xDeathState);
             }

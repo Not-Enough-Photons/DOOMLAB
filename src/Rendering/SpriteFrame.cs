@@ -1,5 +1,4 @@
 ﻿using NEP.DOOMLAB.WAD.DataTypes;
-using System.Collections.Generic;
 
 namespace NEP.DOOMLAB.Rendering
 {

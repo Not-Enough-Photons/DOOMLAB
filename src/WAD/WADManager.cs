@@ -19,10 +19,6 @@ namespace NEP.DOOMLAB.WAD
 
         public WADFile LoadedWAD { get; private set; }
 
-        public string FolderPath => Path.Combine(MelonLoader.MelonUtils.UserDataDirectory, "Not Enough Photons/DOOMLAB");
-        public string IWADPath => Path.Combine(FolderPath, "IWADS");
-        public string PWADPath => Path.Combine(FolderPath, "PWADS");
-
         public string[] IWADS => GetWADsInFolder(WADFile.WADType.IWAD, true);
         public string[] PWADS => GetWADsInFolder(WADFile.WADType.PWAD, true);
 
@@ -63,7 +59,7 @@ namespace NEP.DOOMLAB.WAD
 
         public string GetIWAD()
         {
-            string[] files = Directory.GetFiles(IWADPath);
+            string[] files = Directory.GetFiles(Main.IWADDirectory);
             string result = "";
 
             for(int i = 0; i < iwads.Length; i++)
@@ -87,7 +83,7 @@ namespace NEP.DOOMLAB.WAD
     
         public string[] GetWADsInFolder(WADFile.WADType wadType, bool fullPath = false)
         {
-            string path = wadType == WADFile.WADType.IWAD ? IWADPath : PWADPath;
+            string path = wadType == WADFile.WADType.IWAD ? Main.IWADDirectory : Main.PWADDirectory;
             string[] files = Directory.GetFiles(path);
 
             if(fullPath)

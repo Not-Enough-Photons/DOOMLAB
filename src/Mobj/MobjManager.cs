@@ -2,14 +2,12 @@ using UnityEngine;
 
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Rendering;
-using UnityEngine.AI;
 using NEP.DOOMLAB.Sound;
-using System;
-using SLZ.Marrow.Warehouse;
-using System.Collections.Generic;
-using SLZ.AI;
-using SLZ.Combat;
 using NEP.DOOMLAB.Game;
+
+using SLZ.Combat;
+
+using System.Collections.Generic;
 
 namespace NEP.DOOMLAB.Entities
 {
@@ -146,6 +144,7 @@ namespace NEP.DOOMLAB.Entities
 
             mobj.rigidbody = mobjBase.AddComponent<Rigidbody>();
             mobj.collider = mobjBase.AddComponent<BoxCollider>();
+            mobj.audioSource = mobjBase.AddComponent<AudioSource>();
 
             var impactPropertiesManager = mobj.gameObject.AddComponent<ImpactPropertiesManager>();
             impactPropertiesManager.surfaceData = BoneLib.Player.physicsRig.GetComponent<ImpactPropertiesManager>().surfaceData;
@@ -201,7 +200,7 @@ namespace NEP.DOOMLAB.Entities
 
             if (projectile.info.seeSound != Sound.SoundType.sfx_None)
             {
-                SoundManager.Instance.PlaySound(projectile.info.seeSound, projectile.transform.position, false);
+                SoundManager.Instance.PlaySound(projectile.info.seeSound, projectile.audioSource, false);
             }
 
             return projectile;

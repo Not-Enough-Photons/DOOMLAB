@@ -1,17 +1,19 @@
 ﻿using MelonLoader;
-using NEP.DOOMLAB.WAD;
+
 using BoneLib;
+
+using NEP.DOOMLAB.WAD;
 using NEP.DOOMLAB.Game;
-using UnityEngine;
 using NEP.DOOMLAB.Entities;
-using System.IO;
-using NEP.DOOMLAB.Sound;
 using NEP.DOOMLAB.Rendering;
+using NEP.DOOMLAB.Sound;
+
+using UnityEngine;
+
+using System.IO;
+
 using BoneLib.BoneMenu.Elements;
 using BoneLib.BoneMenu;
-using MK.Glow;
-using HarmonyLib;
-using System.Collections.Generic;
 
 namespace NEP.DOOMLAB
 {
@@ -31,9 +33,19 @@ namespace NEP.DOOMLAB
         public static GameObject mobjTemplate;
         public static Mobj player;
 
+        public static readonly string UserDataDirectory = MelonUtils.UserDataDirectory;
+        public static readonly string TeamDirectory = Path.Combine(UserDataDirectory, "Not Enough Photons");
+        public static readonly string ModDirectory = Path.Combine(TeamDirectory, "DOOMLAB");
+        public static readonly string IWADDirectory = Path.Combine(ModDirectory, "IWADS");
+        public static readonly string PWADDirectory = Path.Combine(ModDirectory, "PWADS");
+
         public override void OnInitializeMelon()
         {
-            bundle = AssetBundle.LoadFromFile(Path.Combine(MelonUtils.UserDataDirectory + "/Not Enough Photons/DOOMLAB", "doomlab.pack"));
+            Directory.CreateDirectory(ModDirectory);
+            Directory.CreateDirectory(IWADDirectory);
+            Directory.CreateDirectory(PWADDirectory);
+
+            bundle = AssetBundle.LoadFromFile(Path.Combine(ModDirectory, "doomlab.pack"));
             mobjTemplate = bundle.LoadAsset("[MOBJ] - Null").Cast<GameObject>();
             mobjTemplate.hideFlags = HideFlags.DontUnloadUnusedAsset;
 

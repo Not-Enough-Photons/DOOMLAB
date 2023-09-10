@@ -1,8 +1,6 @@
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
-using SLZ.AI;
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 
 namespace NEP.DOOMLAB.Entities
@@ -46,7 +44,15 @@ namespace NEP.DOOMLAB.Entities
 
             if(mobj.info.deathSound != Sound.SoundType.sfx_None)
             {
-                SoundManager.Instance.PlaySound(mobj.info.deathSound, mobj.transform.position, false);
+                SoundManager.Instance.PlaySound(mobj.info.deathSound, mobj.audioSource, false);
+            }
+
+            Mobj hitMobj = collision.gameObject.GetComponent<Mobj>();
+
+            if(hitMobj != null)
+            {
+                // mobj.RadiusAttack(mobj, 256);
+                mobj.TakeDamage(10 - Vector3.Distance(mobj.transform.position, hitMobj.transform.position), mobj.target, mobj);
             }
         }
     }

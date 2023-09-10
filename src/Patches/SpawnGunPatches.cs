@@ -1,9 +1,10 @@
 using UnityEngine;
-using SLZ.Props;
 using HarmonyLib;
 
-using NEP.DOOMLAB.Entities;
+using SLZ.Props;
 using SLZ.Marrow.Warehouse;
+
+using NEP.DOOMLAB.Entities;
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Sound;
 

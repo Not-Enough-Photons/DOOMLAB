@@ -1,7 +1,8 @@
 ﻿using NEP.DOOMLAB.Entities;
 using NEP.DOOMLAB.Game;
-using SLZ.AI;
+
 using SLZ.Combat;
+
 using UnityEngine;
 
 namespace NEP.DOOMLAB.Patches
