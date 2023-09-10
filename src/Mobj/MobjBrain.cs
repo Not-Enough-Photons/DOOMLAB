@@ -98,9 +98,7 @@ namespace NEP.DOOMLAB.Entities
                 }
             }
 
-            mobj.rigidbody.position += mobj.transform.forward * mobj.info.speed * Time.deltaTime;
-            
-
+            mobj.rigidbody.position += (mobj.transform.forward * mobj.info.speed) * Time.deltaTime;
             return true;
         }
 
@@ -274,7 +272,7 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            if(Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > 1f)
+            if(Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > (mobj.info.radius / 32f) + 0.5)
             {
                 return false;
             }
@@ -289,6 +287,17 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
+            if(mobj.flags.HasFlag(MobjFlags.MF_JUSTHIT))
+            {
+                mobj.flags &= ~MobjFlags.MF_JUSTHIT;
+                return true;
+            }
+
+            if(mobj.reactionTime != 0)
+            {
+                return false;
+            }
+
             float distance = Vector3.Distance(mobj.transform.position, mobj.target.transform.position);
 
             if(mobj.info.meleeState == StateNum.S_NULL)
@@ -296,20 +305,46 @@ namespace NEP.DOOMLAB.Entities
                 distance -= 4f;
             }
 
-            // too far away
-            if(mobj.type == MobjType.MT_VILE && distance > 128f)
+            distance *= 8;
+
+            if(mobj.type == MobjType.MT_VILE)
             {
-                return false;
+                if(distance > 28f)
+                {
+                    return false;
+                }
             }
+
+            if(mobj.type == MobjType.MT_UNDEAD)
+            {
+                if(distance < 6.125)
+                {
+                    return false;
+                }
+
+                distance *= 2;
+            }
+
+            if(mobj.type == MobjType.MT_CYBORG
+                || mobj.type == MobjType.MT_SPIDER
+                || mobj.type == MobjType.MT_SKULL)
+                {
+                    distance *= 2;
+                }
 
             if(distance > 6.25f)
             {
                 distance = 6.25f;
             }
 
-            if(mobj.type == MobjType.MT_CYBORG && distance > 5f)
+            if(mobj.type == MobjType.MT_CYBORG && distance > 5)
             {
-                distance = 5f;
+                distance = 5;
+            }
+
+            if(DoomGame.RNG.P_Random() < distance)
+            {
+                return false;
             }
 
             return true;
@@ -343,7 +378,6 @@ namespace NEP.DOOMLAB.Entities
                 }
             }
 
-            MelonLogger.Msg($"{mobj.type} sees {Mobj.player.name}!");
             return true;
         }
 
@@ -531,6 +565,11 @@ namespace NEP.DOOMLAB.Entities
             mobj.transform.rotation = Quaternion.Euler(Vector3.up * lookAt.eulerAngles.y);
         }
 
+        public void A_Explode()
+        {
+            mobj.RadiusAttack(mobj.target, 128);
+        }
+
         public void A_TroopAttack()
         {
             if (mobj.target == null)
@@ -555,16 +594,10 @@ namespace NEP.DOOMLAB.Entities
             float randomAngle = (DoomGame.RNG.P_Random() - DoomGame.RNG.P_Random() & 20) / 10f;
             float damage = ((DoomGame.RNG.P_Random() % 5) + 1) * 3;
             RaycastHit hit;
-            
-            if(Physics.Raycast(mobj.transform.position, mobj.target.position - mobj.transform.position, out hit))
-            {
-                if (mobj.target == Mobj.player)
-                {
-                    mobj.target.playerHealth.TAKEDAMAGE(damage / 10f);
-                }
-            }
 
             SoundManager.Instance.PlaySound(SoundType.sfx_pistol, mobj.transform.position, false);
+            
+            mobj.LineAttack(damage, 128);
         }
 
         public void A_CPosAttack()
@@ -577,7 +610,11 @@ namespace NEP.DOOMLAB.Entities
             SoundManager.Instance.PlaySound(SoundType.sfx_shotgn, mobj.transform.position, false);
             A_FaceTarget();
 
+            float randomAngle = (DoomGame.RNG.P_Random() - DoomGame.RNG.P_Random() & 20) / 10f;
             float damage = ((DoomGame.RNG.P_Random() % 5) + 1) * 3;
+            RaycastHit hit;
+            
+            mobj.LineAttack(damage, 256);
         }
 
         public void A_CPosRefire()

@@ -39,9 +39,11 @@ public static class SpawnGunPatch
             MobjInfo mobjInfo = Info.MobjInfos[(int)mobjType];
 
             Vector3 truePlacePosition = __instance.truePlacePosition;
+            Quaternion truePlaceRotation = __instance.truePlaceRotation;
             Vector3 placePosition = new Vector3(truePlacePosition.x, truePlacePosition.y + mobjInfo.height / 32f, truePlacePosition.z);
+            Quaternion placeRotation = Quaternion.Euler(new Vector3(0f, truePlaceRotation.y, 0f));
 
-            var mobj = MobjManager.Instance.SpawnMobj(placePosition, MobjManager.npcLookup[selectedCrate.Title]);
+            var mobj = MobjManager.Instance.SpawnMobj(placePosition, MobjManager.npcLookup[selectedCrate.Title], placeRotation.eulerAngles.y);
 
             MobjManager.Instance.SpawnMobj(placePosition, MobjType.MT_TFOG);
             SoundManager.Instance.PlaySound(SoundType.sfx_telept, mobj.transform.position, false);

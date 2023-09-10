@@ -2,6 +2,7 @@ using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
 using SLZ.AI;
+using SLZ.Combat;
 using SLZ.Marrow.Data;
 using SLZ.Marrow.Pool;
 using SLZ.Marrow.Warehouse;
@@ -185,6 +186,88 @@ namespace NEP.DOOMLAB.Entities
 
             collider.enabled = flags.HasFlag(MobjFlags.MF_SOLID);
             rigidbody.useGravity = !flags.HasFlag(MobjFlags.MF_NOGRAVITY);
+        }
+
+        public bool LineAttack(float damage, float distance)
+        {
+            if(Physics.Raycast(transform.position, transform.forward, out RaycastHit hit, distance))
+            {
+                Collider collider = hit.collider;
+                ImpactProperties impactProperties = collider.GetComponent<ImpactProperties>();
+
+                if(impactProperties)
+                {
+                    MobjManager.Instance.SpawnMobj(hit.point, MobjType.MT_PUFF);
+                    return false;
+                }
+
+                Mobj hitMobj = collider.GetComponent<Mobj>();
+
+                if(hitMobj == this)
+                {
+                    return false; // Can't shoot at ourselves
+                }
+
+                if(!hitMobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
+                {
+                    return false; // Corpse
+                }
+
+                if(hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
+                {
+                    MobjManager.Instance.SpawnMobj(hit.point, MobjType.MT_PUFF);
+                }
+                else
+                {
+                    MobjManager.Instance.SpawnMobj(hit.point, MobjType.MT_BLOOD);
+                }
+                
+                if(damage > 0f)
+                {
+                    hitMobj.TakeDamage(damage, this, this);
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool RadiusAttack(Mobj spot, float bombDamage)
+        {
+            if(!flags.HasFlag(MobjFlags.MF_SHOOTABLE))
+            {
+                return true;
+            }
+
+            // take no damage from rockets if we're a cyborg or spider
+            if(type == MobjType.MT_CYBORG || type == MobjType.MT_SPIDER)
+            {
+                return true;
+            }
+
+            float dx = Mathf.Abs(transform.position.x - spot.transform.position.x);
+            float dz = Mathf.Abs(transform.position.z - spot.transform.position.z);
+
+            float distance = dx > dz ? dx : dz;
+            distance = (distance - radius / 32f) * 2;
+
+            if(distance < 0)
+            {
+                distance = 0;
+            }
+
+            if(distance > bombDamage)
+            {
+                return true;
+            }
+
+            if(brain.CheckSight(spot))
+            {
+                target.TakeDamage(bombDamage  - distance, this, spot);
+            }
+
+            return true;
         }
 
         public void TakeDamage(float damage, Mobj source, Mobj inflictor)

@@ -124,14 +124,14 @@ namespace NEP.DOOMLAB.Entities
             return !thing.flags.HasFlag(MobjFlags.MF_SOLID);
         }
 
-        public Mobj SpawnMobj(Vector3 position, MobjType type)
+        public Mobj SpawnMobj(Vector3 position, MobjType type, float angle = 0f)
         {
             if (mobjPrefab == null)
             {
                 throw new System.Exception("MOBJ base prefab doesn't exist!");
             }
 
-            GameObject mobjBase = GameObject.Instantiate(mobjPrefab, position, Quaternion.identity);
+            GameObject mobjBase = GameObject.Instantiate(mobjPrefab, position, Quaternion.AngleAxis(angle, Vector3.up));
             Mobj mobj = mobjBase.AddComponent<Mobj>();
             mobj.brain = mobjBase.AddComponent<MobjBrain>();
 
