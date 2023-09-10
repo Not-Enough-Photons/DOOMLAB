@@ -37,6 +37,10 @@ namespace NEP.DOOMLAB.Patches
                 {
                     MobjManager.Instance.SpawnMobj(world, Data.MobjType.MT_BLOOD);
                 }
+                else if(hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
+                {
+                    MobjManager.Instance.SpawnMobj(world, Data.MobjType.MT_PUFF);
+                }
             }));
         }
     }

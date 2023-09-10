@@ -579,6 +579,14 @@ namespace NEP.DOOMLAB.Entities
 
             A_FaceTarget();
 
+            if(CheckMeleeRange())
+            {
+                SoundManager.Instance.PlaySound(SoundType.sfx_claw, mobj.transform.position, false);
+                float damage = (DoomGame.RNG.P_Random() % 8 + 1) * 3;
+                mobj.target.TakeDamage(damage, mobj, mobj);
+                return;
+            }
+
             MobjManager.Instance.SpawnMissile(mobj, mobj.target, Data.MobjType.MT_TROOPSHOT);
         }
 

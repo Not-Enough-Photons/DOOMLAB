@@ -48,45 +48,6 @@ namespace NEP.DOOMLAB.Entities
             {
                 SoundManager.Instance.PlaySound(mobj.info.deathSound, mobj.transform.position, false);
             }
-
-            Mobj collidedMobj = collision.collider.GetComponent<Mobj>();
-
-            // Direct impact
-            if(collidedMobj != null)
-            {
-                collidedMobj.TakeDamage(1f, mobj.target, mobj);
-            }
-
-            var hitObjects = Physics.SphereCastAll(transform.position, 1f, transform.position);
-
-            for(int i = 0; i < hitObjects.Length; i++)
-            {
-                var hitObject = hitObjects[i];
-
-                if(hitObject.rigidbody)
-                {
-                    hitObject.rigidbody.AddExplosionForce(250f, transform.position, 1.5f);
-                }
-
-                Mobj mobj = hitObject.collider.GetComponent<Mobj>();
-
-                if(mobj == null)
-                {
-                    continue;
-                }
-
-                if(!MobjManager.Instance.CheckThing(mobj, missile))
-                {
-                    continue;
-                }
-
-                if(mobj == Mobj.player)
-                {
-                    Mobj.player.playerHealth.TAKEDAMAGE(1f);
-                }
-
-                mobj.TakeDamage(1f, mobj.target, mobj);
-            }
         }
     }
 
