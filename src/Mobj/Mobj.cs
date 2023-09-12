@@ -197,7 +197,7 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            Ray ray = new Ray(transform.position, target.transform.position);
+            Ray ray = new Ray(transform.position, target.transform.position - transform.position);
 
             if(Physics.Raycast(ray, out RaycastHit hit, distance))
             {

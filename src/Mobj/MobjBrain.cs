@@ -1,5 +1,6 @@
+using System;
 using System.Collections.Generic;
-
+using MelonLoader;
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
@@ -440,11 +441,11 @@ namespace NEP.DOOMLAB.Entities
 
             if(mobj.type == MobjType.MT_SPIDER || mobj.type == MobjType.MT_CYBORG)
             {
-                SoundManager.Instance.PlaySound(sound, mobj.audioSource, true);
+                SoundManager.Instance.PlaySound(sound, Vector3.zero, true);
             }
             else
             {
-                SoundManager.Instance.PlaySound(sound, mobj.audioSource, false);
+                SoundManager.Instance.PlaySound(sound, mobj.transform.position, false);
             }
 
             mobj.SetState(mobj.info.seeState);
@@ -506,7 +507,7 @@ namespace NEP.DOOMLAB.Entities
             {
                 if (mobj.info.attackSound != SoundType.sfx_None)
                 {
-                    SoundManager.Instance.PlaySound(mobj.info.attackSound, mobj.audioSource, false);
+                    SoundManager.Instance.PlaySound(mobj.info.attackSound, mobj.transform.position, false);
                 }
 
                 mobj.SetState(mobj.info.meleeState);
@@ -549,7 +550,7 @@ namespace NEP.DOOMLAB.Entities
 
             if (mobj.info.activeSound != SoundType.sfx_None && DoomGame.RNG.P_Random() < 3)
             {
-                SoundManager.Instance.PlaySound(mobj.info.activeSound, mobj.audioSource, false);
+                SoundManager.Instance.PlaySound(mobj.info.activeSound, mobj.transform.position, false);
             }
         }
 
@@ -818,9 +819,8 @@ namespace NEP.DOOMLAB.Entities
             if (mobj.type == MobjType.MT_SPIDER || mobj.type == MobjType.MT_CYBORG)
             {
                 // full volume
-                SoundManager.Instance.PlaySound(sound, mobj.transform.position, true);
+                SoundManager.Instance.PlaySound(sound, UnityEngine.Vector3.zero, true);
             }
-            else
             {
                 SoundManager.Instance.PlaySound(sound, mobj.transform.position, false);
             }
@@ -830,13 +830,13 @@ namespace NEP.DOOMLAB.Entities
         {
             if (mobj.info.painSound != SoundType.sfx_None)
             {
-                SoundManager.Instance.PlaySound(mobj.info.painSound, mobj.audioSource, false);
+                SoundManager.Instance.PlaySound(mobj.info.painSound, mobj.transform.position, false);
             }
         }
 
         public void A_XScream()
         {
-            SoundManager.Instance.PlaySound(SoundType.sfx_slop, mobj.audioSource, false);
+            SoundManager.Instance.PlaySound(SoundType.sfx_slop, mobj.transform.position, false);
         }
 
         public void A_Fall()
@@ -871,12 +871,12 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_BrainPain()
         {
-            SoundManager.Instance.PlaySound(SoundType.sfx_bospn, mobj.audioSource, true);
+            SoundManager.Instance.PlaySound(SoundType.sfx_bospn, Vector3.zero, true);
         }
 
         public void A_BrainScream()
         {
-            SoundManager.Instance.PlaySound(SoundType.sfx_bosdth, mobj.audioSource, true);
+            SoundManager.Instance.PlaySound(SoundType.sfx_bosdth, Vector3.zero, true);
         }
     }
 }

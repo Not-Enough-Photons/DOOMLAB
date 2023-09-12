@@ -1,4 +1,5 @@
 ﻿using System;
+using MelonLoader;
 using UnityEngine;
 
 namespace NEP.DOOMLAB.Game
@@ -85,12 +86,19 @@ namespace NEP.DOOMLAB.Game
 
         public void Update()
         {
-            ticTimer += Time.deltaTime;
-
-            if(ticTimer > timeInterval)
+            try
             {
-                OnTick?.Invoke();
-                ticTimer = 0f;
+                ticTimer += Time.deltaTime;
+
+                if (ticTimer > timeInterval)
+                {
+                    OnTick?.Invoke();
+                    ticTimer = 0f;
+                }
+            }
+            catch(Exception e)
+            {
+                MelonLogger.Error(e);
             }
         }
     }

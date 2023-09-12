@@ -156,8 +156,10 @@ namespace NEP.DOOMLAB.Entities
 
             mobj.name = $"[MOBJ] - {mobj.type}";
 
-            mobj.rigidbody.mass = mobj.info.mass / 32f;
+            mobj.rigidbody.mass = mobj.info.mass;
             mobj.rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+            mobj.rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+            mobj.rigidbody.drag = 1;
 
             mobj.collider.size = new Vector3(mobj.radius / 32f, mobj.height / 32f, mobj.radius / 32f);
 

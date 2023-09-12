@@ -1,4 +1,5 @@
-﻿using NEP.DOOMLAB.Data;
+﻿using MelonLoader;
+using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Entities;
 using NEP.DOOMLAB.Game;
 
@@ -61,9 +62,8 @@ namespace NEP.DOOMLAB.Rendering
 
         public void UpdateSprite()
         {
-            float angle = Vector3.SignedAngle(mobj.transform.forward, camera.transform.forward, Vector3.up);
-
-            angle = Mathf.Repeat(angle + 180f, 360f) - 180f;
+            float rad2Deg = 57.29578f; // because deg2rad doesn't exist in the unhollowed unity assemblies
+            float angle = Mathf.Atan2(mobj.transform.forward.x, mobj.transform.forward.z) * rad2Deg;
 
             int index = (int)((angle - (45 / 2) * 9) / 45) & 7;
 
