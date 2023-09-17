@@ -67,7 +67,7 @@ namespace NEP.DOOMLAB.Rendering
             float angle = Vector3.SignedAngle(mobj.transform.forward, camera.transform.forward, Vector3.up);
             angle = Mathf.Repeat(angle + 180f, 360f) - 180f;
             int index = (int)((angle - (45 / 2) * 9) / 45) & 7;
-            
+
             int stateFrame = mobj.frame;
 
             if (mobj.frame >= 32768)
@@ -91,10 +91,10 @@ namespace NEP.DOOMLAB.Rendering
                 return;
             }
 
-            if (index > spriteFrame.numRotations)
-            {
+            if (index >= spriteFrame.numRotations)
+            { 
                 int rotation = spriteFrame.numRotations - index;
-                SetSprite(spriteFrame, rotation);
+                SetSprite(spriteFrame, rotation + 3, true);
             }
             else
             {
@@ -102,11 +102,14 @@ namespace NEP.DOOMLAB.Rendering
             }
         }
 
-        private void SetSprite(SpriteFrame spriteFrame, int rotation)
+        private void SetSprite(SpriteFrame spriteFrame, int rotation, bool flipped = false)
         {
-            int xScale = spriteFrame.flipBits[rotation] ? -1 : 1;
-            
-            xScale = rotation != 0 ? -1 : 1;
+            int xScale = 1;
+    
+            if(flipped)
+            {
+                xScale = spriteFrame.flipBits[rotation] ? -1 : 1;
+            }
 
             int heightUnscaled = spriteFrame.patches[rotation].height;
             int topOffsetUnscaled = spriteFrame.patches[rotation].topOffset;
