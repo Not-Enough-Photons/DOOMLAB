@@ -3,6 +3,7 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using HarmonyLib;
 
 namespace NEP.DOOMLAB.WAD
 {
@@ -17,6 +18,9 @@ namespace NEP.DOOMLAB.WAD
 
         public Dictionary<string, WADFile> LoadedWADs { get; private set; } = new Dictionary<string, WADFile>();
 
+        public Dictionary<string, WADIndexEntry> LumpMap { get; private set; } = new Dictionary<string, WADIndexEntry>();
+
+        public WADFile IWAD;
         public WADFile LoadedWAD { get; private set; }
 
         public string[] IWADS => GetWADsInFolder(WADFile.WADType.IWAD, true);
@@ -34,6 +38,52 @@ namespace NEP.DOOMLAB.WAD
             "HERETIC",
             "HEXEN"
         };
+
+        public void LoadIWAD(string file)
+        {
+            string fileName = GetWADFileName(file);
+
+            var wadFile = new WADFile(file);
+
+            wadFile.ReadHeader();
+            wadFile.ReadIndexEntries();
+            wadFile.ReadPalette();
+            wadFile.ReadAllSounds();
+            wadFile.ReadAllSprites();
+
+            IWAD = wadFile;
+        }
+
+        public void LoadPWAD(string file)
+        {
+            string fileName = GetWADFileName(file);
+
+            var wadFile = new WADFile(file);
+
+            wadFile.ReadHeader();
+            wadFile.ReadIndexEntries();
+
+            LumpMap = IWAD.entryTable;
+
+            for(int i = 0; i < wadFile.entries.Count; i++)
+            {
+                if(LumpMap.ContainsKey(wadFile.entries[i].name))
+                {
+                    LumpMap[wadFile.entries[i].name] = wadFile.entries[i];
+                }
+            }
+
+            wadFile.entries = new List<WADIndexEntry>();
+
+            foreach(var value in LumpMap.Values)
+            {
+                wadFile.entries.Add(value);
+            }
+
+            wadFile.colorPal = IWAD.colorPal;
+            wadFile.ReadAllSounds();
+            wadFile.ReadAllSprites();
+        }
 
         public void LoadWAD(string file)
         {
@@ -55,6 +105,11 @@ namespace NEP.DOOMLAB.WAD
 
             LoadedWAD = wadFile;
             LoadedWADs.Add(fileName, wadFile);
+
+            if(file == GetIWAD())
+            {
+                IWAD = wadFile;
+            }
         }
 
         public string GetIWAD()

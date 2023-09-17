@@ -1,4 +1,6 @@
-﻿using MelonLoader;
+﻿using System;
+using Il2CppSystem.Numerics;
+using MelonLoader;
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Entities;
 using NEP.DOOMLAB.Game;
@@ -62,21 +64,15 @@ namespace NEP.DOOMLAB.Rendering
 
         public void UpdateSprite()
         {
-            float rad2Deg = 57.29578f; // because deg2rad doesn't exist in the unhollowed unity assemblies
-            float angle = Mathf.Atan2(mobj.transform.forward.x, mobj.transform.forward.z) * rad2Deg;
-
+            float angle = Vector3.SignedAngle(mobj.transform.forward, camera.transform.forward, Vector3.up);
+            angle = Mathf.Repeat(angle + 180f, 360f) - 180f;
             int index = (int)((angle - (45 / 2) * 9) / 45) & 7;
-
+            
             int stateFrame = mobj.frame;
 
             if (mobj.frame >= 32768)
             {
                 stateFrame = mobj.frame - 32768;
-                // meshRenderer.material.shader = unlitShader;
-            }
-            else
-            {
-                // meshRenderer.material.shader = litShader;
             }
 
             SpriteDef spriteDef = spriteDefs[(int)mobj.sprite];
@@ -89,37 +85,39 @@ namespace NEP.DOOMLAB.Rendering
                 return;
             }
 
-            float spriteWidth = spriteFrame.patches[index].width / 32f;
-            float spriteHeight = spriteFrame.patches[index].height / 32f;
-
-            float spriteOffsetTop = spriteFrame.patches[index].topOffset / 100f;
-
             if (!spriteFrame.canRotate)
             {
-                meshRenderer.material.mainTexture = spriteFrame.patches[0].output;
-                transform.localScale = new Vector3(-spriteWidth, spriteHeight, -1);
-
+                SetSprite(spriteFrame, 0);
                 return;
             }
 
-            if (index >= spriteFrame.numRotations)
+            if (index > spriteFrame.numRotations)
             {
-                int rotation = 8 - index;
-                int invertScale = spriteFrame.flipBits[rotation] ? -1 : 1;
-
-                spriteWidth = invertScale * spriteFrame.patches[rotation].width / 32f;
-                spriteHeight = spriteFrame.patches[rotation].height / 32f;
-
-                meshRenderer.material.mainTexture = spriteFrame.patches[rotation].output;
-                transform.localScale = new Vector3(spriteWidth, spriteHeight, -1f);
+                int rotation = spriteFrame.numRotations - index;
+                SetSprite(spriteFrame, rotation);
             }
             else
             {
-                meshRenderer.material.mainTexture = spriteFrame.patches[index].output;
-                transform.localScale = new Vector3(spriteWidth, spriteHeight, -1);
+                SetSprite(spriteFrame, index);
             }
+        }
 
-            transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y);
+        private void SetSprite(SpriteFrame spriteFrame, int rotation)
+        {
+            int xScale = spriteFrame.flipBits[rotation] ? -1 : 1;
+            
+            xScale = rotation != 0 ? -1 : 1;
+
+            int heightUnscaled = spriteFrame.patches[rotation].height;
+            int topOffsetUnscaled = spriteFrame.patches[rotation].topOffset;
+            int offsetUnscaled = heightUnscaled - topOffsetUnscaled;
+
+            float width = spriteFrame.patches[rotation].width / 32f;
+            float height = spriteFrame.patches[rotation].height / 32f;
+            
+            meshRenderer.material.mainTexture = spriteFrame.patches[rotation].output;
+            transform.localScale = new Vector3(width * xScale, height, -1f);
+            transform.localPosition = new Vector3(transform.localPosition.x, -offsetUnscaled / 32f);
         }
     }
 }

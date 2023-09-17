@@ -21,6 +21,7 @@ namespace NEP.DOOMLAB.WAD
         public WADFile(string path)
         {
             entries = new List<WADIndexEntry>();
+            entryTable = new Dictionary<string, WADIndexEntry>();
             filePath = path;
 
             fileStream = File.OpenRead(filePath);
@@ -28,6 +29,11 @@ namespace NEP.DOOMLAB.WAD
             sounds = new List<DataTypes.Sound>();
             patches = new List<Patch>();
             colorPal = new List<Color32>();
+
+            for(int i = 0; i < 256; i++)
+            {
+                colorPal.Add(new Color32(0, 0, 0, 255));
+            }
         }
 
         public enum WADType
@@ -40,8 +46,9 @@ namespace NEP.DOOMLAB.WAD
         public int indexEntries;
         public int indexOffset;
 
+        public Dictionary<string, WADIndexEntry> entryTable;
         public List<WADIndexEntry> entries;
-        public static List<Color32> colorPal;
+        public List<Color32> colorPal;
 
         public List<Patch> patches;
         public List<DataTypes.Sound> sounds;
@@ -133,12 +140,23 @@ namespace NEP.DOOMLAB.WAD
                 }
 
                 entries.Add(entry);
+
+                if(!entryTable.ContainsKey(entry.name))
+                {
+                    entryTable.Add(entry.name, entry);
+                }
             }
         }
 
         public void ReadPalette()
         {
             WADIndexEntry palette = null;
+
+            if(wadType == WADType.PWAD)
+            {
+                colorPal = WADManager.Instance.IWAD.colorPal;
+                return;
+            }
 
             for (int i = 0; i < entries.Count; i++)
             {
@@ -147,6 +165,11 @@ namespace NEP.DOOMLAB.WAD
                     palette = entries[i];
                     break;
                 }
+            }
+
+            if(palette == null)
+            {
+                return;
             }
 
             reader.BaseStream.Seek(palette.offset, SeekOrigin.Begin);
@@ -163,7 +186,7 @@ namespace NEP.DOOMLAB.WAD
                 color.b = blue;
                 color.a = 255;
 
-                colorPal.Add(color);
+                colorPal[i] = color;
             }
         }
 
@@ -185,9 +208,12 @@ namespace NEP.DOOMLAB.WAD
             int targetIndex = 0;
             WADIndexEntry targetEntry = null;
 
+            string startMarker = wadType == WADType.IWAD ? "S_START" : "SS_START";
+            string endMarker = wadType == WADType.IWAD ? "S_END" : "SS_END";
+
             for (int i = 0; i < entries.Count; i++)
             {
-                if (entries[i].name == "S_START")
+                if (entries[i].name == startMarker)
                 {
                     targetEntry = entries[i];
                     targetIndex = i;
@@ -198,7 +224,7 @@ namespace NEP.DOOMLAB.WAD
             int patchIdx = 0;
             for (int i = targetIndex + 1; i < entries.Count; i++, patchIdx++)
             {
-                if (entries[i].name == "S_END")
+                if (entries[i].name == endMarker)
                 {
                     break;
                 }
