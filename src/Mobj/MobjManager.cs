@@ -44,13 +44,26 @@ namespace NEP.DOOMLAB.Entities
 
         public static Dictionary<string, MobjType> itemLookup = new Dictionary<string, MobjType>()
         {
+            { "Armor Bonus", MobjType.MT_MISC2 },
+            { "Armor", MobjType.MT_MISC0 },
+            { "Backpack", MobjType.MT_MISC24 },
+            { "Berserk", MobjType.MT_MISC13 },
+            { "Blue Keycard", MobjType.MT_MISC4 },
+            { "Blue Skull Key", MobjType.MT_MISC9 },
+            { "Health Bonus", MobjType.MT_MISC2 },
+            { "Invulnerability", MobjType.MT_INV },
+            { "Light Amplification Visor", MobjType.MT_MISC16 },
+            { "Medikit", MobjType.MT_MISC11 },
+            { "Megaarmor", MobjType.MT_MISC1 },
             { "Megasphere", MobjType.MT_MEGA },
-            { "Partial Invisibility", MobjType.MT_INV },
-        };
-
-        public static Dictionary<string, MobjType> decorationLookup = new Dictionary<string, MobjType>()
-        {
-            //{ "" }
+            { "Partial Invisibility", MobjType.MT_INS },
+            { "Red Keycard", MobjType.MT_MISC5 },
+            { "Red Skull Key", MobjType.MT_MISC8 },
+            { "Soulsphere", MobjType.MT_MISC12 },
+            { "Stimpack", MobjType.MT_MISC10 },
+            { "Suit", MobjType.MT_MISC14 },
+            { "Yellow Keycard", MobjType.MT_MISC6 },
+            { "Yellow Skull Key", MobjType.MT_MISC7 }
         };
 
         public GameObject mobjPrefab;
@@ -159,7 +172,6 @@ namespace NEP.DOOMLAB.Entities
             mobj.rigidbody.mass = mobj.info.mass;
             mobj.rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
             mobj.rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
-            mobj.rigidbody.drag = 1;
 
             mobj.collider.size = new Vector3(mobj.radius / 32f, mobj.height / 32f, mobj.radius / 32f);
 
@@ -173,7 +185,7 @@ namespace NEP.DOOMLAB.Entities
                 mobj.rigidbody.useGravity = false;
             }
 
-            if(mobj.flags.HasFlag(MobjFlags.MF_MISSILE))
+            if(mobj.flags.HasFlag(MobjFlags.MF_MISSILE) || mobj.flags.HasFlag(MobjFlags.MF_SKULLFLY))
             {
                 mobj.collider.enabled = true;
                 mobj.rigidbody.drag = 0;

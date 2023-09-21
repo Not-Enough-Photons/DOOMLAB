@@ -4,8 +4,9 @@ namespace NEP.DOOMLAB.WAD.DataTypes
 {
     public struct Sound
     {
-        public Sound(byte id, short sampleRate, ushort sampleCount, byte[] soundData)
+        public Sound(string soundName, byte id, short sampleRate, ushort sampleCount, byte[] soundData)
         {
+            this.soundName = soundName;
             this.id = id;
             this.sampleRate = sampleRate;
             this.sampleCount = sampleCount;
@@ -13,6 +14,7 @@ namespace NEP.DOOMLAB.WAD.DataTypes
             this.output = null;
         }
 
+        public string soundName;
         public int id;
         public int sampleRate;
         public int sampleCount;

@@ -1055,19 +1055,19 @@ namespace NEP.DOOMLAB.Data
 
             new MobjInfo( // MobjType.Shotguy
                 9, // doomEdNum
-                StateNum.S_POSS_STND, // spawnState
+                StateNum.S_SPOS_STND, // spawnState
                 30, // spawnHealth
-                StateNum.S_POSS_RUN1, // seeState
+                StateNum.S_SPOS_RUN1, // seeState
                 SoundType.sfx_posit2, // seeSound
                 8, // reactionTime
                 SoundType.sfx_None, // attackSound
-                StateNum.S_POSS_PAIN, // painState
+                StateNum.S_SPOS_PAIN, // painState
                 170, // painChance
                 SoundType.sfx_popain, // painSound
                 StateNum.S_NULL, // meleeState
-                StateNum.S_POSS_ATK1, // missileState
-                StateNum.S_POSS_DIE1, // deathState
-                StateNum.S_POSS_XDIE1, // xdeathState
+                StateNum.S_SPOS_ATK1, // missileState
+                StateNum.S_SPOS_DIE1, // deathState
+                StateNum.S_SPOS_XDIE1, // xdeathState
                 SoundType.sfx_podth1, // deathSound
                 8, // speed
                 (20), // radius
@@ -1076,7 +1076,7 @@ namespace NEP.DOOMLAB.Data
                 0, // damage
                 SoundType.sfx_posact, // activeSound
                 MobjFlags.MF_SOLID | MobjFlags.MF_SHOOTABLE | MobjFlags.MF_COUNTKILL, // flags
-                StateNum.S_POSS_RAISE1 // raiseState
+                StateNum.S_SPOS_RAISE1 // raiseState
             ),
 
             new MobjInfo( // MobjType.Vile

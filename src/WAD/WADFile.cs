@@ -12,6 +12,7 @@ using Patch = NEP.DOOMLAB.WAD.DataTypes.Patch;
 using UnhollowerBaseLib;
 using MelonLoader;
 using System;
+using System.Linq;
 
 namespace NEP.DOOMLAB.WAD
 {
@@ -201,12 +202,24 @@ namespace NEP.DOOMLAB.WAD
 
                 ReadSound(entries[i]);
             }
+
+            if (wadType == WADType.PWAD)
+            {
+                WADFile iwad = WADManager.Instance.IWAD;
+                for (int j = 0; j < iwad.sounds.Count; j++)
+                {
+                    var entry = iwad.sounds[j];
+                    if (!entryTable.ContainsKey(entry.soundName))
+                    {
+                        sounds.Add(entry);
+                    }
+                }
+            }
         }
 
         public void ReadAllSprites()
         {
             int targetIndex = 0;
-            WADIndexEntry targetEntry = null;
 
             string startMarker = wadType == WADType.IWAD ? "S_START" : "SS_START";
             string endMarker = wadType == WADType.IWAD ? "S_END" : "SS_END";
@@ -215,14 +228,12 @@ namespace NEP.DOOMLAB.WAD
             {
                 if (entries[i].name == startMarker)
                 {
-                    targetEntry = entries[i];
                     targetIndex = i;
                     break;
                 }
             }
 
-            int patchIdx = 0;
-            for (int i = targetIndex + 1; i < entries.Count; i++, patchIdx++)
+            for (int i = targetIndex + 1; i < entries.Count; i++)
             {
                 if (entries[i].name == endMarker)
                 {
@@ -230,6 +241,19 @@ namespace NEP.DOOMLAB.WAD
                 }
 
                 ReadPatch(entries[i]);
+            }
+
+            if(wadType == WADType.PWAD)
+            {
+                WADFile iwad = WADManager.Instance.IWAD;
+                for (int j = 0; j < iwad.patches.Count; j++)
+                {
+                    var entry = iwad.patches[j];
+                    if (!entryTable.ContainsKey(entry.name))
+                    {
+                        patches.Add(entry);
+                    }
+                }
             }
         }
 
@@ -244,10 +268,11 @@ namespace NEP.DOOMLAB.WAD
 
             DataTypes.Sound sound = new DataTypes.Sound();
 
+            sound.soundName = entry.name;
             sound.id = reader.ReadInt16();
             sound.sampleRate = reader.ReadUInt16();
             sound.sampleCount = reader.ReadUInt16();
-            sound.soundData = reader.ReadBytes(sound.sampleCount - 7);
+            sound.soundData = reader.ReadBytes(sound.sampleCount - 32);
             
             float[] samples = new float[sound.soundData.Length];
 
@@ -317,6 +342,21 @@ namespace NEP.DOOMLAB.WAD
             patch.output = tex;
             patch.output.hideFlags = HideFlags.DontUnloadUnusedAsset;
             patches.Add(patch);
+        }
+
+        public DataTypes.Patch GetPatch(string name)
+        {
+            return patches.FirstOrDefault((patch) => patch.name == name);
+        }
+
+        public DataTypes.Sound GetSound(string name)
+        {
+            return sounds.FirstOrDefault((sound) => sound.soundName == name);
+        }
+
+        public WADIndexEntry GetEntry(string name)
+        {
+            return entries.FirstOrDefault((entry) => entry.name == name);
         }
     }
 }

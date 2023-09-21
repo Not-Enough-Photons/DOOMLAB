@@ -8,50 +8,75 @@ using NEP.DOOMLAB.Entities;
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Sound;
 
-[HarmonyPatch(typeof(SpawnGun), nameof(SpawnGun.OnFire))]
-public static class SpawnGunPatch
+namespace NEP.DOOMLAB.Patches
 {
-    public static bool Prefix(SpawnGun __instance)
+    [HarmonyPatch(typeof(SpawnGun), nameof(SpawnGun.OnFire))]
+    public static class SpawnGunPatch
     {
-        if(__instance._selectedMode == UtilityModes.REMOVER)
+        public static bool Prefix(SpawnGun __instance)
         {
-            Mobj hitMobj = __instance._hitInfo.collider.GetComponent<Mobj>();
-
-            if(hitMobj != null)
+            if (__instance._selectedMode == UtilityModes.REMOVER)
             {
-                if (hitMobj == Mobj.player)
+                Mobj hitMobj = __instance._hitInfo.collider.GetComponent<Mobj>();
+
+                if (hitMobj != null)
                 {
+                    if (hitMobj == Mobj.player)
+                    {
+                        return false;
+                    }
+
+                    MobjManager.Instance.RemoveMobj(hitMobj);
+
                     return false;
                 }
 
-                MobjManager.Instance.RemoveMobj(hitMobj);
+                return true;
+            }
+
+            Crate selectedCrate = __instance._selectedCrate;
+
+            if (selectedCrate == null)
+            {
+                return false;
+            }
+
+            if (MobjManager.npcLookup.ContainsKey(selectedCrate.Title))
+            {
+                MobjType mobjType = MobjManager.npcLookup[selectedCrate.Title];
+                MobjInfo mobjInfo = Info.MobjInfos[(int)mobjType];
+
+                Vector3 truePlacePosition = __instance.truePlacePosition;
+                Quaternion truePlaceRotation = __instance.truePlaceRotation;
+                Vector3 placePosition = new Vector3(truePlacePosition.x, truePlacePosition.y + mobjInfo.height / 32f, truePlacePosition.z);
+                Quaternion placeRotation = Quaternion.Euler(new Vector3(0f, truePlaceRotation.y, 0f));
+
+                var mobj = MobjManager.Instance.SpawnMobj(placePosition, mobjType, placeRotation.eulerAngles.y);
+
+                MobjManager.Instance.SpawnMobj(placePosition, MobjType.MT_TFOG);
+                SoundManager.Instance.PlaySound(SoundType.sfx_telept, mobj.transform.position, false);
+
+                return false;
+            }
+            else if (MobjManager.itemLookup.ContainsKey(selectedCrate.Title))
+            {
+                MobjType mobjType = MobjManager.itemLookup[selectedCrate.Title];
+                MobjInfo mobjInfo = Info.MobjInfos[(int)mobjType];
+
+                Vector3 truePlacePosition = __instance.truePlacePosition;
+                Quaternion truePlaceRotation = __instance.truePlaceRotation;
+                Vector3 placePosition = new Vector3(truePlacePosition.x, truePlacePosition.y + mobjInfo.height / 32f, truePlacePosition.z);
+                Quaternion placeRotation = Quaternion.Euler(new Vector3(0f, truePlaceRotation.y, 0f));
+
+                var mobj = MobjManager.Instance.SpawnMobj(placePosition, mobjType, placeRotation.eulerAngles.y);
+
+                MobjManager.Instance.SpawnMobj(placePosition, MobjType.MT_TFOG);
+                SoundManager.Instance.PlaySound(SoundType.sfx_telept, mobj.transform.position, false);
 
                 return false;
             }
 
             return true;
         }
-
-        Crate selectedCrate = __instance._selectedCrate;
-
-        if(MobjManager.npcLookup.ContainsKey(selectedCrate.Title))
-        {
-            MobjType mobjType = MobjManager.npcLookup[selectedCrate.Title];
-            MobjInfo mobjInfo = Info.MobjInfos[(int)mobjType];
-
-            Vector3 truePlacePosition = __instance.truePlacePosition;
-            Quaternion truePlaceRotation = __instance.truePlaceRotation;
-            Vector3 placePosition = new Vector3(truePlacePosition.x, truePlacePosition.y + mobjInfo.height / 32f, truePlacePosition.z);
-            Quaternion placeRotation = Quaternion.Euler(new Vector3(0f, truePlaceRotation.y, 0f));
-
-            var mobj = MobjManager.Instance.SpawnMobj(placePosition, MobjManager.npcLookup[selectedCrate.Title], placeRotation.eulerAngles.y);
-
-            MobjManager.Instance.SpawnMobj(placePosition, MobjType.MT_TFOG);
-            SoundManager.Instance.PlaySound(SoundType.sfx_telept, mobj.transform.position, false);
-
-            return false;
-        }
-
-        return true;
     }
 }

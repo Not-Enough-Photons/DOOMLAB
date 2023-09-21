@@ -45,7 +45,10 @@ if not os.path.exists("Links"):
 
 debug_build = "--debug" in sys.argv
 run_after = False
+
+quest_run_after = False
 quest_build = False
+quest_uselogcat = False
 
 if "clean" in sys.argv:
     command = "dotnet clean"
@@ -65,6 +68,12 @@ if "run" in sys.argv:
 if "quest" in sys.argv:
     print("[Build] Building for Quest... make sure the Quest is connected!")
     quest_build = True
+
+    if "qrun" in sys.argv:
+        quest_run_after = True
+
+    if "logcat" in sys.argv:
+        quest_uselogcat = True
 
 
 command = "dotnet build"
@@ -107,11 +116,16 @@ out_path += "DOOMLAB.dll"
 print("[Build] Output is located at '" + out_path + "'")
 
 if quest_build:
-    with open(out_path, "rb") as out_file:
-        with open('Quest 2/sdcard/Android/data/com.StressLevelZero.BONELAB/files/Mods' , 'wb') as dst_file:
-            dst_file.write(out_file.read())
-
+    quest_game_path = "/sdcard/Android/data/com.StressLevelZero.BONELAB/files/Mods"
+    with open(out_path, "rb"):
+        os.system(f"adb push {out_path} {quest_game_path}")
     print("[Build] Copied DOOMLAB.dll to the Quest mods folder!")
+
+    if quest_run_after:
+        os.system("adb shell am start -n com.StressLevelZero.BONELAB/com.unity3d.player.UnityPlayerActivity")
+
+        if quest_uselogcat:
+            os.system("adb logcat MelonLoader:I *:S")
 
 if run_after:
     # Forces an overwrite of the existing file

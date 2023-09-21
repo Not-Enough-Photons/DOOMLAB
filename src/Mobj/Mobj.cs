@@ -238,7 +238,14 @@ namespace NEP.DOOMLAB.Entities
                 
                 if(damage > 0f)
                 {
-                    hitMobj.TakeDamage(damage, this, this);
+                    if(hitMobj == Mobj.player)
+                    {
+                        Mobj.player.playerHealth.TAKEDAMAGE(damage);
+                    }
+                    else
+                    {
+                        hitMobj.TakeDamage(damage, this, this);
+                    }
                 }
 
                 return true;

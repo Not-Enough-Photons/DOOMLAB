@@ -50,8 +50,8 @@ namespace NEP.DOOMLAB
             mobjTemplate.hideFlags = HideFlags.DontUnloadUnusedAsset;
 
             new WADManager();
+            Precache();
             WADManager.Instance.LoadWAD(WADManager.Instance.GetIWAD());
-            SpriteLumpGenerator.Initialize();
 
             DoomGame game = new DoomGame();
 
@@ -67,9 +67,36 @@ namespace NEP.DOOMLAB
             new GameObject("[DOOMLAB] - Sound Manager").AddComponent<SoundManager>();
             new GameObject("[DOOMLAB] - MOBJ Manager").AddComponent<MobjManager>();
 
-            player = BoneLib.Player.physicsRig.m_chest.gameObject.AddComponent<Mobj>();
+            player = Player.physicsRig.m_chest.gameObject.AddComponent<Mobj>();
             player.flags ^= MobjFlags.MF_SHOOTABLE;
-            player.playerHealth = BoneLib.Player.rigManager.GetComponent<Player_Health>();
+            player.playerHealth = Player.rigManager.GetComponent<Player_Health>();
+        }
+
+        internal void Precache()
+        {
+            try
+            {
+                string[] iwadNames = WADManager.Instance.GetWADsInFolder(WADFile.WADType.IWAD, false);
+                string[] pwadNames = WADManager.Instance.GetWADsInFolder(WADFile.WADType.PWAD, false);
+
+                for (int i = 0; i < iwadNames.Length; i++)
+                {
+                    int index = i;
+                    WADManager.Instance.LoadWAD(WADManager.Instance.IWADS[index]);
+                    SpriteLumpGenerator.Initialize();
+                }
+
+                for (int i = 0; i < pwadNames.Length; i++)
+                {
+                    int index = i;
+                    WADManager.Instance.LoadWAD(WADManager.Instance.PWADS[index]);
+                    SpriteLumpGenerator.Initialize();
+                }
+            }
+            catch
+            {
+
+            }
         }
 
         internal void BoneMenuStuff()
@@ -83,7 +110,7 @@ namespace NEP.DOOMLAB
             string[] iwadNames = WADManager.Instance.GetWADsInFolder(WADFile.WADType.IWAD, false);
             string[] pwadNames = WADManager.Instance.GetWADsInFolder(WADFile.WADType.PWAD, false);
 
-            for(int i = 0; i < iwadNames.Length; i++)
+            for (int i = 0; i < iwadNames.Length; i++)
             {
                 int index = i;
                 wadCategory.CreateFunctionElement(iwadNames[index], Color.white, () =>
@@ -95,7 +122,7 @@ namespace NEP.DOOMLAB
                 });
             }
 
-            for(int i = 0; i < pwadNames.Length; i++)
+            for (int i = 0; i < pwadNames.Length; i++)
             {
                 int index = i;
                 wadCategory.CreateFunctionElement(pwadNames[index], Color.white, () =>

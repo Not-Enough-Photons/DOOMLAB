@@ -70,6 +70,7 @@
     <Compile Include="src\WAD\WADFile.cs" />
     <Compile Include="src\WAD\WADIndexEntry.cs" />
     <Compile Include="src\WAD\WADManager.cs" />
+    <Compile Include="src\ZDOOM\SNDINFO.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\bwdoom.pack" />

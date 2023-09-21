@@ -70,17 +70,12 @@ namespace NEP.DOOMLAB.WAD
                 if(LumpMap.ContainsKey(wadFile.entries[i].name))
                 {
                     LumpMap[wadFile.entries[i].name] = wadFile.entries[i];
-                }
-            }
-
-            wadFile.entries = new List<WADIndexEntry>();
-
-            foreach(var value in LumpMap.Values)
-            {
-                wadFile.entries.Add(value);
+                }       
             }
 
             wadFile.colorPal = IWAD.colorPal;
+
+            wadFile.ReadIndexEntries();
             wadFile.ReadAllSounds();
             wadFile.ReadAllSprites();
         }

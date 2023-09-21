@@ -1,4 +1,5 @@
 ﻿using System;
+using Harmony;
 using Il2CppSystem.Numerics;
 using MelonLoader;
 using NEP.DOOMLAB.Data;
@@ -104,23 +105,27 @@ namespace NEP.DOOMLAB.Rendering
 
         private void SetSprite(SpriteFrame spriteFrame, int rotation, bool flipped = false)
         {
+            WAD.DataTypes.Patch patch = spriteFrame.patches[rotation];
+            bool flipBit = spriteFrame.flipBits[rotation];
+
             int xScale = 1;
     
             if(flipped)
             {
-                xScale = spriteFrame.flipBits[rotation] ? -1 : 1;
+                xScale = flipBit ? -1 : 1;
             }
 
-            int heightUnscaled = spriteFrame.patches[rotation].height;
-            int topOffsetUnscaled = spriteFrame.patches[rotation].topOffset;
-            int offsetUnscaled = heightUnscaled - topOffsetUnscaled;
+            int heightUnscaled = patch.height;
+            int topOffsetUnscaled = patch.topOffset;
 
-            float width = spriteFrame.patches[rotation].width / 32f;
-            float height = spriteFrame.patches[rotation].height / 32f;
+            float width = patch.width / 32f;
+            float height = patch.height / 32f;
+            float topOffset = topOffsetUnscaled / 32f;
+            float offset = height - topOffset;
             
-            meshRenderer.material.mainTexture = spriteFrame.patches[rotation].output;
+            meshRenderer.material.mainTexture = patch.output;
             transform.localScale = new Vector3(width * xScale, height, -1f);
-            transform.localPosition = new Vector3(transform.localPosition.x, -offsetUnscaled / 32f);
+            transform.localPosition = new Vector3(transform.localPosition.x, offset);
         }
     }
 }

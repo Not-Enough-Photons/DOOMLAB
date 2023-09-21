@@ -25,6 +25,12 @@ namespace NEP.DOOMLAB.Entities
             {
                 ExplodeMissile(mobj, collision);
             }
+
+            if(mobj.flags.HasFlag(MobjFlags.MF_SKULLFLY))
+            {
+                // the skull slammed into something... yep
+                mobj.rigidbody.velocity = Vector3.zero;
+            }
         }
 
         private void ExplodeMissile(Mobj missile, Collision collision)
@@ -44,7 +50,7 @@ namespace NEP.DOOMLAB.Entities
 
             if(mobj.info.deathSound != Sound.SoundType.sfx_None)
             {
-                SoundManager.Instance.PlaySound(mobj.info.deathSound, mobj.audioSource, false);
+                SoundManager.Instance.PlaySound(mobj.info.deathSound, mobj.transform.position, false);
             }
 
             Mobj hitMobj = collision.gameObject.GetComponent<Mobj>();

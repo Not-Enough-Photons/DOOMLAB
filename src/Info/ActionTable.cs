@@ -29,7 +29,7 @@ namespace NEP.DOOMLAB.Data
         public static void A_BFGSpray(Mobj mobj){}
         public static void A_Explode(Mobj mobj){ mobj.brain.A_Explode(); }
         public static void A_Pain(Mobj mobj){ mobj.brain.A_Pain(); }
-        public static void A_PlayerScream(Mobj mobj){}
+        public static void A_PlayerScream(Mobj mobj){  }
         public static void A_Fall(Mobj mobj){ mobj.brain.A_Fall(); }
         public static void A_XScream(Mobj mobj){ mobj.brain.A_XScream(); }
         public static void A_Look(Mobj mobj){ mobj.brain.A_Look(); }
@@ -49,10 +49,10 @@ namespace NEP.DOOMLAB.Data
         public static void A_SkelWhoosh(Mobj mobj){ mobj.brain.A_SkelWhoosh(); }
         public static void A_SkelFist(Mobj mobj){ mobj.brain.A_SkelFist(); }
         public static void A_SkelMissile(Mobj mobj){}
-        public static void A_FatRaise(Mobj mobj){}
-        public static void A_FatAttack1(Mobj mobj){}
-        public static void A_FatAttack2(Mobj mobj){}
-        public static void A_FatAttack3(Mobj mobj){}
+        public static void A_FatRaise(Mobj mobj){ mobj.brain.A_FatRaise(); }
+        public static void A_FatAttack1(Mobj mobj){ mobj.brain.A_FatAttack1(); }
+        public static void A_FatAttack2(Mobj mobj){ mobj.brain.A_FatAttack2(); }
+        public static void A_FatAttack3(Mobj mobj){ mobj.brain.A_FatAttack3(); }
         public static void A_BossDeath(Mobj mobj){}
         public static void A_CPosAttack(Mobj mobj){ mobj.brain.A_CPosAttack(); }
         public static void A_CPosRefire(Mobj mobj){ mobj.brain.A_CPosRefire(); }

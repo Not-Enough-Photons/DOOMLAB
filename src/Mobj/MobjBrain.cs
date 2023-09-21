@@ -453,11 +453,11 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_Chase()
         {
-            if (mobj.target == null)
+/*             if (mobj.target == null)
             {
                 return;
             }
-
+ */
             if (mobj.reactionTime != 0)
             {
                 mobj.reactionTime--;
@@ -498,7 +498,7 @@ namespace NEP.DOOMLAB.Entities
 
             if (mobj.flags.HasFlag(MobjFlags.MF_JUSTATTACKED))
             {
-                mobj.flags ^= MobjFlags.MF_JUSTATTACKED;
+                mobj.flags &= ~MobjFlags.MF_JUSTATTACKED;
                 NewChaseDir();
                 return;
             }
@@ -529,8 +529,11 @@ namespace NEP.DOOMLAB.Entities
                 }
 
                 mobj.SetState(mobj.info.missileState);
-                mobj.flags ^= MobjFlags.MF_JUSTATTACKED;
+                mobj.flags |= MobjFlags.MF_JUSTATTACKED;
+                return;
             }
+
+            A_NoMissile();
         }
 
         public void A_NoMissile()
@@ -712,7 +715,13 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_PainAttack()
         {
-            
+            if(mobj.target == null)
+            {
+                return;
+            }
+
+            A_FaceTarget();
+            A_PainShootSkull();
         }
 
         public void A_SkullAttack()
@@ -721,6 +730,19 @@ namespace NEP.DOOMLAB.Entities
             {
                 return;
             }
+
+            mobj.flags |= MobjFlags.MF_SKULLFLY;
+
+            SoundManager.Instance.PlaySound(mobj.info.attackSound, mobj.audioSource, false);
+            A_FaceTarget();
+            mobj.rigidbody.velocity += mobj.transform.forward * 6.25f;
+        }
+
+        public void A_PainShootSkull()
+        {
+            Mobj newMobj = MobjManager.Instance.SpawnMobj(mobj.transform.position + mobj.transform.forward, MobjType.MT_SKULL);
+            newMobj.target = mobj.target;
+            newMobj.brain.A_SkullAttack();
         }
 
         public void A_CyberAttack()
@@ -770,6 +792,30 @@ namespace NEP.DOOMLAB.Entities
 
             // launch a missile
             MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_BRUISERSHOT);
+        }
+
+        public void A_FatRaise()
+        {
+            A_FaceTarget();
+            SoundManager.Instance.PlaySound(SoundType.sfx_manatk, mobj.audioSource, false);
+        }
+
+        public void A_FatAttack1()
+        {
+            A_FaceTarget();
+            MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
+        }
+
+        public void A_FatAttack2()
+        {
+            A_FaceTarget();
+            MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
+        }
+
+        public void A_FatAttack3()
+        {
+            A_FaceTarget();
+            MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
         }
 
         public void A_Hoof()
