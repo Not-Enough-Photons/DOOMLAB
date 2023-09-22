@@ -60,7 +60,7 @@ namespace NEP.DOOMLAB.Rendering
 
         public static void LoadSpriteDefs()
         {
-            spriteDefs = SpriteLumpGenerator.sprites;
+            spriteDefs = FrameBuilder.spriteDefs;
         }
 
         public void UpdateSprite()
@@ -86,34 +86,14 @@ namespace NEP.DOOMLAB.Rendering
                 return;
             }
 
-            if (!spriteFrame.canRotate)
-            {
-                SetSprite(spriteFrame, 0);
-                return;
-            }
-
-            if (index >= spriteFrame.numRotations)
-            { 
-                int rotation = spriteFrame.numRotations - index;
-                SetSprite(spriteFrame, rotation + 3, true);
-            }
-            else
-            {
-                SetSprite(spriteFrame, index);
-            }
+            SetSprite(spriteFrame, index);
         }
 
-        private void SetSprite(SpriteFrame spriteFrame, int rotation, bool flipped = false)
+        private void SetSprite(SpriteFrame spriteFrame, int rotation)
         {
             WAD.DataTypes.Patch patch = spriteFrame.patches[rotation];
             bool flipBit = spriteFrame.flipBits[rotation];
-
-            int xScale = 1;
-    
-            if(flipped)
-            {
-                xScale = flipBit ? -1 : 1;
-            }
+            int xScale = flipBit ? -1 : 1;;
 
             int heightUnscaled = patch.height;
             int topOffsetUnscaled = patch.topOffset;

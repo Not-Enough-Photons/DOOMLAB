@@ -3,19 +3,17 @@ using UnityEngine;
 
 namespace NEP.DOOMLAB.WAD.DataTypes
 {
-    [System.Serializable]
     public struct Patch
     {
-        [System.Serializable]
+        public struct Pixel
+        {
+            public int x;
+            public int y;
+            public byte color;
+        }
+        
         public struct Column
         {
-            public struct Pixel
-            {
-                public int x;
-                public int y;
-                public byte color;
-            }
-
             public List<Pixel> colorData;
             public int offset;
         }

@@ -121,9 +121,12 @@ namespace NEP.DOOMLAB.Entities
             {
                 tics--;
 
-                if (tics <= 0 && !SetState(state.nextstate))
+                if (tics == 0)
                 {
-                    return;
+                    if(!SetState(state.nextstate))
+                    {
+                        return;
+                    }
                 }
             }
         }

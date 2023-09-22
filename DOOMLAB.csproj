@@ -60,7 +60,7 @@
     <Compile Include="src\Rendering\MobjRenderer.cs" />
     <Compile Include="src\Rendering\SpriteDef.cs" />
     <Compile Include="src\Rendering\SpriteFrame.cs" />
-    <Compile Include="src\Rendering\SpriteLumpGenerator.cs" />
+    <Compile Include="src\Rendering\FrameBuilder.cs" />
     <Compile Include="src\Sound\PooledAudio.cs" />
     <Compile Include="src\Sound\SoundManager.cs" />
     <Compile Include="src\Sound\SoundType.cs" />
@@ -70,7 +70,9 @@
     <Compile Include="src\WAD\WADFile.cs" />
     <Compile Include="src\WAD\WADIndexEntry.cs" />
     <Compile Include="src\WAD\WADManager.cs" />
-    <Compile Include="src\ZDOOM\SNDINFO.cs" />
+    <Compile Include="src\ZDOOM\SNDINFO\ZDSndInfoField.cs" />
+    <Compile Include="src\ZDOOM\SNDINFO\ZDSndInfo.cs" />
+    <Compile Include="src\ZDOOM\ZDActor.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\bwdoom.pack" />

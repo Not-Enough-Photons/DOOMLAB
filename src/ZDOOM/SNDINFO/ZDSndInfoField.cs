@@ -5,7 +5,7 @@ using NEP.DOOMLAB.WAD.DataTypes;
 
 namespace NEP.DOOMLAB.ZDOOM
 {
-    public struct SNDINFO
+    public struct ZDSndInfoField
     {
         public string className;
         public string classSound;
