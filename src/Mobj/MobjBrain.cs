@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using Il2CppSystem.Numerics;
 using MelonLoader;
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
-
+using UnhollowerBaseLib;
 using UnityEngine;
 
 namespace NEP.DOOMLAB.Entities
@@ -40,7 +41,7 @@ namespace NEP.DOOMLAB.Entities
 
         private Mobj.MoveDirection[] diags = new Mobj.MoveDirection[]
         {
-           Mobj.MoveDirection.SOUTHEAST, Mobj.MoveDirection.NORTHEAST, Mobj.MoveDirection.SOUTHWEST, Mobj.MoveDirection.NORTHWEST 
+           Mobj.MoveDirection.SOUTHEAST, Mobj.MoveDirection.NORTHEAST, Mobj.MoveDirection.SOUTHWEST, Mobj.MoveDirection.NORTHWEST
         };
 
         private bool test_intersect;
@@ -82,23 +83,23 @@ namespace NEP.DOOMLAB.Entities
 
             }
 
-            if(Physics.Raycast(mobj.transform.position, mobj.transform.forward, out RaycastHit hit, 2f))
+            if (Physics.Raycast(mobj.transform.position, mobj.transform.forward, out RaycastHit hit, 2f))
             {
-                if(hit.rigidbody != null)
+                if (hit.rigidbody != null)
                 {
-                    if(hit.rigidbody.isKinematic)
+                    if (hit.rigidbody.isKinematic)
                     {
                         return false;
                     }
                 }
 
-                if(hit.collider.gameObject.isStatic)
+                if (hit.collider.gameObject.isStatic)
                 {
                     return false;
                 }
             }
 
-            mobj.rigidbody.position += (mobj.transform.forward * mobj.info.speed) * Time.deltaTime;
+            mobj.rigidbody.position += mobj.transform.forward.normalized * mobj.info.speed * Time.deltaTime;
             return true;
         }
 
@@ -115,7 +116,7 @@ namespace NEP.DOOMLAB.Entities
 
         public void NewChaseDir()
         {
-            if(mobj.target == null)
+            if (mobj.target == null)
             {
                 return;
             }
@@ -164,98 +165,98 @@ namespace NEP.DOOMLAB.Entities
             {
                 mobj.moveDirection = diags[(deltaZ < 0 ? 1 : 0) * 2 + (deltaX > 0 ? 1 : 0)];
 
-                if(mobj.moveDirection != turnAround && TryWalk())
+                if (mobj.moveDirection != turnAround && TryWalk())
                 {
                     return;
                 }
             }
 
-            if(DoomGame.RNG.P_Random() < 200 || Mathf.Abs(deltaZ) > Mathf.Abs(deltaX))
+            if (DoomGame.RNG.P_Random() < 200 || Mathf.Abs(deltaZ) > Mathf.Abs(deltaX))
             {
                 tempDir = possibleDirections[0];
                 possibleDirections[0] = possibleDirections[1];
                 possibleDirections[1] = tempDir;
             }
 
-            if(possibleDirections[0] == turnAround)
+            if (possibleDirections[0] == turnAround)
             {
                 possibleDirections[0] = Mobj.MoveDirection.NODIR;
             }
 
-            if(possibleDirections[1] == turnAround)
+            if (possibleDirections[1] == turnAround)
             {
                 possibleDirections[1] = Mobj.MoveDirection.NODIR;
             }
 
-            if(possibleDirections[0] != Mobj.MoveDirection.NODIR)
+            if (possibleDirections[0] != Mobj.MoveDirection.NODIR)
             {
                 mobj.moveDirection = possibleDirections[0];
 
-                if(TryWalk())
+                if (TryWalk())
                 {
                     return;
                 }
             }
 
-            if(possibleDirections[1] != Mobj.MoveDirection.NODIR)
+            if (possibleDirections[1] != Mobj.MoveDirection.NODIR)
             {
                 mobj.moveDirection = possibleDirections[1];
 
-                if(TryWalk())
+                if (TryWalk())
                 {
                     return;
                 }
             }
 
-            if(oldDir != Mobj.MoveDirection.NODIR)
+            if (oldDir != Mobj.MoveDirection.NODIR)
             {
                 mobj.moveDirection = oldDir;
 
-                if(TryWalk())
+                if (TryWalk())
                 {
                     return;
                 }
             }
 
-            if((DoomGame.RNG.P_Random() & 1) != 0)
+            if ((DoomGame.RNG.P_Random() & 1) != 0)
             {
-                for(tempDir = Mobj.MoveDirection.WEST;
+                for (tempDir = Mobj.MoveDirection.WEST;
                     tempDir <= Mobj.MoveDirection.SOUTHWEST;
                     tempDir++)
+                {
+                    if (tempDir != turnAround)
                     {
-                        if(tempDir != turnAround)
-                        {
                         mobj.moveDirection = tempDir;
 
-                            if(TryWalk())
-                            {
-                                return;
-                            }
+                        if (TryWalk())
+                        {
+                            return;
                         }
                     }
+                }
             }
             else
             {
-                for(tempDir = Mobj.MoveDirection.SOUTHWEST;
+                for (tempDir = Mobj.MoveDirection.SOUTHWEST;
                     tempDir != Mobj.MoveDirection.WEST - 1;
                     tempDir--)
+                {
+                    if (tempDir != turnAround)
                     {
-                        if(tempDir != turnAround)
-                        {
                         mobj.moveDirection = tempDir;
 
-                            if(TryWalk())
-                            {
-                                return;
-                            }
+                        if (TryWalk())
+                        {
+                            return;
                         }
                     }
+                }
             }
 
-            if(turnAround != Mobj.MoveDirection.NODIR)
+            if (turnAround != Mobj.MoveDirection.NODIR)
             {
                 mobj.moveDirection = turnAround;
-                
+
                 if (TryWalk())
                 {
                     return;
@@ -267,12 +268,12 @@ namespace NEP.DOOMLAB.Entities
 
         public bool CheckMeleeRange()
         {
-            if(mobj.target == null)
+            if (mobj.target == null)
             {
                 return false;
             }
 
-            if(Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > (mobj.info.radius / 32f) + 0.5)
+            if (Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > (mobj.info.radius / 32f) + 0.5)
             {
                 return false;
             }
@@ -287,37 +288,37 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            if(mobj.flags.HasFlag(MobjFlags.MF_JUSTHIT))
+            if (mobj.flags.HasFlag(MobjFlags.MF_JUSTHIT))
             {
                 mobj.flags &= ~MobjFlags.MF_JUSTHIT;
                 return true;
             }
 
-            if(mobj.reactionTime != 0)
+            if (mobj.reactionTime != 0)
             {
                 return false;
             }
 
             float distance = Vector3.Distance(mobj.transform.position, mobj.target.transform.position);
 
-            if(mobj.info.meleeState == StateNum.S_NULL)
+            if (mobj.info.meleeState == StateNum.S_NULL)
             {
                 distance -= 4f;
             }
 
             distance *= 8;
 
-            if(mobj.type == MobjType.MT_VILE)
+            if (mobj.type == MobjType.MT_VILE)
             {
-                if(distance > 28f)
+                if (distance > 28f)
                 {
                     return false;
                 }
             }
 
-            if(mobj.type == MobjType.MT_UNDEAD)
+            if (mobj.type == MobjType.MT_UNDEAD)
             {
-                if(distance < 6.125)
+                if (distance < 6.125)
                 {
                     return false;
                 }
@@ -325,24 +326,24 @@ namespace NEP.DOOMLAB.Entities
                 distance *= 2;
             }
 
-            if(mobj.type == MobjType.MT_CYBORG
+            if (mobj.type == MobjType.MT_CYBORG
                 || mobj.type == MobjType.MT_SPIDER
                 || mobj.type == MobjType.MT_SKULL)
-                {
-                    distance *= 2;
-                }
+            {
+                distance *= 2;
+            }
 
-            if(distance > 6.25f)
+            if (distance > 6.25f)
             {
                 distance = 6.25f;
             }
 
-            if(mobj.type == MobjType.MT_CYBORG && distance > 5)
+            if (mobj.type == MobjType.MT_CYBORG && distance > 5)
             {
                 distance = 5;
             }
 
-            if(DoomGame.RNG.P_Random() < distance)
+            if (DoomGame.RNG.P_Random() < distance)
             {
                 return false;
             }
@@ -353,26 +354,26 @@ namespace NEP.DOOMLAB.Entities
         // Checks if a raycast line is unobstructed.
         public bool CheckSight(Mobj other)
         {
-            if(other == null)
+            if (other == null)
             {
                 return false;
             }
 
             Vector3 direction = other.transform.position - mobj.transform.position;
-            
+
             if (Physics.Raycast(mobj.transform.position, direction, out RaycastHit hit))
             {
-                if(hit.collider.gameObject.isStatic)
+                if (hit.collider.gameObject.isStatic)
                 {
                     return false;
                 }
 
-                if(hit.collider.gameObject.layer == LayerMask.NameToLayer("Static"))
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Static"))
                 {
                     return false;
                 }
 
-                if(hit.rigidbody != null && hit.rigidbody.isKinematic)
+                if (hit.rigidbody != null && hit.rigidbody.isKinematic)
                 {
                     return false;
                 }
@@ -392,9 +393,9 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            if(angle > 45f)
+            if (angle > 45f)
             {
-                if(Vector3.Distance(Mobj.player.position, mobj.transform.position) > 1.5f)
+                if (Vector3.Distance(Mobj.player.position, mobj.transform.position) > 1.5f)
                 {
                     return false;
                 }
@@ -421,14 +422,14 @@ namespace NEP.DOOMLAB.Entities
         {
             SoundType sound;
 
-            switch(mobj.info.seeSound)
+            switch (mobj.info.seeSound)
             {
                 case SoundType.sfx_posit1:
                 case SoundType.sfx_posit2:
                 case SoundType.sfx_posit3:
                     sound = SoundType.sfx_posit1 + DoomGame.RNG.P_Random() % 3;
                     break;
-                
+
                 case SoundType.sfx_bgsit1:
                 case SoundType.sfx_bgsit2:
                     sound = SoundType.sfx_bgsit1 + DoomGame.RNG.P_Random() % 2;
@@ -439,7 +440,7 @@ namespace NEP.DOOMLAB.Entities
                     break;
             }
 
-            if(mobj.type == MobjType.MT_SPIDER || mobj.type == MobjType.MT_CYBORG)
+            if (mobj.type == MobjType.MT_SPIDER || mobj.type == MobjType.MT_CYBORG)
             {
                 SoundManager.Instance.PlaySound(sound, Vector3.zero, true);
             }
@@ -453,11 +454,11 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_Chase()
         {
-/*             if (mobj.target == null)
-            {
-                return;
-            }
- */
+            /*             if (mobj.target == null)
+                        {
+                            return;
+                        }
+             */
             if (mobj.reactionTime != 0)
             {
                 mobj.reactionTime--;
@@ -475,7 +476,7 @@ namespace NEP.DOOMLAB.Entities
                 }
             }
 
-            if(mobj.moveDirection < Mobj.MoveDirection.NODIR || moveIndex < 8)
+            if (mobj.moveDirection < Mobj.MoveDirection.NODIR || moveIndex < 8)
             {
                 moveIndex = (int)mobj.moveDirection;
                 float angleDelta = mobj.transform.eulerAngles.y - directions[moveIndex];
@@ -570,7 +571,7 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_Explode()
         {
-            mobj.RadiusAttack(mobj.target, 128);
+            mobj.RadiusAttack(mobj, mobj.target, 128);
         }
 
         public void A_TroopAttack()
@@ -582,7 +583,7 @@ namespace NEP.DOOMLAB.Entities
 
             A_FaceTarget();
 
-            if(CheckMeleeRange())
+            if (CheckMeleeRange())
             {
                 SoundManager.Instance.PlaySound(SoundType.sfx_claw, mobj.transform.position, false);
                 float damage = (DoomGame.RNG.P_Random() % 8 + 1) * 3;
@@ -595,7 +596,7 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_PosAttack()
         {
-            if(mobj.target == null)
+            if (mobj.target == null)
             {
                 return;
             }
@@ -607,13 +608,35 @@ namespace NEP.DOOMLAB.Entities
             RaycastHit hit;
 
             SoundManager.Instance.PlaySound(SoundType.sfx_pistol, mobj.transform.position, false);
-            
-            mobj.LineAttack(damage, 128);
+
+            mobj.LineAttack(damage / 10, 128);
+        }
+
+        public void A_SPosAttack()
+        {
+            if (mobj.target == null)
+            {
+                return;
+            }
+
+            A_FaceTarget();
+
+            for (int i = 0; i < 3; i++)
+            {
+                float randomAngle = (DoomGame.RNG.P_Random() - DoomGame.RNG.P_Random() & 20) / 10f;
+                float damage = ((DoomGame.RNG.P_Random() % 5) + 1) * 3;
+                RaycastHit hit;
+                mobj.LineAttack(damage / 10, 128);
+
+            }
+
+            SoundManager.Instance.PlaySound(SoundType.sfx_shotgn, mobj.transform.position, false);
+
         }
 
         public void A_CPosAttack()
         {
-            if(mobj.target == null)
+            if (mobj.target == null)
             {
                 return;
             }
@@ -624,20 +647,20 @@ namespace NEP.DOOMLAB.Entities
             float randomAngle = (DoomGame.RNG.P_Random() - DoomGame.RNG.P_Random() & 20) / 10f;
             float damage = ((DoomGame.RNG.P_Random() % 5) + 1) * 3;
             RaycastHit hit;
-            
-            mobj.LineAttack(damage, 256);
+
+            mobj.LineAttack(damage / 10, 256);
         }
 
         public void A_CPosRefire()
         {
             A_FaceTarget();
 
-            if(DoomGame.RNG.P_Random() < 40)
+            if (DoomGame.RNG.P_Random() < 40)
             {
                 return;
             }
 
-            if(mobj.target == null || mobj.target.health <= 0 || !CheckSight(mobj.target))
+            if (mobj.target == null || mobj.target.health <= 0 || !CheckSight(mobj.target))
             {
                 mobj.SetState(mobj.info.seeState);
             }
@@ -647,12 +670,12 @@ namespace NEP.DOOMLAB.Entities
         {
             A_FaceTarget();
 
-            if(DoomGame.RNG.P_Random() < 10)
+            if (DoomGame.RNG.P_Random() < 10)
             {
                 return;
             }
 
-            if(mobj.target == null || mobj.target.health == 0 || !CheckSight(mobj.target))
+            if (mobj.target == null || mobj.target.health == 0 || !CheckSight(mobj.target))
             {
                 mobj.SetState(mobj.info.seeState);
             }
@@ -673,22 +696,42 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_SargAttack()
         {
-            if(mobj.target == null)
+            if (mobj.target == null)
             {
                 return;
             }
 
             A_FaceTarget();
 
-            if(CheckMeleeRange())
+            if (CheckMeleeRange())
             {
-                
+                if(mobj.target == Mobj.player)
+                {
+                    Mobj.player.playerHealth.TAKEDAMAGE(1.25f);
+                }
             }
+        }
+
+        public void A_Tracer()
+        {
+        }
+
+        public void A_SkelMissile()
+        {
+            if(mobj.target == null)
+            {
+                return;
+            }
+
+            A_FaceTarget();
+            Mobj tracer = MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_TRACER);
+            tracer.transform.position += mobj.transform.forward;
+            tracer.tracer = mobj.target;
         }
 
         public void A_SkelWhoosh()
         {
-            if(mobj.target == null)
+            if (mobj.target == null)
             {
                 return;
             }
@@ -699,14 +742,14 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_SkelFist()
         {
-            if(mobj.target == null)
+            if (mobj.target == null)
             {
                 return;
             }
 
             A_FaceTarget();
 
-            if(CheckMeleeRange())
+            if (CheckMeleeRange())
             {
                 SoundManager.Instance.PlaySound(SoundType.sfx_skepch, mobj.transform.position, false);
                 // damage
@@ -715,7 +758,7 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_PainAttack()
         {
-            if(mobj.target == null)
+            if (mobj.target == null)
             {
                 return;
             }
@@ -726,7 +769,7 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_SkullAttack()
         {
-            if(mobj.target == null)
+            if (mobj.target == null)
             {
                 return;
             }
@@ -765,9 +808,9 @@ namespace NEP.DOOMLAB.Entities
             }
 
             A_FaceTarget();
-            if(CheckMeleeRange())
+            if (CheckMeleeRange())
             {
-                float damage = (DoomGame.RNG.P_Random()%6+1)*10;
+                float damage = (DoomGame.RNG.P_Random() % 6 + 1) * 10;
                 mobj.target.TakeDamage(damage, mobj, mobj);
                 return;
             }
@@ -890,6 +933,91 @@ namespace NEP.DOOMLAB.Entities
             mobj.flags &= ~MobjFlags.MF_SOLID;
         }
 
+        public void A_VileChase()
+        {
+            if (mobj.moveDirection != Mobj.MoveDirection.NODIR)
+            {
+
+            }
+
+            A_Chase();
+        }
+
+        public void A_VileStart()
+        {
+            SoundManager.Instance.PlaySound(SoundType.sfx_vilatk, mobj.audioSource, false);
+        }
+
+        public void A_StartFire()
+        {
+            SoundManager.Instance.PlaySound(SoundType.sfx_flamst, mobj.transform.position, false);
+            //A_Fire();
+        }
+
+        public void A_FireCrackle()
+        {
+            SoundManager.Instance.PlaySound(SoundType.sfx_flame, mobj.transform.position, false);
+            //A_Fire();
+        }
+        public void A_Fire()
+        {
+            Mobj dest = mobj.tracer;
+
+            if(dest == null)
+            {
+                return;
+            }
+
+            if(!dest.brain.CheckSight(mobj.target))
+            {
+                return;
+            }
+
+            mobj.transform.position = dest.transform.position;
+        }
+
+        public void A_VileTarget()
+        {
+            if(mobj.target == null)
+            {
+                return;
+            }
+
+            Mobj fog = MobjManager.Instance.SpawnMobj(mobj.target.transform.position, MobjType.MT_FIRE);
+
+            mobj.tracer = fog;
+            fog.target = mobj;
+            fog.tracer = mobj.target;
+        }
+
+        public void A_VileAttack()
+        {
+            if(mobj.target == null)
+            {
+                return;
+            }
+
+            A_FaceTarget();
+
+            if(!CheckSight(mobj.target))
+            {
+                return;
+            }
+
+            SoundManager.Instance.PlaySound(SoundType.sfx_barexp, mobj.transform.position, false);
+
+            if(mobj.target == Mobj.player)
+            {
+                Mobj.player.playerHealth.TAKEDAMAGE(1f);
+                Mobj.player.playerHealth._rigManager.physicsRig.rbKnee.AddForce(Vector3.up * 300f, ForceMode.Impulse);
+            }
+            else
+            {
+                mobj.target.TakeDamage(20, mobj, mobj);
+                mobj.rigidbody.AddForce(Vector3.up * 350f);
+            }
+        }
+
         public void A_BrainAwake()
         {
             SoundManager.Instance.PlaySound(SoundType.sfx_bossit, Vector3.zero, true);
@@ -900,14 +1028,14 @@ namespace NEP.DOOMLAB.Entities
 
             Mobj[] mobjs = GameObject.FindObjectsOfType<Mobj>();
 
-            if(mobjs.Length == 0)
+            if (mobjs.Length == 0)
             {
                 return;
             }
 
-            foreach(var mobj in mobjs)
+            foreach (var mobj in mobjs)
             {
-                if(mobj.type == MobjType.MT_BOSSTARGET)
+                if (mobj.type == MobjType.MT_BOSSTARGET)
                 {
                     listBrainTargets.Add(mobj);
                 }
@@ -926,4 +1054,3 @@ namespace NEP.DOOMLAB.Entities
         }
     }
 }
-    

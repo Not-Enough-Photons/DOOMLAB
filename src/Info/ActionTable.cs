@@ -37,18 +37,18 @@ namespace NEP.DOOMLAB.Data
         public static void A_FaceTarget(Mobj mobj){ mobj.brain.A_FaceTarget(); }
         public static void A_PosAttack(Mobj mobj){ mobj.brain.A_PosAttack(); }
         public static void A_Scream(Mobj mobj){ mobj.brain.A_Scream(); }
-        public static void A_SPosAttack(Mobj mobj){}
-        public static void A_VileChase(Mobj mobj){}
-        public static void A_VileStart(Mobj mobj){}
-        public static void A_VileTarget(Mobj mobj){}
-        public static void A_VileAttack(Mobj mobj){}
-        public static void A_StartFire(Mobj mobj){}
-        public static void A_Fire(Mobj mobj){}
-        public static void A_FireCrackle(Mobj mobj){}
-        public static void A_Tracer(Mobj mobj){}
+        public static void A_SPosAttack(Mobj mobj){ mobj.brain.A_SPosAttack(); }
+        public static void A_VileChase(Mobj mobj){ mobj.brain.A_VileChase(); }
+        public static void A_VileStart(Mobj mobj){ mobj.brain.A_VileStart(); }
+        public static void A_VileTarget(Mobj mobj){ mobj.brain.A_VileTarget(); }
+        public static void A_VileAttack(Mobj mobj){ mobj.brain.A_VileAttack(); }
+        public static void A_StartFire(Mobj mobj){ mobj.brain.A_StartFire(); }
+        public static void A_Fire(Mobj mobj){ mobj.brain.A_Fire(); }
+        public static void A_FireCrackle(Mobj mobj){ mobj.brain.A_FireCrackle(); }
+        public static void A_Tracer(Mobj mobj){ mobj.brain.A_Tracer(); }
         public static void A_SkelWhoosh(Mobj mobj){ mobj.brain.A_SkelWhoosh(); }
         public static void A_SkelFist(Mobj mobj){ mobj.brain.A_SkelFist(); }
-        public static void A_SkelMissile(Mobj mobj){}
+        public static void A_SkelMissile(Mobj mobj){ mobj.brain.A_SkelMissile(); }
         public static void A_FatRaise(Mobj mobj){ mobj.brain.A_FatRaise(); }
         public static void A_FatAttack1(Mobj mobj){ mobj.brain.A_FatAttack1(); }
         public static void A_FatAttack2(Mobj mobj){ mobj.brain.A_FatAttack2(); }

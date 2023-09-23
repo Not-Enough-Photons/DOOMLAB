@@ -41,9 +41,9 @@ namespace NEP.DOOMLAB.Patches
                 return false;
             }
 
-            if (MobjManager.npcLookup.ContainsKey(selectedCrate.Title))
+            if (MobjLookup.npcLookup.ContainsKey(selectedCrate.Title))
             {
-                MobjType mobjType = MobjManager.npcLookup[selectedCrate.Title];
+                MobjType mobjType = MobjLookup.npcLookup[selectedCrate.Title];
                 MobjInfo mobjInfo = Info.MobjInfos[(int)mobjType];
 
                 Vector3 truePlacePosition = __instance.truePlacePosition;
@@ -58,9 +58,9 @@ namespace NEP.DOOMLAB.Patches
 
                 return false;
             }
-            else if (MobjManager.itemLookup.ContainsKey(selectedCrate.Title))
+            else if (MobjLookup.itemLookup.ContainsKey(selectedCrate.Title))
             {
-                MobjType mobjType = MobjManager.itemLookup[selectedCrate.Title];
+                MobjType mobjType = MobjLookup.itemLookup[selectedCrate.Title];
                 MobjInfo mobjInfo = Info.MobjInfos[(int)mobjType];
 
                 Vector3 truePlacePosition = __instance.truePlacePosition;

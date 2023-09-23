@@ -36,9 +36,12 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\DoomGame.cs" />
+    <Compile Include="src\DoomPlayer.cs" />
+    <Compile Include="src\MobjPlacer.cs" />
     <Compile Include="src\Settings.cs" />
     <Compile Include="src\Info\ActionTable.cs" />
     <Compile Include="src\Info\Info.cs" />
+    <Compile Include="src\Info\MobjLookup.cs" />
     <Compile Include="src\Info\MobjType.cs" />
     <Compile Include="src\Info\SpriteNum.cs" />
     <Compile Include="src\Info\State.cs" />

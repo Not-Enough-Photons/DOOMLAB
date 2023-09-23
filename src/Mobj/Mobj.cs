@@ -1,3 +1,4 @@
+using MelonLoader;
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Game;
 
@@ -121,7 +122,7 @@ namespace NEP.DOOMLAB.Entities
             {
                 tics--;
 
-                if (tics == 0)
+                if (tics <= 0)
                 {
                     if(!SetState(state.nextstate))
                     {
@@ -257,16 +258,18 @@ namespace NEP.DOOMLAB.Entities
             return false;
         }
 
-        public bool RadiusAttack(Mobj spot, float bombDamage)
+        public bool RadiusAttack(Mobj spot, Mobj source, float bombDamage)
         {
             if(!flags.HasFlag(MobjFlags.MF_SHOOTABLE))
             {
+                MelonLogger.Msg("Not shootable");
                 return true;
             }
 
             // take no damage from rockets if we're a cyborg or spider
             if(type == MobjType.MT_CYBORG || type == MobjType.MT_SPIDER)
             {
+                MelonLogger.Msg("Either cyborg or spider");
                 return true;
             }
 
@@ -278,17 +281,30 @@ namespace NEP.DOOMLAB.Entities
 
             if(distance < 0)
             {
+                MelonLogger.Msg("Distance is less than zero");
                 distance = 0;
             }
 
             if(distance > bombDamage)
             {
+                MelonLogger.Msg("Distance is greater than the bomb damage!");
                 return true;
             }
-
+    
             if(target.brain.CheckSight(spot))
             {
-                target.TakeDamage(bombDamage  - distance, this, spot);
+                MelonLogger.Msg($"Target {target.name} is in sight...");
+                if(target == Mobj.player)
+                {
+                    MelonLogger.Msg("Player is in sight, doing damage!");
+                    Mobj.player.TakeDamage((bombDamage - distance) / 10, spot, source);
+                }
+                else
+                {
+                    MelonLogger.Msg("MOBJ is in sight, doing damage!");
+                    
+                    target.TakeDamage(bombDamage - distance, spot, source);
+                }
             }
 
             return true;

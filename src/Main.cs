@@ -51,6 +51,7 @@ namespace NEP.DOOMLAB
 
             new WADManager();
             WADManager.Instance.LoadWAD(WADManager.Instance.GetIWAD());
+            FrameBuilder.GenerateTable();
 
             DoomGame game = new DoomGame();
 
@@ -66,9 +67,8 @@ namespace NEP.DOOMLAB
             new GameObject("[DOOMLAB] - Sound Manager").AddComponent<SoundManager>();
             new GameObject("[DOOMLAB] - MOBJ Manager").AddComponent<MobjManager>();
 
-            MobjRenderer.LoadSpriteDefs();
-
             player = Player.physicsRig.m_chest.gameObject.AddComponent<Mobj>();
+            player.gameObject.AddComponent<DoomPlayer>();
             player.flags ^= MobjFlags.MF_SHOOTABLE;
             player.playerHealth = Player.rigManager.GetComponent<Player_Health>();
         }
@@ -79,6 +79,7 @@ namespace NEP.DOOMLAB
             var doomCategory = menuCategory.CreateCategory("DOOMLAB", Color.white);
 
             doomCategory.CreateBoolElement("Disable Thinking", Color.white, false, (value) => Settings.DisableAI = value);
+            doomCategory.CreateBoolElement("No Target", Color.white, false, null);
 
             var wadCategory = doomCategory.CreateSubPanel("WADS", Color.white);
             string[] iwadNames = WADManager.Instance.GetWADsInFolder(WADFile.WADType.IWAD, false);

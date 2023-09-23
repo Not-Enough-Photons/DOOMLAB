@@ -37,14 +37,9 @@ namespace NEP.DOOMLAB.Rendering
         private void Start()    
         {
             DoomGame.Instance.OnTick += UpdateSprite;
-        }
-
-        private void OnEnable()
-        {
             LoadSpriteDefs();
             UpdateSprite();
         }
-
         private void OnDestroy()
         {
             DoomGame.Instance.OnTick -= UpdateSprite;
