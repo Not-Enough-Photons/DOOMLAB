@@ -56,6 +56,7 @@
     <Compile Include="src\Mobj\MobjManager.cs" />
     <Compile Include="src\Mobj\MobjProxy.cs" />
     <Compile Include="src\Mobj\MobjGun.cs" />
+    <Compile Include="src\Mobj\MobjInteraction.cs" />
     <Compile Include="src\Patches\DamagePatches.cs" />
     <Compile Include="src\Patches\GunPatches.cs" />
     <Compile Include="src\Patches\SpawnGunPatches.cs" />

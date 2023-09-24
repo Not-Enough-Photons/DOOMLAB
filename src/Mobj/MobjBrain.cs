@@ -571,7 +571,7 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_Explode()
         {
-            mobj.RadiusAttack(mobj, mobj.target, 128);
+            MobjInteraction.RadiusAttack(mobj, mobj.target, 128);
         }
 
         public void A_TroopAttack()
@@ -587,7 +587,7 @@ namespace NEP.DOOMLAB.Entities
             {
                 SoundManager.Instance.PlaySound(SoundType.sfx_claw, mobj.transform.position, false);
                 float damage = (DoomGame.RNG.P_Random() % 8 + 1) * 3;
-                mobj.target.TakeDamage(damage, mobj, mobj);
+                MobjInteraction.DamageMobj(mobj.target, mobj, mobj, damage);
                 return;
             }
 
@@ -609,7 +609,7 @@ namespace NEP.DOOMLAB.Entities
 
             SoundManager.Instance.PlaySound(SoundType.sfx_pistol, mobj.transform.position, false);
 
-            mobj.LineAttack(damage / 10, 128);
+            MobjInteraction.LineAttack(mobj, mobj.transform.position, mobj.transform.forward, damage / 10, 128);
         }
 
         public void A_SPosAttack()
@@ -626,8 +626,7 @@ namespace NEP.DOOMLAB.Entities
                 float randomAngle = (DoomGame.RNG.P_Random() - DoomGame.RNG.P_Random() & 20) / 10f;
                 float damage = ((DoomGame.RNG.P_Random() % 5) + 1) * 3;
                 RaycastHit hit;
-                mobj.LineAttack(damage / 10, 128);
-
+                MobjInteraction.LineAttack(mobj, mobj.transform.position, mobj.transform.forward, damage / 10, 128);
             }
 
             SoundManager.Instance.PlaySound(SoundType.sfx_shotgn, mobj.transform.position, false);
@@ -647,8 +646,7 @@ namespace NEP.DOOMLAB.Entities
             float randomAngle = (DoomGame.RNG.P_Random() - DoomGame.RNG.P_Random() & 20) / 10f;
             float damage = ((DoomGame.RNG.P_Random() % 5) + 1) * 3;
             RaycastHit hit;
-
-            mobj.LineAttack(damage / 10, 256);
+            MobjInteraction.LineAttack(mobj, mobj.transform.position, mobj.transform.forward, damage / 10, 128);
         }
 
         public void A_CPosRefire()
@@ -811,7 +809,7 @@ namespace NEP.DOOMLAB.Entities
             if (CheckMeleeRange())
             {
                 float damage = (DoomGame.RNG.P_Random() % 6 + 1) * 10;
-                mobj.target.TakeDamage(damage, mobj, mobj);
+                MobjInteraction.DamageMobj(mobj.target, mobj, mobj, damage);
                 return;
             }
 
@@ -829,7 +827,7 @@ namespace NEP.DOOMLAB.Entities
             {
                 SoundManager.Instance.PlaySound(SoundType.sfx_claw, mobj.transform.position, false);
                 float damage = (DoomGame.RNG.P_Random() % 8 + 1) * 10;
-                mobj.target.TakeDamage(damage, mobj, mobj);
+                MobjInteraction.DamageMobj(mobj.target, mobj, mobj, damage);
                 return;
             }
 
@@ -1013,7 +1011,7 @@ namespace NEP.DOOMLAB.Entities
             }
             else
             {
-                mobj.target.TakeDamage(20, mobj, mobj);
+                MobjInteraction.DamageMobj(mobj.target, mobj, mobj, 20);
                 mobj.rigidbody.AddForce(Vector3.up * 350f);
             }
         }

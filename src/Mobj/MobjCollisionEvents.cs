@@ -22,31 +22,29 @@ namespace NEP.DOOMLAB.Entities
 
         private void OnCollisionEnter(Collision collision)
         {
+            Mobj other = collision.collider.GetComponent<Mobj>();
+
             if(mobj.flags.HasFlag(MobjFlags.MF_SPECIAL))
             {
                 if(collision.collider.gameObject.layer == LayerMask.NameToLayer("Player")
                 || collision.collider.gameObject.layer == LayerMask.NameToLayer("Feet"))
                 {
-                    MelonLogger.Msg("Touched player");
                     DoomPlayer.Instance.TouchSpecialThing(mobj);
                 }
             }
 
             if(mobj.flags.HasFlag(MobjFlags.MF_MISSILE))
             {
-                ExplodeMissile(mobj, collision);
+                ExplodeMissile(mobj, other);
             }
 
             if(mobj.flags.HasFlag(MobjFlags.MF_SKULLFLY))
             {
-                // the skull slammed into something... yep
-                mobj.rigidbody.velocity = Vector3.zero;
-                mobj.flags ^= MobjFlags.MF_SKULLFLY;
-                mobj.SetState(mobj.info.seeState);
+                MobjInteraction.CheckThing(other, mobj);
             }
         }
 
-        private void ExplodeMissile(Mobj missile, Collision collision)
+        private void ExplodeMissile(Mobj missile, Mobj hitMobj)
         {
             missile.rigidbody.velocity = Vector3.zero;
             missile.SetState(mobj.info.deathState);
@@ -66,11 +64,9 @@ namespace NEP.DOOMLAB.Entities
                 SoundManager.Instance.PlaySound(mobj.info.deathSound, mobj.transform.position, false);
             }
 
-            Mobj hitMobj = collision.collider.GetComponent<Mobj>();
-
             if(hitMobj != null)
             {
-                mobj.RadiusAttack(mobj, mobj.target, 256);
+                MobjInteraction.CheckThing(hitMobj, missile);
             }
         }
     }

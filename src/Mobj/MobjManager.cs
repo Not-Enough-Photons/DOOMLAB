@@ -29,64 +29,6 @@ namespace NEP.DOOMLAB.Entities
             mobjPrefab = Main.mobjTemplate;
         }
 
-        public bool CheckThing(Mobj thing, Mobj other)
-        {
-            if(!thing.flags.HasFlag(MobjFlags.MF_SOLID | MobjFlags.MF_SPECIAL | MobjFlags.MF_SHOOTABLE))
-            {
-                return true;
-            }
-
-            if(thing == other)
-            {
-                return true;
-            }
-
-            if(other.flags.HasFlag(MobjFlags.MF_SKULLFLY))
-            {
-                float damage = ((DoomGame.RNG.P_Random() % 8) + 1) * other.info.damage;
-
-                thing.TakeDamage(damage, other, other);
-
-                other.flags &= ~MobjFlags.MF_SKULLFLY;
-                other.rigidbody.velocity = Vector3.zero;
-                
-                other.SetState(other.info.spawnState);
-
-                return false;
-            }
-
-            if (other.flags.HasFlag(MobjFlags.MF_MISSILE))
-            {
-                if (other.target != null && (
-                other.target.type == thing.type ||
-                (other.target.type == MobjType.MT_KNIGHT && thing.type == MobjType.MT_BRUISER) ||
-                (other.target.type == MobjType.MT_BRUISER && thing.type == MobjType.MT_KNIGHT)))
-                {
-                    if (thing == other.target)
-                    {
-                        return true;
-                    }
-
-                    if (thing.type != MobjType.MT_PLAYER)
-                    {
-                        return false;
-                    }
-                }
-
-                if (!thing.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
-                {
-                    return !thing.flags.HasFlag(MobjFlags.MF_SOLID);
-                }
-
-                float damage = ((DoomGame.RNG.P_Random() % 8) + 1) * other.info.damage;
-                thing.TakeDamage(damage, other, other.target);
-
-                return false;
-            }
-
-            return !thing.flags.HasFlag(MobjFlags.MF_SOLID);
-        }
-
         public Mobj SpawnMobj(Vector3 position, MobjType type, float angle = 0f)
         {
             if (mobjPrefab == null)
@@ -132,6 +74,7 @@ namespace NEP.DOOMLAB.Entities
             if(mobj.flags.HasFlag(MobjFlags.MF_SPECIAL))
             {
                 mobj.collider.enabled = true;
+                mobj.gameObject.AddComponent<MobjCollisionEvents>();
             }
 
             if (mobj.flags.HasFlag(MobjFlags.MF_NOGRAVITY))
@@ -157,6 +100,8 @@ namespace NEP.DOOMLAB.Entities
             Quaternion rotation = source.transform.rotation;
             Mobj projectile = SpawnMobj(position, type);
 
+            // Who fired this rocket?
+            // The target is where it came from
             projectile.target = source;
 
             projectile.transform.rotation = rotation;
