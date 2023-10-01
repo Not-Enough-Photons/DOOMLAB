@@ -34,8 +34,20 @@ namespace NEP.DOOMLAB.Entities
 
                 DamageMobj(thing, tmThing, tmThing, damage);
 
-                tmThing.flags &= ~MobjFlags.MF_SKULLFLY;
-                tmThing.rigidbody.velocity = Vector3.zero;
+                if(tmThing.flags.HasFlag(MobjFlags.MF_SKULLFLY))
+                {
+                    tmThing.flags &= ~MobjFlags.MF_SKULLFLY;
+                    tmThing.rigidbody.velocity = Vector3.zero;
+
+                    if(tmThing.sightedPlayer)
+                    {
+                        tmThing.SetState(tmThing.info.seeState);
+                    }
+                    else
+                    {
+                        tmThing.SetState(tmThing.info.spawnState);
+                    }
+                }
 
                 tmThing.SetState(tmThing.info.spawnState);
 
@@ -72,7 +84,7 @@ namespace NEP.DOOMLAB.Entities
 
         public static bool LineAttack(Mobj shootThing, Vector3 origin, Vector3 direction, float damage, float distance)
         {
-            Ray ray = new Ray(origin, origin + direction);
+            Ray ray = new Ray(origin, direction - origin);
 
             if (Physics.Raycast(ray, out RaycastHit hit, distance))
             {
@@ -82,6 +94,17 @@ namespace NEP.DOOMLAB.Entities
                 if (impactProperties != null)
                 {
                     MobjManager.Instance.SpawnMobj(hit.point, MobjType.MT_PUFF);
+                    
+                    Attack attack = new Attack()
+                    {
+                        attackType = SLZ.Marrow.Data.AttackType.Piercing,
+                        damage = damage,
+                        origin = origin,
+                        direction = direction
+                    };
+
+                    impactProperties.ReceiveAttack(attack);
+
                     return false;
                 }
 
@@ -132,7 +155,7 @@ namespace NEP.DOOMLAB.Entities
 
         public static void RadiusAttack(Mobj spot, Mobj source, float damage)
         {
-            var hits = Physics.BoxCastAll(spot.transform.position, Vector3.one * 4, spot.transform.position);
+            var hits = Physics.BoxCastAll(spot.position, Vector3.one * 4, spot.position);
 
             for (int i = 0; i < hits.Length; i++)
             {
@@ -159,8 +182,8 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            float dx = Mathf.Abs(thing.transform.position.x - spot.transform.position.x);
-            float dz = Mathf.Abs(thing.transform.position.z - spot.transform.position.z);
+            float dx = Mathf.Abs(thing.position.x - spot.position.x);
+            float dz = Mathf.Abs(thing.position.z - spot.position.z);
 
             float distance = dx > dz ? dx : dz;
             distance = (distance - thing.radius / 32f);
@@ -241,6 +264,26 @@ namespace NEP.DOOMLAB.Entities
                     target.SetState(target.info.seeState);
                 }
             }
+        }
+
+        public static bool VileCheckIterator(Mobj thing, out Mobj corpseHit)
+        {
+            if(!thing.flags.HasFlag(MobjFlags.MF_CORPSE))
+            {
+                corpseHit = null;
+                return false;
+            }
+
+            if(thing.info.raiseState == StateNum.S_NULL)
+            {
+                corpseHit = null;
+                return false;
+            }
+
+            corpseHit = thing;
+            corpseHit.rigidbody.velocity = Vector3.zero;
+
+            return true;
         }
     }
 }

@@ -29,13 +29,14 @@ namespace NEP.DOOMLAB.Sound
             listObj.transform.parent = transform;
 
             for (int i = 0; i < 64; i++)
-            {
+        {
                 GameObject pooledAudio = new GameObject("Poolee Audio");
                 pooledAudio.transform.parent = listObj.transform;
 
                 AudioSource source = pooledAudio.AddComponent<AudioSource>();
                 source.playOnAwake = true;
                 source.volume = 0.75f;
+                source.dopplerLevel = 0; // no weird pitching based on relative velocity
 
                 pooledAudio.AddComponent<PooledAudio>();
                 pooledAudio.SetActive(false);

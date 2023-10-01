@@ -5,6 +5,8 @@ using MelonLoader;
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
+using SLZ.Marrow.Forklift;
+using SLZ.Props;
 using UnhollowerBaseLib;
 using UnityEngine;
 
@@ -21,14 +23,14 @@ namespace NEP.DOOMLAB.Entities
 
         private float[] directions = new float[]
         {
-            0,
-            45,
             90,
-            135,
-            180,
-            225,
+            45,
+            0,
+            315,
             270,
-            315
+            225,
+            180,
+            135
         };
 
         private int moveIndex = 0;
@@ -41,7 +43,7 @@ namespace NEP.DOOMLAB.Entities
 
         private Mobj.MoveDirection[] diags = new Mobj.MoveDirection[]
         {
-           Mobj.MoveDirection.SOUTHEAST, Mobj.MoveDirection.NORTHEAST, Mobj.MoveDirection.SOUTHWEST, Mobj.MoveDirection.NORTHWEST
+           Mobj.MoveDirection.NORTHWEST, Mobj.MoveDirection.NORTHEAST, Mobj.MoveDirection.SOUTHWEST, Mobj.MoveDirection.SOUTHEAST,
         };
 
         private bool test_intersect;
@@ -83,23 +85,15 @@ namespace NEP.DOOMLAB.Entities
 
             }
 
-            if (Physics.Raycast(mobj.transform.position, mobj.transform.forward, out RaycastHit hit, 2f))
+            if(mobj.rigidbody.SweepTest(Vector3.up * -0.5f + mobj.transform.forward, out RaycastHit hit, 0.1f))
             {
-                if (hit.rigidbody != null)
-                {
-                    if (hit.rigidbody.isKinematic)
-                    {
-                        return false;
-                    }
-                }
-
-                if (hit.collider.gameObject.isStatic)
+                if(hit.collider && hit.collider.bounds.size.y > 0.075f)
                 {
                     return false;
                 }
             }
 
-            mobj.rigidbody.position += mobj.transform.forward.normalized * mobj.info.speed * Time.deltaTime;
+            mobj.rigidbody.position += (mobj.transform.forward * mobj.info.speed) * Time.deltaTime;
             return true;
         }
 
@@ -116,7 +110,7 @@ namespace NEP.DOOMLAB.Entities
 
         public void NewChaseDir()
         {
-            if (mobj.target == null)
+            if(mobj.target == null)
             {
                 return;
             }
@@ -132,11 +126,11 @@ namespace NEP.DOOMLAB.Entities
 
             if (deltaX > 1.5f)
             {
-                possibleDirections[0] = Mobj.MoveDirection.NORTH;
+                possibleDirections[0] = Mobj.MoveDirection.EAST;
             }
             else if (deltaX < -1.5f)
             {
-                possibleDirections[0] = Mobj.MoveDirection.SOUTH;
+                possibleDirections[0] = Mobj.MoveDirection.WEST;
             }
             else
             {
@@ -145,11 +139,11 @@ namespace NEP.DOOMLAB.Entities
 
             if (deltaZ > 1.5f)
             {
-                possibleDirections[1] = Mobj.MoveDirection.EAST;
+                possibleDirections[1] = Mobj.MoveDirection.NORTH;
             }
             else if (deltaZ < -1.5f)
             {
-                possibleDirections[1] = Mobj.MoveDirection.WEST;
+                possibleDirections[1] = Mobj.MoveDirection.SOUTH;
             }
             else
             {
@@ -163,56 +157,58 @@ namespace NEP.DOOMLAB.Entities
             //                   south-west
             if (possibleDirections[0] != Mobj.MoveDirection.NODIR && possibleDirections[1] != Mobj.MoveDirection.NODIR)
             {
-                mobj.moveDirection = diags[(deltaZ < 0 ? 1 : 0) * 2 + (deltaX > 0 ? 1 : 0)];
-
-                if (mobj.moveDirection != turnAround && TryWalk())
+                SetMoveDirection(diags[(deltaZ < 0 ? 1 : 0) * 2 + (deltaX > 0 ? 1 : 0)]);
+                 
+                if(mobj.moveDirection != turnAround && TryWalk())
                 {
                     return;
                 }
             }
 
-            if (DoomGame.RNG.P_Random() < 200 || Mathf.Abs(deltaZ) > Mathf.Abs(deltaX))
+            if(DoomGame.RNG.P_Random() < 200 || Mathf.Abs(deltaZ) > Mathf.Abs(deltaX))
             {
                 tempDir = possibleDirections[0];
                 possibleDirections[0] = possibleDirections[1];
                 possibleDirections[1] = tempDir;
             }
 
-            if (possibleDirections[0] == turnAround)
+            if(possibleDirections[0] == turnAround)
             {
                 possibleDirections[0] = Mobj.MoveDirection.NODIR;
+                print("One of our directions is a turn around one, no dir");
             }
 
             if (possibleDirections[1] == turnAround)
             {
                 possibleDirections[1] = Mobj.MoveDirection.NODIR;
+                print("One of our directions is a turn around one, no dir");
             }
 
             if (possibleDirections[0] != Mobj.MoveDirection.NODIR)
             {
-                mobj.moveDirection = possibleDirections[0];
+                SetMoveDirection(possibleDirections[0]);
 
-                if (TryWalk())
+                if(TryWalk())
                 {
                     return;
                 }
             }
 
-            if (possibleDirections[1] != Mobj.MoveDirection.NODIR)
+            if(possibleDirections[1] != Mobj.MoveDirection.NODIR)
             {
-                mobj.moveDirection = possibleDirections[1];
+                SetMoveDirection(possibleDirections[1]);
 
-                if (TryWalk())
+                if(TryWalk())
                 {
                     return;
                 }
             }
 
-            if (oldDir != Mobj.MoveDirection.NODIR)
+            if(oldDir != Mobj.MoveDirection.NODIR)
             {
-                mobj.moveDirection = oldDir;
+                SetMoveDirection(oldDir);
 
-                if (TryWalk())
+                if(TryWalk())
                 {
                     return;
                 }
@@ -220,43 +216,46 @@ namespace NEP.DOOMLAB.Entities
 
             if ((DoomGame.RNG.P_Random() & 1) != 0)
             {
-                for (tempDir = Mobj.MoveDirection.WEST;
-                    tempDir <= Mobj.MoveDirection.SOUTHWEST;
+                for (tempDir = Mobj.MoveDirection.EAST;
+                    tempDir <= Mobj.MoveDirection.SOUTHEAST;
                     tempDir++)
                 {
                     if (tempDir != turnAround)
                     {
-                        mobj.moveDirection = tempDir;
+                        SetMoveDirection(tempDir);
+
 
                         if (TryWalk())
                         {
-                            return;
+                            print($"Found a valid direction {tempDir.ToString()}");
                         }
                     }
                 }
             }
             else
             {
-                for (tempDir = Mobj.MoveDirection.SOUTHWEST;
-                    tempDir != Mobj.MoveDirection.WEST - 1;
+                for(tempDir = Mobj.MoveDirection.SOUTHEAST;
+                    tempDir != Mobj.MoveDirection.EAST - 1;
                     tempDir--)
-                {
-                    if (tempDir != turnAround)
                     {
-                        mobj.moveDirection = tempDir;
-
-                        if (TryWalk())
+                        if(tempDir != turnAround)
                         {
+                            SetMoveDirection(tempDir);
+
+                            if(TryWalk())
+                            {
+                            print($"Found a valid direction {tempDir.ToString()}");
+
                             return;
+                            }
                         }
                     }
-                }
             }
 
-            if (turnAround != Mobj.MoveDirection.NODIR)
+            if(turnAround != Mobj.MoveDirection.NODIR)
             {
-                mobj.moveDirection = turnAround;
-
+                SetMoveDirection(turnAround);
+                
                 if (TryWalk())
                 {
                     return;
@@ -266,6 +265,73 @@ namespace NEP.DOOMLAB.Entities
             mobj.moveDirection = Mobj.MoveDirection.NODIR;
         }
 
+        public bool CheckObstructedByBreakable()
+        {
+            Vector3 origin = mobj.transform.position + Vector3.up;
+            Vector3 direction = mobj.transform.forward;
+            Ray ray = new Ray(origin, direction);
+            
+            if(Physics.Raycast(ray, out RaycastHit hit, 2f))
+            {
+                Prop_Health destructible = hit.collider.GetComponentInParent<Prop_Health>();
+                ObjectDestructable objectDestructable = hit.collider.GetComponentInParent<ObjectDestructable>();
+
+                if(destructible != null)
+                {
+                    return true;
+                }
+
+                if(objectDestructable != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool CheckObstructedByBreakable(out Prop_Health destructibleProp)
+        {
+            Vector3 origin = mobj.transform.position + Vector3.up;
+            Vector3 direction = mobj.transform.forward;
+            Ray ray = new Ray(origin, direction);
+            
+            if(Physics.Raycast(ray, out RaycastHit hit, 2f))
+            {
+                Prop_Health destructible = hit.collider.GetComponentInParent<Prop_Health>();
+                destructibleProp = destructible;
+
+                if(destructible != null) 
+                {
+                    return true;
+                }
+            }
+
+            destructibleProp = null;
+            return false;
+        }
+
+        public bool CheckObstructedByBreakable(out ObjectDestructable destructibleProp)
+        {
+            Vector3 origin = mobj.transform.position + Vector3.up;
+            Vector3 direction = mobj.transform.forward;
+            Ray ray = new Ray(origin, direction);
+            
+            if(Physics.Raycast(ray, out RaycastHit hit, 2f))
+            {
+                ObjectDestructable objectDestructable = hit.collider.GetComponentInParent<ObjectDestructable>();
+                destructibleProp = objectDestructable;
+
+                if(objectDestructable != null) 
+                {
+                    return true;
+                }
+            }
+
+            destructibleProp = null;
+            return false;
+        }
+
         public bool CheckMeleeRange()
         {
             if (mobj.target == null)
@@ -273,7 +339,7 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            if (Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > (mobj.info.radius / 32f) + 0.5)
+            if (Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > (mobj.info.radius / 32f) + 1.25)
             {
                 return false;
             }
@@ -361,19 +427,9 @@ namespace NEP.DOOMLAB.Entities
 
             Vector3 direction = other.transform.position - mobj.transform.position;
 
-            if (Physics.Raycast(mobj.transform.position, direction, out RaycastHit hit))
+            if (Physics.Raycast(mobj.transform.position + Vector3.up, direction, out RaycastHit hit, float.PositiveInfinity, 0, QueryTriggerInteraction.Ignore))
             {
-                if (hit.collider.gameObject.isStatic)
-                {
-                    return false;
-                }
-
-                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Static"))
-                {
-                    return false;
-                }
-
-                if (hit.rigidbody != null && hit.rigidbody.isKinematic)
+                if (hit.collider)
                 {
                     return false;
                 }
@@ -402,6 +458,7 @@ namespace NEP.DOOMLAB.Entities
             }
 
             mobj.target = Mobj.player;
+            mobj.sightedPlayer = true;
             return true;
         }
 
@@ -454,11 +511,6 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_Chase()
         {
-            /*             if (mobj.target == null)
-                        {
-                            return;
-                        }
-             */
             if (mobj.reactionTime != 0)
             {
                 mobj.reactionTime--;
@@ -476,23 +528,13 @@ namespace NEP.DOOMLAB.Entities
                 }
             }
 
-            if (mobj.moveDirection < Mobj.MoveDirection.NODIR || moveIndex < 8)
-            {
-                moveIndex = (int)mobj.moveDirection;
-                float angleDelta = mobj.transform.eulerAngles.y - directions[moveIndex];
-
-                if (angleDelta > 0)
-                {
-                    mobj.transform.eulerAngles = Vector3.up * directions[moveIndex--];
-                }
-                else if (angleDelta < 0)
-                {
-                    mobj.transform.eulerAngles = Vector3.up * directions[moveIndex++];
-                }
-            }
-
             if (mobj.target == null || !mobj.target.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
             {
+                if(mobj.sightedPlayer)
+                {
+                    mobj.target = Mobj.player;
+                }
+
                 mobj.SetState(mobj.info.spawnState);
                 return;
             }
@@ -500,12 +542,18 @@ namespace NEP.DOOMLAB.Entities
             if (mobj.flags.HasFlag(MobjFlags.MF_JUSTATTACKED))
             {
                 mobj.flags &= ~MobjFlags.MF_JUSTATTACKED;
-                NewChaseDir();
+
+                if(!Settings.FastMonsters)
+                {
+                    NewChaseDir();
+                }
+
                 return;
             }
 
-            if (mobj.info.meleeState != StateNum.S_NULL && CheckMeleeRange())
+            if (mobj.info.meleeState != StateNum.S_NULL && CheckObstructedByBreakable())
             {
+                MelonLogger.Msg("Melee state");
                 if (mobj.info.attackSound != SoundType.sfx_None)
                 {
                     SoundManager.Instance.PlaySound(mobj.info.attackSound, mobj.transform.position, false);
@@ -517,7 +565,7 @@ namespace NEP.DOOMLAB.Entities
 
             if (mobj.info.missileState != StateNum.S_NULL)
             {
-                if (mobj.moveCount != 0)
+                if (!Settings.FastMonsters && mobj.moveCount != 0)
                 {
                     A_NoMissile();
                     return;
@@ -547,7 +595,7 @@ namespace NEP.DOOMLAB.Entities
                 }
             }
 
-            if (mobj.moveCount-- < 0 || !Move())
+            if (mobj.moveCount-- <= 0 || !Move())
             {
                 NewChaseDir();
             }
@@ -583,11 +631,22 @@ namespace NEP.DOOMLAB.Entities
 
             A_FaceTarget();
 
+            float damage = (DoomGame.RNG.P_Random() % 8 + 1) * 3;
+
             if (CheckMeleeRange())
             {
                 SoundManager.Instance.PlaySound(SoundType.sfx_claw, mobj.transform.position, false);
-                float damage = (DoomGame.RNG.P_Random() % 8 + 1) * 3;
                 MobjInteraction.DamageMobj(mobj.target, mobj, mobj, damage);
+                return;
+            }
+            else if(CheckObstructedByBreakable(out Prop_Health destructibleProp))
+            {
+                destructibleProp?.TAKEDAMAGE(damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
+                return;
+            }
+            else if(CheckObstructedByBreakable(out ObjectDestructable objectDestructable))
+            {
+                objectDestructable?.TakeDamage(mobj.transform.forward, damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
                 return;
             }
 
@@ -609,7 +668,7 @@ namespace NEP.DOOMLAB.Entities
 
             SoundManager.Instance.PlaySound(SoundType.sfx_pistol, mobj.transform.position, false);
 
-            MobjInteraction.LineAttack(mobj, mobj.transform.position, mobj.transform.forward, damage / 10, 128);
+            MobjInteraction.LineAttack(mobj, mobj.transform.position + Vector3.up, mobj.target.transform.position, damage / 10, 128);
         }
 
         public void A_SPosAttack()
@@ -626,7 +685,7 @@ namespace NEP.DOOMLAB.Entities
                 float randomAngle = (DoomGame.RNG.P_Random() - DoomGame.RNG.P_Random() & 20) / 10f;
                 float damage = ((DoomGame.RNG.P_Random() % 5) + 1) * 3;
                 RaycastHit hit;
-                MobjInteraction.LineAttack(mobj, mobj.transform.position, mobj.transform.forward, damage / 10, 128);
+                MobjInteraction.LineAttack(mobj, mobj.transform.position + Vector3.up, mobj.target.transform.position, damage / 10, 128);
             }
 
             SoundManager.Instance.PlaySound(SoundType.sfx_shotgn, mobj.transform.position, false);
@@ -646,7 +705,7 @@ namespace NEP.DOOMLAB.Entities
             float randomAngle = (DoomGame.RNG.P_Random() - DoomGame.RNG.P_Random() & 20) / 10f;
             float damage = ((DoomGame.RNG.P_Random() % 5) + 1) * 3;
             RaycastHit hit;
-            MobjInteraction.LineAttack(mobj, mobj.transform.position, mobj.transform.forward, damage / 10, 128);
+            MobjInteraction.LineAttack(mobj, mobj.transform.position + Vector3.up, mobj.target.transform.position, damage / 10, 128);
         }
 
         public void A_CPosRefire()
@@ -701,17 +760,47 @@ namespace NEP.DOOMLAB.Entities
 
             A_FaceTarget();
 
+            float damage = ((DoomGame.RNG.P_Random() % 10) + 1) * 4;
+
             if (CheckMeleeRange())
             {
                 if(mobj.target == Mobj.player)
                 {
-                    Mobj.player.playerHealth.TAKEDAMAGE(1.25f);
+                    Mobj.player.playerHealth.TAKEDAMAGE(damage / 10);
                 }
+                else
+                {
+                    MobjInteraction.DamageMobj(mobj.target, mobj, mobj, damage);
+                }
+            }
+            else if(CheckObstructedByBreakable(out Prop_Health destructibleProp))
+            {
+                destructibleProp?.TAKEDAMAGE(damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
+                return;
+            }
+            else if(CheckObstructedByBreakable(out ObjectDestructable objectDestructable))
+            {
+                objectDestructable?.TakeDamage(mobj.transform.forward, damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
+                return;
             }
         }
 
         public void A_Tracer()
         {
+            MobjManager.Instance.SpawnMobj(mobj.position, MobjType.MT_PUFF);
+
+            var th = MobjManager.Instance.SpawnMobj(mobj.position, MobjType.MT_SMOKE);
+            th.tics -= DoomGame.RNG.P_Random() & 3;
+
+            var dest = th.tracer;
+
+            if(dest == null || dest.health <= 0)
+            {
+                return;
+            }
+
+            Quaternion lookAt = Quaternion.LookRotation(dest.position, Vector3.up);
+            mobj.transform.rotation = Quaternion.Slerp(mobj.transform.rotation, lookAt, Time.deltaTime);
         }
 
         public void A_SkelMissile()
@@ -722,7 +811,10 @@ namespace NEP.DOOMLAB.Entities
             }
 
             A_FaceTarget();
+            mobj.transform.position += Vector3.up * 0.5f;
             Mobj tracer = MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_TRACER);
+            mobj.transform.position -= Vector3.up * 0.5f;
+
             tracer.transform.position += mobj.transform.forward;
             tracer.tracer = mobj.target;
         }
@@ -752,6 +844,16 @@ namespace NEP.DOOMLAB.Entities
                 SoundManager.Instance.PlaySound(SoundType.sfx_skepch, mobj.transform.position, false);
                 // damage
             }
+            else if(CheckObstructedByBreakable(out Prop_Health destructibleProp))
+            {
+                destructibleProp?.TAKEDAMAGE(5f, false, SLZ.Marrow.Data.AttackType.Stabbing);
+                return;
+            }
+            else if(CheckObstructedByBreakable(out ObjectDestructable objectDestructable))
+            {
+                objectDestructable?.TakeDamage(mobj.transform.forward, 5f, false, SLZ.Marrow.Data.AttackType.Stabbing);
+                return;
+            }
         }
 
         public void A_PainAttack()
@@ -762,6 +864,14 @@ namespace NEP.DOOMLAB.Entities
             }
 
             A_FaceTarget();
+            A_PainShootSkull();
+        }
+
+        public void A_PainDie()
+        {
+            A_Fall();
+            A_PainShootSkull();
+            A_PainShootSkull();
             A_PainShootSkull();
         }
 
@@ -806,10 +916,22 @@ namespace NEP.DOOMLAB.Entities
             }
 
             A_FaceTarget();
+
+            float damage = (DoomGame.RNG.P_Random() % 6 + 1) * 10;
+
             if (CheckMeleeRange())
             {
-                float damage = (DoomGame.RNG.P_Random() % 6 + 1) * 10;
                 MobjInteraction.DamageMobj(mobj.target, mobj, mobj, damage);
+                return;
+            }
+            else if(CheckObstructedByBreakable(out Prop_Health destructibleProp))
+            {
+                destructibleProp?.TAKEDAMAGE(damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
+                return;
+            }
+            else if(CheckObstructedByBreakable(out ObjectDestructable objectDestructable))
+            {
+                objectDestructable?.TakeDamage(mobj.transform.forward, damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
                 return;
             }
 
@@ -823,11 +945,22 @@ namespace NEP.DOOMLAB.Entities
                 return;
             }
 
+            float damage = (DoomGame.RNG.P_Random() % 8 + 1) * 10;
+
             if (CheckMeleeRange())
             {
                 SoundManager.Instance.PlaySound(SoundType.sfx_claw, mobj.transform.position, false);
-                float damage = (DoomGame.RNG.P_Random() % 8 + 1) * 10;
                 MobjInteraction.DamageMobj(mobj.target, mobj, mobj, damage);
+                return;
+            }
+            else if(CheckObstructedByBreakable(out Prop_Health destructibleProp))
+            {
+                destructibleProp?.TAKEDAMAGE(damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
+                return;
+            }
+            else if(CheckObstructedByBreakable(out ObjectDestructable objectDestructable))
+            {
+                objectDestructable?.TakeDamage(mobj.transform.forward, damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
                 return;
             }
 
@@ -935,7 +1068,37 @@ namespace NEP.DOOMLAB.Entities
         {
             if (mobj.moveDirection != Mobj.MoveDirection.NODIR)
             {
+                var hits = Physics.BoxCastAll(mobj.transform.position, Vector3.one * 1, mobj.transform.position + mobj.transform.forward);
 
+                for (int i = 0; i < hits.Length; i++)
+                {
+                    Mobj hit = hits[i].collider.GetComponent<Mobj>();
+
+                    if(hit == mobj)
+                    {
+                        continue;
+                    }
+
+                    if(hit != null && MobjInteraction.VileCheckIterator(hit, out Mobj corpse))
+                    {
+                        var temp = mobj.target;
+                        mobj.target = corpse;
+                        A_FaceTarget();
+                        mobj.target = temp;
+
+                        mobj.SetState(StateNum.S_VILE_HEAL1);
+                        SoundManager.Instance.PlaySound(SoundType.sfx_slop, mobj.transform.position, false);
+                        var info = corpse.info;
+
+                        corpse.SetState(info.raiseState);
+                        corpse.collider.size = new Vector3(info.radius / 32, (info.height / 32), info.radius / 32);
+                        corpse.flags = info.flags;
+                        corpse.health = info.spawnHealth;
+                        corpse.target = null;
+
+                        return;
+                    }
+                }
             }
 
             A_Chase();
@@ -949,13 +1112,13 @@ namespace NEP.DOOMLAB.Entities
         public void A_StartFire()
         {
             SoundManager.Instance.PlaySound(SoundType.sfx_flamst, mobj.transform.position, false);
-            //A_Fire();
+            A_Fire();
         }
 
         public void A_FireCrackle()
         {
             SoundManager.Instance.PlaySound(SoundType.sfx_flame, mobj.transform.position, false);
-            //A_Fire();
+            A_Fire();
         }
         public void A_Fire()
         {
@@ -986,6 +1149,7 @@ namespace NEP.DOOMLAB.Entities
             mobj.tracer = fog;
             fog.target = mobj;
             fog.tracer = mobj.target;
+            fog.brain.A_Fire();
         }
 
         public void A_VileAttack()
@@ -1006,7 +1170,7 @@ namespace NEP.DOOMLAB.Entities
 
             if(mobj.target == Mobj.player)
             {
-                Mobj.player.playerHealth.TAKEDAMAGE(1f);
+                Mobj.player.playerHealth.TAKEDAMAGE(2f);
                 Mobj.player.playerHealth._rigManager.physicsRig.rbKnee.AddForce(Vector3.up * 300f, ForceMode.Impulse);
             }
             else
@@ -1014,31 +1178,33 @@ namespace NEP.DOOMLAB.Entities
                 MobjInteraction.DamageMobj(mobj.target, mobj, mobj, 20);
                 mobj.rigidbody.AddForce(Vector3.up * 350f);
             }
+
+            var fire = mobj.tracer;
+
+            if(fire == null)
+            {
+                return;
+            }
+            
+            fire.transform.position = mobj.target.transform.position;
+            MobjInteraction.RadiusAttack(fire, mobj, 70);
         }
 
         public void A_BrainAwake()
         {
             SoundManager.Instance.PlaySound(SoundType.sfx_bossit, Vector3.zero, true);
+        }
 
-            // find all the target spots
-            int numbraintargets = 0;
-            int braintargeton = 0;
-
-            Mobj[] mobjs = GameObject.FindObjectsOfType<Mobj>();
-
-            if (mobjs.Length == 0)
-            {
-                return;
-            }
-
-            foreach (var mobj in mobjs)
-            {
-                if (mobj.type == MobjType.MT_BOSSTARGET)
-                {
-                    listBrainTargets.Add(mobj);
-                }
-            }
-
+        public void A_BrainSpit()
+        {
+            // no targets for now, will implement later
+            // instead, just shoot cubes in a random range of the mobjs field of view
+            Vector3 randomSpot = (mobj.transform.position + mobj.transform.forward) + (Vector3.up * -1f) + (mobj.transform.right * UnityEngine.Random.Range(-0.5f, 0.5f));
+            var target = MobjManager.Instance.SpawnMobj(randomSpot, MobjType.MT_BOSSTARGET);
+            var newMobj = MobjManager.Instance.SpawnMissile(mobj, target, MobjType.MT_SPAWNSHOT);
+            newMobj.reactionTime = (int)((target.transform.position.z - newMobj.transform.position.z) / newMobj.rigidbody.velocity.y) / newMobj.state.tics;
+            SoundManager.Instance.PlaySound(SoundType.sfx_bospit, Vector3.zero, true);
+            MobjManager.Instance.RemoveMobj(target);
         }
 
         public void A_BrainPain()
@@ -1049,6 +1215,74 @@ namespace NEP.DOOMLAB.Entities
         public void A_BrainScream()
         {
             SoundManager.Instance.PlaySound(SoundType.sfx_bosdth, Vector3.zero, true);
+        }
+
+        public void A_SpawnSound()
+        {
+            SoundManager.Instance.PlaySound(SoundType.sfx_boscub, mobj.audioSource, false);
+            A_SpawnFly();
+        }
+
+        public void A_SpawnFly()
+        {
+            if(mobj.reactionTime-- > 0)
+            {
+                return;
+            }
+
+            MobjManager.Instance.SpawnMobj(mobj.transform.position, MobjType.MT_FIRE);
+            SoundManager.Instance.PlaySound(SoundType.sfx_telept, mobj.transform.position, false);
+
+            int r = DoomGame.RNG.P_Random();
+            MobjType type;
+
+            if (r < 50)
+            {
+                type = MobjType.MT_TROOP;
+            }
+            else if(r < 90)
+            {
+                type = MobjType.MT_SERGEANT;
+            }
+            else if(r < 120)
+            {
+                type = MobjType.MT_SHADOWS;
+            }
+            else if(r < 130)
+            {
+                type = MobjType.MT_PAIN;
+            }
+            else if(r < 160)
+            {
+                type = MobjType.MT_HEAD;
+            }
+            else if(r < 162)
+            {
+                type = MobjType.MT_VILE;
+            }
+            else if(r < 172)
+            {
+                type = MobjType.MT_UNDEAD;
+            }
+            else if(r < 192)
+            {
+                type = MobjType.MT_BABY;
+            }
+            else if(r < 222)
+            {
+                type = MobjType.MT_FATSO;
+            }
+            else if(r < 246)
+            {
+                type = MobjType.MT_KNIGHT;
+            }
+            else
+            {
+                type = MobjType.MT_BRUISER;
+            }
+
+            MobjManager.Instance.SpawnMobj(mobj.transform.position, type);
+            MobjManager.Instance.RemoveMobj(mobj);
         }
     }
 }

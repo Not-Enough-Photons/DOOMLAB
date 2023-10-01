@@ -221,12 +221,9 @@ namespace NEP.DOOMLAB.WAD
         {
             int targetIndex = 0;
 
-            string startMarker = wadType == WADType.IWAD ? "S_START" : "SS_START";
-            string endMarker = wadType == WADType.IWAD ? "S_END" : "SS_END";
-
             for (int i = 0; i < entries.Count; i++)
             {
-                if (entries[i].name == startMarker)
+                if (entries[i].name == "S_START" || entries[i].name == "SS_START")
                 {
                     targetIndex = i;
                     break;
@@ -235,7 +232,7 @@ namespace NEP.DOOMLAB.WAD
 
             for (int i = targetIndex + 1; i < entries.Count; i++)
             {
-                if (entries[i].name == endMarker)
+                if (entries[i].name == "S_END" || entries[i].name == "SS_END")
                 {
                     break;
                 }
@@ -290,6 +287,8 @@ namespace NEP.DOOMLAB.WAD
 
         public void ReadPatch(WADIndexEntry entry)
         {
+            MelonLogger.Msg(entry.name);
+
             reader.BaseStream.Seek(entry.offset, SeekOrigin.Begin);
 
             var width = reader.ReadInt16();
