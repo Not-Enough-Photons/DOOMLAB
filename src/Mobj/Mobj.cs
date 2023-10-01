@@ -1,7 +1,7 @@
 using MelonLoader;
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Game;
-
+using NEP.DOOMLAB.Sound;
 using SLZ.AI;
 using SLZ.Combat;
 using SLZ.Marrow.Data;
@@ -54,6 +54,7 @@ namespace NEP.DOOMLAB.Entities
         public Mobj target;
         public static Mobj player => Main.player;
         public Mobj tracer;
+        public bool sightedPlayer = false;
 
         public Vector3 momentum;
 
@@ -95,6 +96,7 @@ namespace NEP.DOOMLAB.Entities
 
         private void WorldTick()
         {
+            position = transform.position;
             Mobj.player.health = Mobj.player.playerHealth.curr_Health;
 
             if(Settings.DisableAI)
@@ -110,6 +112,11 @@ namespace NEP.DOOMLAB.Entities
             if(Settings.DisableAI)
             {
                 return;
+            }
+
+            if(Settings.NoTarget)
+            {
+                target = null;
             }
 
             // Too far away, stop updating
@@ -129,6 +136,32 @@ namespace NEP.DOOMLAB.Entities
                         return;
                     }
                 }
+            }
+            else
+            {
+                if(!flags.HasFlag(MobjFlags.MF_COUNTKILL))
+                {
+                    return;
+                }
+
+                if(!Settings.RespawnMonsters)
+                {
+                    return;
+                }
+
+                moveCount++;
+
+                if(moveCount < 12 * 35)
+                {
+                    return;
+                }
+
+                if(DoomGame.RNG.P_Random() > 4)
+                {
+                    return;
+                }
+
+                NightmareRespawn();
             }
         }
 
@@ -203,7 +236,12 @@ namespace NEP.DOOMLAB.Entities
 
             flags &= ~(MobjFlags.MF_SHOOTABLE | MobjFlags.MF_FLOAT | MobjFlags.MF_SKULLFLY);
 
-            if (!flags.HasFlag(MobjFlags.MF_FLOAT))
+            if(type != MobjType.MT_SKULL)
+            {
+                flags &= ~MobjFlags.MF_NOGRAVITY;
+            }
+
+            if (!flags.HasFlag(MobjFlags.MF_NOGRAVITY))
             {
                 if(rigidbody != null)
                 {
@@ -211,14 +249,12 @@ namespace NEP.DOOMLAB.Entities
                 }
             }
 
-            if(type == MobjType.MT_SKULL)
-            {
-                flags &= ~MobjFlags.MF_NOGRAVITY;
-            }
+            flags |= MobjFlags.MF_CORPSE | MobjFlags.MF_DROPOFF;
             
             if(collider != null)
             {
-                collider.size = new Vector3(radius / 32f, (height / 32f) / 4f, radius / 32f);
+                collider.center = Vector3.zero;
+                collider.size = new Vector3(radius / 32f, 0.01f, radius / 32f);
             }
 
             if (health < -info.spawnHealth && info.xDeathState != StateNum.S_NULL)
@@ -247,7 +283,18 @@ namespace NEP.DOOMLAB.Entities
 
             SpawnMobjAmmo(type);
 
+            sightedPlayer = false;
+
             OnDeath?.Invoke(this);
+        }
+
+        public void NightmareRespawn()
+        {
+            MobjManager.Instance.SpawnMobj(transform.position, MobjType.MT_TFOG);
+            var mo = MobjManager.Instance.SpawnMobj(transform.position, type);
+            SoundManager.Instance.PlaySound(SoundType.sfx_telept, transform.position, false);
+            mo.reactionTime = 18;
+            MobjManager.Instance.RemoveMobj(this);
         }
 
         public void SpawnMobjAmmo(MobjType type)

@@ -41,6 +41,7 @@ namespace NEP.DOOMLAB
                     break;
 
                 case Data.SpriteNum.SPR_SOUL:
+                    sound = SoundType.sfx_getpow;
                     break;
 
                 case Data.SpriteNum.SPR_BKEY:
@@ -71,12 +72,14 @@ namespace NEP.DOOMLAB
                     break;
 
                 case Data.SpriteNum.SPR_PSTR:
+                    sound = SoundType.sfx_getpow;
                     break;
 
                 case Data.SpriteNum.SPR_PINS:
                     break;
 
                 case Data.SpriteNum.SPR_SUIT:
+                    sound = SoundType.sfx_getpow;
                     break;
 
                 case Data.SpriteNum.SPR_PMAP:

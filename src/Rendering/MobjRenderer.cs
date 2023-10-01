@@ -22,16 +22,18 @@ namespace NEP.DOOMLAB.Rendering
         public Mobj mobj;
 
         private MeshRenderer meshRenderer;
+        private Transform drawQuad;
         private static SpriteDef[] spriteDefs;
 
         private Camera camera;
 
         private void Awake()
         {
-            meshRenderer = GetComponent<MeshRenderer>();
+            meshRenderer = GetComponentInChildren<MeshRenderer>();
             mobj = GetComponentInParent<Mobj>();
             game = DoomGame.Instance;
             camera = Camera.main;
+            drawQuad = transform.GetChild(0);
         }
 
         private void Start()    
@@ -63,7 +65,7 @@ namespace NEP.DOOMLAB.Rendering
             float angle = Vector3.SignedAngle(mobj.transform.forward, camera.transform.forward, Vector3.up);
             angle = Mathf.Repeat(angle + 180f, 360f) - 180f;
             int index = (int)((angle - (45 / 2) * 9) / 45) & 7;
-
+    
             int stateFrame = mobj.frame;
 
             if (mobj.frame >= 32768)
@@ -88,19 +90,22 @@ namespace NEP.DOOMLAB.Rendering
         {
             WAD.DataTypes.Patch patch = spriteFrame.patches[rotation];
             bool flipBit = spriteFrame.flipBits[rotation];
-            int xScale = flipBit ? -1 : 1;;
+            int xScale = flipBit ? 1 : -1;
 
-            int heightUnscaled = patch.height;
-            int topOffsetUnscaled = patch.topOffset;
+            if(rotation == 0)
+            {
+                xScale = -1;
+            }
 
             float width = patch.width / 32f;
             float height = patch.height / 32f;
-            float topOffset = topOffsetUnscaled / 32f;
-            float offset = height - topOffset;
+
+            float leftOffset = patch.leftOffset / 32f;
+            float topOffset = patch.topOffset / 32f;
             
             meshRenderer.material.mainTexture = patch.output;
-            transform.localScale = new Vector3(width * xScale, height, -1f);
-            transform.localPosition = new Vector3(transform.localPosition.x, offset);
+            transform.localScale = new Vector3(width * xScale, height, 1f);
+            drawQuad.localPosition = new Vector3(leftOffset / 100f, (topOffset / 100f) + 0.5f);
         }
     }
 }

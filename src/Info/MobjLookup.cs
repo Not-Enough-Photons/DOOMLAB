@@ -25,7 +25,8 @@ namespace NEP.DOOMLAB.Data
             { "Cyberdemon", MobjType.MT_CYBORG },
             { "SS Soldier", MobjType.MT_WOLFSS },
             { "Commander Keen", MobjType.MT_KEEN },
-            { "Icon of Sin", MobjType.MT_BOSSBRAIN }
+            { "Icon of Sin", MobjType.MT_BOSSBRAIN },
+            { "Icon of Sin Eye", MobjType.MT_BOSSSPIT }
         };
 
         public static Dictionary<string, MobjType> itemLookup = new Dictionary<string, MobjType>()

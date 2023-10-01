@@ -1,5 +1,6 @@
 ﻿using System;
 using MelonLoader;
+using NEP.DOOMLAB.Data;
 using UnityEngine;
 
 namespace NEP.DOOMLAB.Game
@@ -99,6 +100,32 @@ namespace NEP.DOOMLAB.Game
             catch(Exception e)
             {
                 MelonLogger.Error(e);
+            }
+        }
+
+        public void UpdateFastMonsters(bool enable)
+        {
+            if(enable)
+            {
+                for(int i = (int)StateNum.S_SARG_RUN1; i <= (int)StateNum.S_SARG_PAIN2; i++)
+                {
+                    Info.states[i].tics >>= 1;
+                }
+
+                Info.MobjInfos[(int)MobjType.MT_BRUISERSHOT].speed = 20;
+                Info.MobjInfos[(int)MobjType.MT_HEADSHOT].speed = 20;
+                Info.MobjInfos[(int)MobjType.MT_TROOPSHOT].speed = 20;
+            }
+            else
+            {
+                for(int i = (int)StateNum.S_SARG_RUN1; i <= (int)StateNum.S_SARG_PAIN2; i++)
+                {
+                    Info.states[i].tics <<= 1;
+                }
+
+                Info.MobjInfos[(int)MobjType.MT_BRUISERSHOT].speed = 15;
+                Info.MobjInfos[(int)MobjType.MT_HEADSHOT].speed = 10;
+                Info.MobjInfos[(int)MobjType.MT_TROOPSHOT].speed = 10;
             }
         }
     }

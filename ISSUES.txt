@@ -1,17 +1,10 @@
 DOOMLAB ISSUE LIST
 ----------------------------
-> The movement "pathfinding" algorithm needs to be improved
-> Sighting needs to also be improved
-> Front facing sprites are flipped on the wrong side
-> Sprites offsets are not properly calculated and displayed
-> No explosive barrel :sadface:
 > Pickups don't have player effects yet
 > Cacodemons and other floating enemies cannot float down/up if they're too high/low
 > Lost Souls don't reset to their see state when shot at
 > Lost Souls, upon colliding with things, also do not reset to their see/idle state
-> Pain Elemental's death doesn't spawn 1 to 3 Lost Souls
 > Game freezes for a while when loading up a WAD
-> Arch-Vile doesn't resurrect dead enemies
-> Shotgunners only fire 3 pellets in a straight line, add randomness
-> Player damage isn't much or is too much
-> Monsters of the same type can infight each other
+> Player isn't affected by projectile damage
+> Mancubus attacks don't spawn two fireballs at the right locations
+> Revenant fireballs also do not play the correct spawn sound (uses the Revenants one?)

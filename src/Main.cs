@@ -80,6 +80,12 @@ namespace NEP.DOOMLAB
 
             doomCategory.CreateBoolElement("Disable Thinking", Color.white, false, (value) => Settings.DisableAI = value);
             doomCategory.CreateBoolElement("No Target", Color.white, false, null);
+            doomCategory.CreateBoolElement("Fast Monsters", Color.white, false, (value) => 
+            {
+                Settings.FastMonsters = value;
+                DoomGame.Instance.UpdateFastMonsters(Settings.FastMonsters);
+            });
+            doomCategory.CreateBoolElement("Respawn Monsters", Color.white, false, (value) => Settings.RespawnMonsters = value);
 
             var wadCategory = doomCategory.CreateSubPanel("WADS", Color.white);
             string[] iwadNames = WADManager.Instance.GetWADsInFolder(WADFile.WADType.IWAD, false);

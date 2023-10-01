@@ -1,9 +1,16 @@
-﻿using NEP.DOOMLAB.Entities;
+﻿using System;
+using System.Collections.Generic;
+using NEP.DOOMLAB.Entities;
 
 namespace NEP.DOOMLAB.Data
 {
     public static class ActionTable
     {
+        public static Dictionary<int, Action<Mobj>> DeHACKEDPointers = new Dictionary<int, Action<Mobj>>()
+        {
+            { 1, A_Light0 }
+        };
+
         public static void A_Light0(Mobj mobj) { }
         public static void A_WeaponReady(Mobj mobj){}
         public static void A_Lower(Mobj mobj){}
@@ -68,7 +75,7 @@ namespace NEP.DOOMLAB.Data
         public static void A_Hoof(Mobj mobj){ mobj.brain.A_Hoof(); }
         public static void A_CyberAttack(Mobj mobj){ mobj.brain.A_CyberAttack(); }
         public static void A_PainAttack(Mobj mobj){ mobj.brain.A_PainAttack(); }
-        public static void A_PainDie(Mobj mobj){}
+        public static void A_PainDie(Mobj mobj){ mobj.brain.A_PainDie(); }
         public static void A_KeenDie(Mobj mobj){}
         public static void A_BrainPain(Mobj mobj){ mobj.brain.A_BrainPain(); }
         public static void A_BrainScream(Mobj mobj){ mobj.brain.A_BrainScream(); }

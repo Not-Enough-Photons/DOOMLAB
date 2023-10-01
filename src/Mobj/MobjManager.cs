@@ -64,6 +64,7 @@ namespace NEP.DOOMLAB.Entities
             mobj.rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
             mobj.rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
 
+            mobj.collider.center = Vector3.up * (mobj.height / 32f) / 2f;
             mobj.collider.size = new Vector3(mobj.radius / 32f, mobj.height / 32f, mobj.radius / 32f);
 
             if (!mobj.flags.HasFlag(MobjFlags.MF_SOLID))
@@ -89,6 +90,11 @@ namespace NEP.DOOMLAB.Entities
                 mobj.gameObject.AddComponent<MobjCollisionEvents>();
             }
 
+            if(mobj.flags.HasFlag(MobjFlags.MF_FLOAT))
+            {
+                mobj.rigidbody.drag = 10f;
+            }
+
             mobjs.Add(mobj);
 
             return mobj;
@@ -96,7 +102,7 @@ namespace NEP.DOOMLAB.Entities
 
         public Mobj SpawnMissile(Mobj source, Mobj destination, MobjType type)
         {
-            Vector3 position = source.transform.position;
+            Vector3 position = source.transform.position + Vector3.up;
             Quaternion rotation = source.transform.rotation;
             Mobj projectile = SpawnMobj(position, type);
 
@@ -106,9 +112,9 @@ namespace NEP.DOOMLAB.Entities
 
             projectile.transform.rotation = rotation;
 
-            projectile.rigidbody.velocity = (destination.transform.position - source.transform.position).normalized * projectile.info.speed;
+            projectile.rigidbody.velocity = (destination.transform.position - position).normalized * projectile.info.speed;
 
-            Physics.IgnoreCollision(source.collider, projectile.collider);
+            Physics.IgnoreCollision(source.collider, projectile.collider, true);
 
             if (projectile.info.seeSound != Sound.SoundType.sfx_None)
             {
