@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using HarmonyLib;
+using MelonLoader;
 
 namespace NEP.DOOMLAB.WAD
 {
@@ -45,6 +46,7 @@ namespace NEP.DOOMLAB.WAD
 
             var wadFile = new WADFile(file);
 
+            wadFile.Preload();
             wadFile.ReadHeader();
             wadFile.ReadIndexEntries();
             wadFile.ReadPalette();
@@ -60,17 +62,19 @@ namespace NEP.DOOMLAB.WAD
 
             var wadFile = new WADFile(file);
 
+            wadFile.Preload();
+
             wadFile.ReadHeader();
             wadFile.ReadIndexEntries();
 
             LumpMap = IWAD.entryTable;
 
-            for(int i = 0; i < wadFile.entries.Count; i++)
+            foreach(var entry in wadFile.entries)
             {
-                if(LumpMap.ContainsKey(wadFile.entries[i].name))
+                if(LumpMap.ContainsKey(entry.name))
                 {
-                    LumpMap[wadFile.entries[i].name] = wadFile.entries[i];
-                }       
+                    LumpMap[entry.name] = entry;
+                }
             }
 
             wadFile.colorPal = IWAD.colorPal;
@@ -91,6 +95,8 @@ namespace NEP.DOOMLAB.WAD
             }
 
             var wadFile = new WADFile(file);
+
+            wadFile.Preload();
 
             wadFile.ReadHeader();
             wadFile.ReadIndexEntries();
@@ -151,9 +157,9 @@ namespace NEP.DOOMLAB.WAD
             return wadFileNames;
         }
 
-        public string GetWADFileName(string pathToWad)
+        public string GetWADFileName(string pathToWad, bool quest = false)
         {
-            string[] splitPath = pathToWad.Split((char)92);
+            string[] splitPath = !quest ? pathToWad.Split((char)92) : pathToWad.Split('/');
             return splitPath[splitPath.Length - 1];
         }
     }

@@ -64,10 +64,12 @@ namespace NEP.DOOMLAB
 
         public void OnSceneLoaded(LevelInfo info)
         {
+            DoomGame.Instance.gameTic = 0;
+
             new GameObject("[DOOMLAB] - Sound Manager").AddComponent<SoundManager>();
             new GameObject("[DOOMLAB] - MOBJ Manager").AddComponent<MobjManager>();
 
-            player = Player.physicsRig.m_chest.gameObject.AddComponent<Mobj>();
+            player = Player.physicsRig.m_head.gameObject.AddComponent<Mobj>();
             player.gameObject.AddComponent<DoomPlayer>();
             player.flags ^= MobjFlags.MF_SHOOTABLE;
             player.playerHealth = Player.rigManager.GetComponent<Player_Health>();
@@ -94,7 +96,7 @@ namespace NEP.DOOMLAB
             for (int i = 0; i < iwadNames.Length; i++)
             {
                 int index = i;
-                wadCategory.CreateFunctionElement(iwadNames[index], Color.white, () =>
+                wadCategory.CreateFunctionElement(WADManager.Instance.GetWADFileName(iwadNames[index], true), Color.white, () =>
                 {
                     WADManager.Instance.LoadWAD(WADManager.Instance.IWADS[index]);
                     FrameBuilder.GenerateTable();
@@ -106,7 +108,7 @@ namespace NEP.DOOMLAB
             for (int i = 0; i < pwadNames.Length; i++)
             {
                 int index = i;
-                wadCategory.CreateFunctionElement(pwadNames[index], Color.white, () =>
+                wadCategory.CreateFunctionElement(WADManager.Instance.GetWADFileName(pwadNames[index], true), Color.white, () =>
                 {
                     WADManager.Instance.LoadWAD(WADManager.Instance.PWADS[index]);
                     FrameBuilder.GenerateTable();

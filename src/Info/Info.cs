@@ -1162,7 +1162,7 @@ namespace NEP.DOOMLAB.Data
                 StateNum.S_TRACER, // spawnState
                 1000, // spawnHealth
                 StateNum.S_NULL, // seeState
-                SoundType.sfx_skeact, // seeSound
+                SoundType.sfx_skeatk, // seeSound
                 8, // reactionTime
                 SoundType.sfx_None, // attackSound
                 StateNum.S_NULL, // painState

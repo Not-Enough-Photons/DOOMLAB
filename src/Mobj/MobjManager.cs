@@ -37,8 +37,8 @@ namespace NEP.DOOMLAB.Entities
             }
 
             GameObject mobjBase = GameObject.Instantiate(mobjPrefab, position, Quaternion.AngleAxis(angle, Vector3.up));
-            Mobj mobj = mobjBase.AddComponent<Mobj>();
-            mobj.brain = mobjBase.AddComponent<MobjBrain>();
+            Mobj mobj = mobjBase.GetComponent<Mobj>();
+            mobj.brain = mobjBase.GetComponent<MobjBrain>();
 
             if(mobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE) || mobj.flags.HasFlag(MobjFlags.MF_COUNTKILL))
             {
@@ -47,18 +47,16 @@ namespace NEP.DOOMLAB.Entities
                 trpSphere.AddComponent<MobjProxy>();
             }
 
-            mobjBase.transform.GetChild(0).gameObject.AddComponent<MobjRenderer>();
-
-            mobj.rigidbody = mobjBase.AddComponent<Rigidbody>();
-            mobj.collider = mobjBase.AddComponent<BoxCollider>();
-            mobj.audioSource = mobjBase.AddComponent<AudioSource>();
-
-            mobj.gameObject.layer = LayerMask.NameToLayer("EnemyColliders");
-            mobj.collider.gameObject.layer = LayerMask.NameToLayer("EnemyColliders");
+            mobj.rigidbody = mobjBase.GetComponent<Rigidbody>();
+            mobj.collider = mobjBase.GetComponent<BoxCollider>();
+            mobj.audioSource = mobjBase.GetComponent<AudioSource>();
 
             mobj.OnSpawn(position, type);
 
             mobj.name = $"[MOBJ] - {mobj.type}";
+
+            mobj.gameObject.layer = LayerMask.NameToLayer("EnemyColliders");
+            mobj.collider.gameObject.layer = LayerMask.NameToLayer("EnemyColliders");
 
             mobj.rigidbody.mass = mobj.info.mass;
             mobj.rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
@@ -83,10 +81,15 @@ namespace NEP.DOOMLAB.Entities
                 mobj.rigidbody.useGravity = false;
             }
 
-            if(mobj.flags.HasFlag(MobjFlags.MF_MISSILE) || mobj.flags.HasFlag(MobjFlags.MF_SKULLFLY))
+            if(mobj.flags.HasFlag(MobjFlags.MF_MISSILE))
             {
                 mobj.collider.enabled = true;
                 mobj.rigidbody.drag = 0;
+                mobj.gameObject.AddComponent<MobjCollisionEvents>();
+            }
+
+            if(mobj.type == MobjType.MT_SKULL)
+            {
                 mobj.gameObject.AddComponent<MobjCollisionEvents>();
             }
 

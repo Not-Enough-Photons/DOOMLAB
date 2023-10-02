@@ -40,6 +40,10 @@ namespace NEP.DOOMLAB.Entities
 
             if(mobj.flags.HasFlag(MobjFlags.MF_SKULLFLY))
             {
+                mobj.flags &= ~MobjFlags.MF_SKULLFLY;
+                mobj.rigidbody.velocity = Vector3.zero;
+                mobj.rigidbody.drag = 10f;
+                mobj.SetState(mobj.info.spawnState);
                 MobjInteraction.CheckThing(other, mobj);
             }
         }

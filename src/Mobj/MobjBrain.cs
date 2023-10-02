@@ -46,8 +46,6 @@ namespace NEP.DOOMLAB.Entities
            Mobj.MoveDirection.NORTHWEST, Mobj.MoveDirection.NORTHEAST, Mobj.MoveDirection.SOUTHWEST, Mobj.MoveDirection.SOUTHEAST,
         };
 
-        private bool test_intersect;
-
         private void Awake()
         {
             mobj = GetComponent<Mobj>();
@@ -74,22 +72,49 @@ namespace NEP.DOOMLAB.Entities
         {
             if (mobj.moveDirection == Mobj.MoveDirection.NODIR)
             {
-                print("No direction");
                 return false;
             }
 
             if ((int)mobj.moveDirection >= 8)
             {
-                print("Weird movedir");
                 return false;
 
             }
 
             if(mobj.rigidbody.SweepTest(Vector3.up * -0.5f + mobj.transform.forward, out RaycastHit hit, 0.1f))
             {
-                if(hit.collider && hit.collider.bounds.size.y > 0.075f)
+                if(hit.collider)
                 {
+                    if(hit.collider.bounds.size.magnitude > mobj.collider.size.magnitude)
+                    {
+                        return false;
+                    }
+
+                    Mobj other = hit.collider.GetComponent<Mobj>();
+
+                    if(other != null && other.flags.HasFlag(MobjFlags.MF_CORPSE))
+                    {
+                        return true;
+                    }
+
                     return false;
+                }
+            }
+
+            if (mobj.flags.HasFlag(MobjFlags.MF_FLOAT) && mobj.target != null)
+            {
+                if (!mobj.flags.HasFlag(MobjFlags.MF_SKULLFLY) && !mobj.flags.HasFlag(MobjFlags.MF_INFLOAT))
+                {
+                    float delta = ((mobj.target.transform.position.y - 1f + (mobj.info.height / 32f) / 2) - mobj.transform.position.y);
+
+                    if (delta < -0.075)
+                    {
+                        mobj.rigidbody.position -= (mobj.transform.up * mobj.info.speed) * Time.deltaTime;
+                    }
+                    else if (delta > 0.075)
+                    {
+                        mobj.rigidbody.position += (mobj.transform.up * mobj.info.speed) * Time.deltaTime;
+                    }
                 }
             }
 
@@ -175,13 +200,11 @@ namespace NEP.DOOMLAB.Entities
             if(possibleDirections[0] == turnAround)
             {
                 possibleDirections[0] = Mobj.MoveDirection.NODIR;
-                print("One of our directions is a turn around one, no dir");
             }
 
             if (possibleDirections[1] == turnAround)
             {
                 possibleDirections[1] = Mobj.MoveDirection.NODIR;
-                print("One of our directions is a turn around one, no dir");
             }
 
             if (possibleDirections[0] != Mobj.MoveDirection.NODIR)
@@ -224,10 +247,9 @@ namespace NEP.DOOMLAB.Entities
                     {
                         SetMoveDirection(tempDir);
 
-
                         if (TryWalk())
                         {
-                            print($"Found a valid direction {tempDir.ToString()}");
+                            return;
                         }
                     }
                 }
@@ -244,9 +266,7 @@ namespace NEP.DOOMLAB.Entities
 
                             if(TryWalk())
                             {
-                            print($"Found a valid direction {tempDir.ToString()}");
-
-                            return;
+                                return;
                             }
                         }
                     }
@@ -271,7 +291,7 @@ namespace NEP.DOOMLAB.Entities
             Vector3 direction = mobj.transform.forward;
             Ray ray = new Ray(origin, direction);
             
-            if(Physics.Raycast(ray, out RaycastHit hit, 2f))
+            if(Physics.Raycast(ray, out RaycastHit hit, 1.5f))
             {
                 Prop_Health destructible = hit.collider.GetComponentInParent<Prop_Health>();
                 ObjectDestructable objectDestructable = hit.collider.GetComponentInParent<ObjectDestructable>();
@@ -296,7 +316,7 @@ namespace NEP.DOOMLAB.Entities
             Vector3 direction = mobj.transform.forward;
             Ray ray = new Ray(origin, direction);
             
-            if(Physics.Raycast(ray, out RaycastHit hit, 2f))
+            if(Physics.Raycast(ray, out RaycastHit hit, 1.5f))
             {
                 Prop_Health destructible = hit.collider.GetComponentInParent<Prop_Health>();
                 destructibleProp = destructible;
@@ -317,7 +337,7 @@ namespace NEP.DOOMLAB.Entities
             Vector3 direction = mobj.transform.forward;
             Ray ray = new Ray(origin, direction);
             
-            if(Physics.Raycast(ray, out RaycastHit hit, 2f))
+            if(Physics.Raycast(ray, out RaycastHit hit, 1.5f))
             {
                 ObjectDestructable objectDestructable = hit.collider.GetComponentInParent<ObjectDestructable>();
                 destructibleProp = objectDestructable;
@@ -339,7 +359,7 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            if (Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > (mobj.info.radius / 32f) + 1.25)
+            if (Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > (mobj.info.radius / 32f) + 1.5)
             {
                 return false;
             }
@@ -764,14 +784,7 @@ namespace NEP.DOOMLAB.Entities
 
             if (CheckMeleeRange())
             {
-                if(mobj.target == Mobj.player)
-                {
-                    Mobj.player.playerHealth.TAKEDAMAGE(damage / 10);
-                }
-                else
-                {
-                    MobjInteraction.DamageMobj(mobj.target, mobj, mobj, damage);
-                }
+                MobjInteraction.DamageMobj(mobj.target, mobj, mobj, damage);
             }
             else if(CheckObstructedByBreakable(out Prop_Health destructibleProp))
             {
@@ -787,20 +800,22 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_Tracer()
         {
-            MobjManager.Instance.SpawnMobj(mobj.position, MobjType.MT_PUFF);
-
-            var th = MobjManager.Instance.SpawnMobj(mobj.position, MobjType.MT_SMOKE);
-            th.tics -= DoomGame.RNG.P_Random() & 3;
-
-            var dest = th.tracer;
-
-            if(dest == null || dest.health <= 0)
+            if(DoomGame.Instance.gameTic % 2 != 0)
             {
-                return;
-            }
+                return; 
+            } 
+            
+            // MobjManager.Instance.SpawnMobj(mobj.position, MobjType.MT_PUFF);
 
-            Quaternion lookAt = Quaternion.LookRotation(dest.position, Vector3.up);
-            mobj.transform.rotation = Quaternion.Slerp(mobj.transform.rotation, lookAt, Time.deltaTime);
+            // disabled due to lag
+            // var th = MobjManager.Instance.SpawnMobj(mobj.position, MobjType.MT_SMOKE);
+            // th.tics -= DoomGame.RNG.P_Random() & 3;
+
+            // var dest = th.tracer;
+
+            Quaternion targetRot = Quaternion.LookRotation(mobj.tracer.position - mobj.transform.position, Vector3.up);
+            mobj.transform.rotation = Quaternion.Slerp(mobj.transform.rotation, targetRot, 16f * Time.deltaTime);
+            mobj.rigidbody.velocity = mobj.transform.forward * mobj.info.speed;
         }
 
         public void A_SkelMissile()
@@ -883,6 +898,7 @@ namespace NEP.DOOMLAB.Entities
             }
 
             mobj.flags |= MobjFlags.MF_SKULLFLY;
+            mobj.rigidbody.drag = 0f;
 
             SoundManager.Instance.PlaySound(mobj.info.attackSound, mobj.audioSource, false);
             A_FaceTarget();
@@ -1091,7 +1107,8 @@ namespace NEP.DOOMLAB.Entities
                         var info = corpse.info;
 
                         corpse.SetState(info.raiseState);
-                        corpse.collider.size = new Vector3(info.radius / 32, (info.height / 32), info.radius / 32);
+                        mobj.collider.center = Vector3.up * (mobj.height / 32f) / 2f;
+                        mobj.collider.size = new Vector3(mobj.radius / 32f, mobj.height / 32f, mobj.radius / 32f);
                         corpse.flags = info.flags;
                         corpse.health = info.spawnHealth;
                         corpse.target = null;
