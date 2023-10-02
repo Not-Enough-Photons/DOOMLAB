@@ -30,7 +30,12 @@ namespace NEP.DOOMLAB.WAD
         private readonly string[] iwads = new string[]
         {
             "DOOM",
+            "DOOMU",
+            "BFGDOOM",
+            "DOOMBFG",
             "DOOM2",
+            "BFGDOOM2",
+            "DOOM2BFG",
             "TNT",
             "PLUTONIA",
             "FREEDOOM1",
