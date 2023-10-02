@@ -94,7 +94,7 @@ namespace NEP.DOOMLAB.Rendering
 
             if(rotation == 0)
             {
-                xScale = 1;
+                xScale = -1;
             }
 
             float width = patch.width / 32f;

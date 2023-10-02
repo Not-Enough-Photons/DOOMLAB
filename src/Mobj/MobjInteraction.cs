@@ -190,14 +190,14 @@ namespace NEP.DOOMLAB.Entities
             float dz = Mathf.Abs(thing.position.z - spot.position.z);
 
             float distance = dx > dz ? dx : dz;
-            distance = (distance - thing.radius / 32f);
+            distance = (distance - thing.radius / 32f) / 2;
 
             if (distance < 0)
             {
                 distance = 0;
             }
 
-            if (distance > damage)
+            if (distance > damage / 10)
             {
                 return false;
             }
@@ -209,7 +209,7 @@ namespace NEP.DOOMLAB.Entities
 
             if (thing.brain.CheckSight(spot))
             {
-                DamageMobj(thing, spot, source, damage - distance);
+                DamageMobj(thing, spot, source, (damage / 10) - distance);
             }
 
             return true;
