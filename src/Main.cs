@@ -15,6 +15,8 @@ using System.Reflection;
 
 using BoneLib.BoneMenu.Elements;
 using BoneLib.BoneMenu;
+using SLZ.Marrow.Warehouse;
+using UnityEngine.SearchService;
 
 namespace NEP.DOOMLAB
 {
@@ -39,6 +41,8 @@ namespace NEP.DOOMLAB
         public static readonly string ModDirectory = Path.Combine(TeamDirectory, "DOOMLAB");
         public static readonly string IWADDirectory = Path.Combine(ModDirectory, "IWADS");
         public static readonly string PWADDirectory = Path.Combine(ModDirectory, "PWADS");
+        
+        public static Texture2D MissingSprite;
 
         private static AssetBundle GetEmbeddedBundle()
         {
@@ -46,7 +50,7 @@ namespace NEP.DOOMLAB
 
             string fileName = HelperMethods.IsAndroid() ? "doomlab_quest.pack" : "doomlab_pcvr.pack";
 
-            using (Stream resourceStream = assembly.GetManifestResourceStream("NEP.DOOMLAB." + fileName))
+            using (Stream resourceStream = assembly.GetManifestResourceStream("NEP.DOOMLAB.Resources." + fileName))
             {
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
@@ -65,6 +69,8 @@ namespace NEP.DOOMLAB
             bundle = GetEmbeddedBundle();
             mobjTemplate = bundle.LoadAsset("[MOBJ] - Null").Cast<GameObject>();
             mobjTemplate.hideFlags = HideFlags.DontUnloadUnusedAsset;
+            MissingSprite = bundle.LoadAsset("faila0").Cast<Texture2D>();
+            MissingSprite.hideFlags = HideFlags.DontUnloadUnusedAsset;
 
             new WADManager();
             WADManager.Instance.LoadWAD(WADManager.Instance.GetIWAD());

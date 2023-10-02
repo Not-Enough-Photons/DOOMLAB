@@ -27,6 +27,9 @@ namespace NEP.DOOMLAB.Rendering
 
         private Camera camera;
 
+        private static WAD.DataTypes.Patch missingPatch;
+        private static SpriteFrame missingFrame;
+
         private void Awake()
         {
             meshRenderer = GetComponentInChildren<MeshRenderer>();
@@ -34,6 +37,28 @@ namespace NEP.DOOMLAB.Rendering
             game = DoomGame.Instance;
             camera = Camera.main;
             drawQuad = transform.GetChild(0);
+
+            missingPatch = new WAD.DataTypes.Patch("FAILA0", 32, 32, 16, 38);
+            missingPatch.output = Main.MissingSprite;
+
+            missingFrame = new SpriteFrame()
+            {
+                canRotate = false,
+                flipBits = new bool[8],
+                mirrorSprite = new bool[8],
+                numRotations = 0,
+                patches = new WAD.DataTypes.Patch[8]
+                {
+                    missingPatch,
+                    missingPatch,
+                    missingPatch,
+                    missingPatch,
+                    missingPatch,
+                    missingPatch,
+                    missingPatch,
+                    missingPatch
+                }
+            };
         }
 
         private void Start()    
@@ -74,7 +99,14 @@ namespace NEP.DOOMLAB.Rendering
             }
 
             SpriteDef spriteDef = spriteDefs[(int)mobj.sprite];
-            SpriteFrame spriteFrame = spriteDef.GetFrame(stateFrame);
+
+            if(spriteDef.spriteFrames == null || stateFrame > spriteDef.spriteFrames.Length)
+            {
+                SetSprite(missingFrame, 0);
+                return;
+            }
+
+            SpriteFrame spriteFrame = spriteDef.spriteFrames[stateFrame];
 
             // absolutely do NOT render anything if
             // the patch array is null/empty
@@ -102,7 +134,7 @@ namespace NEP.DOOMLAB.Rendering
 
             float leftOffset = patch.leftOffset / 32f;
             float topOffset = patch.topOffset / 32f;
-            
+
             meshRenderer.material.mainTexture = patch.output;
             transform.localScale = new Vector3(width * xScale, height, 1f);
             drawQuad.localPosition = new Vector3(leftOffset / 100f, (topOffset / 100f) + 0.5f);

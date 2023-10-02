@@ -445,16 +445,23 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            Vector3 direction = other.transform.position - mobj.transform.position;
+            // MobjInteraction.LineAttack(mobj, mobj.transform.position + Vector3.up, mobj.target.transform.position, damage / 10, 128);
 
-            if (Physics.Raycast(mobj.transform.position + Vector3.up, direction, out RaycastHit hit, float.PositiveInfinity, 0, QueryTriggerInteraction.Ignore))
+            Vector3 origin = mobj.transform.position + Vector3.up;
+            Vector3 direction = other.transform.position;
+            Ray ray = new Ray(origin, direction - origin);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, 20))
             {
-                if (hit.collider)
+                Mobj hitMobj = hit.collider.GetComponent<Mobj>();
+
+                if(hitMobj != null && hitMobj == other)
                 {
-                    return false;
+                    return true;
                 }
             }
 
+            MelonLogger.Msg("Can see target");
             return true;
         }
 
