@@ -38,7 +38,7 @@ namespace NEP.DOOMLAB.Entities
             sphereCollider.isTrigger = true;
             sphereCollider.radius = 5f;
 
-            // has to be set, otherwise, other NPCs won't target us
+            // has to be set. otherwise, other NPCs won't target us
             gameObject.layer = LayerMask.NameToLayer("Trigger");
 
             InitializeRefProxy();

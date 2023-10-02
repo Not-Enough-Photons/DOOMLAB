@@ -6,6 +6,7 @@ using UnityEngine;
 using SLZ.Combat;
 
 using MelonLoader;
+using SLZ.Props;
 
 namespace NEP.DOOMLAB.Entities
 {
@@ -13,6 +14,11 @@ namespace NEP.DOOMLAB.Entities
     {
         public static bool CheckThing(Mobj thing, Mobj tmThing)
         {
+            if(thing == null)
+            {
+                return false;
+            }
+
             if (!thing.flags.HasFlag(MobjFlags.MF_SOLID))
             {
                 return false;
@@ -89,22 +95,20 @@ namespace NEP.DOOMLAB.Entities
             if (Physics.Raycast(ray, out RaycastHit hit, distance))
             {
                 Collider collider = hit.collider;
-                ImpactProperties impactProperties = collider.GetComponent<ImpactProperties>();
+                Prop_Health firstBreakableType = collider.GetComponentInParent<Prop_Health>();
+                ObjectDestructable secondBreakableType = collider.GetComponentInParent<ObjectDestructable>();
 
-                if (impactProperties != null)
+                if(firstBreakableType != null)
                 {
                     MobjManager.Instance.SpawnMobj(hit.point, MobjType.MT_PUFF);
-                    
-                    Attack attack = new Attack()
-                    {
-                        attackType = SLZ.Marrow.Data.AttackType.Piercing,
-                        damage = damage,
-                        origin = origin,
-                        direction = direction
-                    };
+                    firstBreakableType.TAKEDAMAGE(damage, false, SLZ.Marrow.Data.AttackType.Piercing);
+                    return false;
+                }
 
-                    impactProperties.ReceiveAttack(attack);
-
+                if(secondBreakableType != null)
+                {
+                    MobjManager.Instance.SpawnMobj(hit.point, MobjType.MT_PUFF);
+                    secondBreakableType.TakeDamage(hit.normal, damage, false, SLZ.Marrow.Data.AttackType.Piercing);
                     return false;
                 }
 
@@ -187,7 +191,6 @@ namespace NEP.DOOMLAB.Entities
 
             float distance = dx > dz ? dx : dz;
             distance = (distance - thing.radius / 32f);
-            MelonLogger.Msg("Absolute Distance (in meters): " + distance);
 
             if (distance < 0)
             {
@@ -206,15 +209,7 @@ namespace NEP.DOOMLAB.Entities
 
             if (thing.brain.CheckSight(spot))
             {
-                if (thing == Mobj.player)
-                {
-                    Mobj.player.playerHealth.TAKEDAMAGE(damage);
-                }
-                else
-                {
-                    DamageMobj(thing, spot, source, damage - distance);
-                    MelonLogger.Msg($"Real Damage: {damage - distance}");
-                }
+                DamageMobj(thing, spot, source, damage - distance);
             }
 
             return true;
@@ -237,7 +232,15 @@ namespace NEP.DOOMLAB.Entities
                 target.rigidbody.velocity = Vector3.zero;
             }
 
-            target.health -= damage;
+            if(target == Mobj.player)
+            {
+                Mobj.player.playerHealth.TAKEDAMAGE(damage);
+            }
+            else
+            {
+                target.health -= damage;
+            }
+            
             if (target.health <= 0)
             {
                 target.Kill();

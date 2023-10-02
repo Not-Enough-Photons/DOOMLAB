@@ -5,19 +5,6 @@ namespace NEP.DOOMLAB.WAD.DataTypes
 {
     public struct Patch
     {
-        public struct Pixel
-        {
-            public int x;
-            public int y;
-            public byte color;
-        }
-        
-        public struct Column
-        {
-            public List<Pixel> colorData;
-            public int offset;
-        }
-
         public Patch(string name, short width, short height, short leftOffset, short topOffset)
         {
             this.name = name;
@@ -25,7 +12,6 @@ namespace NEP.DOOMLAB.WAD.DataTypes
             this.height = height;
             this.leftOffset = leftOffset;
             this.topOffset = topOffset;
-            columns = new Column[width];
             output = null;
         }
 
@@ -34,7 +20,6 @@ namespace NEP.DOOMLAB.WAD.DataTypes
         public short height;
         public short leftOffset;
         public short topOffset;
-        public Column[] columns;
         public Texture2D output;
     }
 }

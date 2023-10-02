@@ -94,7 +94,7 @@ namespace NEP.DOOMLAB.Rendering
 
             if(rotation == 0)
             {
-                xScale = -1;
+                xScale = 1;
             }
 
             float width = patch.width / 32f;
@@ -106,6 +106,17 @@ namespace NEP.DOOMLAB.Rendering
             meshRenderer.material.mainTexture = patch.output;
             transform.localScale = new Vector3(width * xScale, height, 1f);
             drawQuad.localPosition = new Vector3(leftOffset / 100f, (topOffset / 100f) + 0.5f);
+
+            if(mobj.frame >= 32768)
+            {
+                meshRenderer.material.SetTexture("_EmissionMap", patch.output);
+                meshRenderer.material.SetColor("_EmissionColor", Color.white);
+                meshRenderer.material.EnableKeyword("_EMISSION");
+            }
+            else
+            {
+                meshRenderer.material.DisableKeyword("_EMISSION");
+            }
         }
     }
 }

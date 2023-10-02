@@ -81,6 +81,8 @@ namespace NEP.DOOMLAB.Game
 
         public float timeInterval = 1f / 35f; // DOOM updates at 1/35th of a second
 
+        public int gameTic = 0;
+
         public bool fastMonsters = false;
 
         private float ticTimer;
@@ -94,6 +96,7 @@ namespace NEP.DOOMLAB.Game
                 if (ticTimer > timeInterval)
                 {
                     OnTick?.Invoke();
+                    gameTic++;
                     ticTimer = 0f;
                 }
             }
