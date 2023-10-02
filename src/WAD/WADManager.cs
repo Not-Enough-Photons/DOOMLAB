@@ -29,6 +29,7 @@ namespace NEP.DOOMLAB.WAD
 
         private readonly string[] iwads = new string[]
         {
+            "D", // for some reason, this is the actual wad file name that's bundled with an official release of doom.
             "DOOM",
             "DOOMU",
             "BFGDOOM",
