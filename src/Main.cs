@@ -11,6 +11,7 @@ using NEP.DOOMLAB.Sound;
 using UnityEngine;
 
 using System.IO;
+using System.Reflection;
 
 using BoneLib.BoneMenu.Elements;
 using BoneLib.BoneMenu;
@@ -39,13 +40,29 @@ namespace NEP.DOOMLAB
         public static readonly string IWADDirectory = Path.Combine(ModDirectory, "IWADS");
         public static readonly string PWADDirectory = Path.Combine(ModDirectory, "PWADS");
 
+        private static AssetBundle GetEmbeddedBundle()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+
+            string fileName = HelperMethods.IsAndroid() ? "doomlab_quest.pack" : "doomlab_pcvr.pack";
+
+            using (Stream resourceStream = assembly.GetManifestResourceStream("NEP.DOOMLAB." + fileName))
+            {
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    resourceStream.CopyTo(memoryStream);
+                    return AssetBundle.LoadFromMemory(memoryStream.ToArray());
+                }
+            }
+        }
+
         public override void OnInitializeMelon()
         {
             Directory.CreateDirectory(ModDirectory);
             Directory.CreateDirectory(IWADDirectory);
             Directory.CreateDirectory(PWADDirectory);
 
-            bundle = AssetBundle.LoadFromFile(Path.Combine(ModDirectory, "doomlab.pack"));
+            bundle = GetEmbeddedBundle();
             mobjTemplate = bundle.LoadAsset("[MOBJ] - Null").Cast<GameObject>();
             mobjTemplate.hideFlags = HideFlags.DontUnloadUnusedAsset;
 

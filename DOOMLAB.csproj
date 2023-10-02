@@ -79,7 +79,8 @@
     <Compile Include="src\ZDOOM\ZDActor.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\bwdoom.pack" />
+    <EmbeddedResource Include="Resources\doomlab_pcvr.pack" />
+    <EmbeddedResource Include="Resources\doomlab_quest.pack" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
