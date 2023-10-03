@@ -359,7 +359,7 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            if (Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > (mobj.info.radius / 32f) + 1.5)
+            if (Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > (mobj.info.radius / 32f) + 1.75f)
             {
                 return false;
             }
@@ -454,14 +454,23 @@ namespace NEP.DOOMLAB.Entities
             if (Physics.Raycast(ray, out RaycastHit hit, 20))
             {
                 Mobj hitMobj = hit.collider.GetComponent<Mobj>();
+                Prop_Health breakableTypeOne = hit.collider.GetComponentInParent<Prop_Health>();
+                ObjectDestructable breakableTypeTwo = hit.collider.GetComponentInParent<ObjectDestructable>();
 
                 if(hitMobj != null && hitMobj == other)
                 {
                     return true;
                 }
+
+                // If breakable, try to destroy it
+                if(breakableTypeOne != null || breakableTypeTwo != null)
+                {
+                    return true;
+                }
+
+                return false;
             }
 
-            MelonLogger.Msg("Can see target");
             return true;
         }
 
@@ -1071,6 +1080,12 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_Pain()
         {
+            // for now
+            if(mobj == Mobj.player)
+            {
+                return;
+            }
+
             if (mobj.info.painSound != SoundType.sfx_None)
             {
                 SoundManager.Instance.PlaySound(mobj.info.painSound, mobj.transform.position, false);
@@ -1114,6 +1129,7 @@ namespace NEP.DOOMLAB.Entities
                         var info = corpse.info;
 
                         corpse.SetState(info.raiseState);
+                        mobj.collider.center = Vector3.zero;
                         mobj.collider.center = Vector3.up * (mobj.height / 32f) / 2f;
                         mobj.collider.size = new Vector3(mobj.radius / 32f, mobj.height / 32f, mobj.radius / 32f);
                         corpse.flags = info.flags;
@@ -1149,11 +1165,6 @@ namespace NEP.DOOMLAB.Entities
             Mobj dest = mobj.tracer;
 
             if(dest == null)
-            {
-                return;
-            }
-
-            if(!dest.brain.CheckSight(mobj.target))
             {
                 return;
             }

@@ -112,7 +112,7 @@ namespace NEP.DOOMLAB
             });
             doomCategory.CreateBoolElement("Respawn Monsters", Color.white, false, (value) => Settings.RespawnMonsters = value);
 
-            var wadCategory = doomCategory.CreateSubPanel("WADS", Color.white);
+            var wadCategory = doomCategory.CreateCategory("WADS", Color.white);
             string[] iwadNames = WADManager.Instance.GetWADsInFolder(WADFile.WADType.IWAD, false);
             string[] pwadNames = WADManager.Instance.GetWADsInFolder(WADFile.WADType.PWAD, false);
 
