@@ -319,6 +319,7 @@ namespace NEP.DOOMLAB.WAD
 
             Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
             tex.filterMode = FilterMode.Point;
+            tex.wrapMode = TextureWrapMode.Clamp;
 
             Color32[] colors = new Color32[width * height];
 
