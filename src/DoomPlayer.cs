@@ -26,6 +26,8 @@ namespace NEP.DOOMLAB
         {
             SoundType sound = SoundType.sfx_itemup;
 
+            var playerHealth = Mobj.player.playerHealth;
+
             switch(special.sprite)
             {
                 case Data.SpriteNum.SPR_ARM1:
@@ -35,12 +37,36 @@ namespace NEP.DOOMLAB
                     break;
 
                 case Data.SpriteNum.SPR_BON1:
+                    playerHealth.curr_Health += 0.1f;
+
+                    if(playerHealth.curr_Health < 0 && playerHealth.deathIsImminent)
+                    {
+                        playerHealth.LifeSavingDamgeDealt();
+                    }
                     break;
 
                 case Data.SpriteNum.SPR_BON2:
                     break;
 
                 case Data.SpriteNum.SPR_SOUL:
+                    playerHealth.curr_Health = 10f;
+
+                    if(playerHealth.curr_Health < 0 && playerHealth.deathIsImminent)
+                    {
+                        playerHealth.LifeSavingDamgeDealt();
+                    }
+
+                    sound = SoundType.sfx_getpow;
+                    break;
+
+                case Data.SpriteNum.SPR_MEGA:
+                    playerHealth.curr_Health = 10f;
+
+                    if(playerHealth.curr_Health < 0 && playerHealth.deathIsImminent)
+                    {
+                        playerHealth.LifeSavingDamgeDealt();
+                    }
+
                     sound = SoundType.sfx_getpow;
                     break;
 
@@ -63,19 +89,39 @@ namespace NEP.DOOMLAB
                     break;
 
                 case Data.SpriteNum.SPR_STIM:
+                    playerHealth.curr_Health += 1f;
+
+                    if(playerHealth.curr_Health < 0 && playerHealth.deathIsImminent)
+                    {
+                        playerHealth.LifeSavingDamgeDealt();
+                    }
+
+                    sound = SoundType.sfx_getpow;
                     break;
 
                 case Data.SpriteNum.SPR_MEDI:
+                    playerHealth.curr_Health += 5f;
+
+                    if(playerHealth.curr_Health < 0 && playerHealth.deathIsImminent)
+                    {
+                        playerHealth.LifeSavingDamgeDealt();
+                    }
+
+                    sound = SoundType.sfx_getpow;
                     break;
 
                 case Data.SpriteNum.SPR_PINV:
+                    playerHealth.SetHealthMode((int)Player_Health.HealthMode.Invincible);
+                    sound = SoundType.sfx_getpow;
                     break;
 
                 case Data.SpriteNum.SPR_PSTR:
+                    playerHealth._rigManager.avatar._strengthLower = 1000f;
                     sound = SoundType.sfx_getpow;
                     break;
 
                 case Data.SpriteNum.SPR_PINS:
+                    sound = SoundType.sfx_getpow;
                     break;
 
                 case Data.SpriteNum.SPR_SUIT:
@@ -83,9 +129,11 @@ namespace NEP.DOOMLAB
                     break;
 
                 case Data.SpriteNum.SPR_PMAP:
+                    sound = SoundType.sfx_getpow;
                     break;
 
                 case Data.SpriteNum.SPR_PVIS:
+                    sound = SoundType.sfx_getpow;
                     break;
 
                 case Data.SpriteNum.SPR_CLIP:

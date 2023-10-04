@@ -81,22 +81,24 @@ namespace NEP.DOOMLAB.Entities
 
             }
 
-            if(mobj.rigidbody.SweepTest(Vector3.up * -0.5f + mobj.transform.forward, out RaycastHit hit, 0.1f))
+            if(Physics.BoxCast(mobj.transform.position + Vector3.up * 0.5f, new Vector3(0.25f, 0.25f, 0.075f), mobj.transform.forward, out RaycastHit hit, mobj.transform.rotation, 1f))
             {
-                if(hit.collider)
+                Mobj other = hit.collider.GetComponent<Mobj>();
+
+                if (other != null)
                 {
-                    if(hit.collider.bounds.size.magnitude > mobj.collider.size.magnitude)
+                    if (other.flags.HasFlag(MobjFlags.MF_CORPSE))
+                    {
+                        Physics.IgnoreCollision(mobj.collider, other.collider);
+                    }
+                    else
                     {
                         return false;
                     }
+                }
 
-                    Mobj other = hit.collider.GetComponent<Mobj>();
-
-                    if(other != null && other.flags.HasFlag(MobjFlags.MF_CORPSE))
-                    {
-                        return true;
-                    }
-
+                if(hit.collider)
+                {
                     return false;
                 }
             }
@@ -287,11 +289,11 @@ namespace NEP.DOOMLAB.Entities
 
         public bool CheckObstructedByBreakable()
         {
-            Vector3 origin = mobj.transform.position + Vector3.up;
+            Vector3 origin = mobj.transform.position + Vector3.up * 0.5f;
             Vector3 direction = mobj.transform.forward;
             Ray ray = new Ray(origin, direction);
             
-            if(Physics.Raycast(ray, out RaycastHit hit, 1.5f))
+            if(Physics.Raycast(ray, out RaycastHit hit, 2f))
             {
                 Prop_Health destructible = hit.collider.GetComponentInParent<Prop_Health>();
                 ObjectDestructable objectDestructable = hit.collider.GetComponentInParent<ObjectDestructable>();
@@ -312,11 +314,11 @@ namespace NEP.DOOMLAB.Entities
 
         public bool CheckObstructedByBreakable(out Prop_Health destructibleProp)
         {
-            Vector3 origin = mobj.transform.position + Vector3.up;
+            Vector3 origin = mobj.transform.position + Vector3.up * 0.5f;
             Vector3 direction = mobj.transform.forward;
             Ray ray = new Ray(origin, direction);
             
-            if(Physics.Raycast(ray, out RaycastHit hit, 1.5f))
+            if(Physics.Raycast(ray, out RaycastHit hit, 2f))
             {
                 Prop_Health destructible = hit.collider.GetComponentInParent<Prop_Health>();
                 destructibleProp = destructible;
@@ -333,11 +335,11 @@ namespace NEP.DOOMLAB.Entities
 
         public bool CheckObstructedByBreakable(out ObjectDestructable destructibleProp)
         {
-            Vector3 origin = mobj.transform.position + Vector3.up;
+            Vector3 origin = mobj.transform.position + Vector3.up * 0.5f;
             Vector3 direction = mobj.transform.forward;
             Ray ray = new Ray(origin, direction);
             
-            if(Physics.Raycast(ray, out RaycastHit hit, 1.5f))
+            if(Physics.Raycast(ray, out RaycastHit hit, 2f))
             {
                 ObjectDestructable objectDestructable = hit.collider.GetComponentInParent<ObjectDestructable>();
                 destructibleProp = objectDestructable;
@@ -359,7 +361,12 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            if (Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > (mobj.info.radius / 32f) + 1.75f)
+            if (Vector3.Distance(mobj.transform.position, mobj.target.transform.position) > 2f)
+            {
+                return false;
+            }
+
+            if(!CheckSight(mobj.target))
             {
                 return false;
             }
@@ -454,23 +461,14 @@ namespace NEP.DOOMLAB.Entities
             if (Physics.Raycast(ray, out RaycastHit hit, 20))
             {
                 Mobj hitMobj = hit.collider.GetComponent<Mobj>();
-                Prop_Health breakableTypeOne = hit.collider.GetComponentInParent<Prop_Health>();
-                ObjectDestructable breakableTypeTwo = hit.collider.GetComponentInParent<ObjectDestructable>();
 
                 if(hitMobj != null && hitMobj == other)
                 {
                     return true;
                 }
-
-                // If breakable, try to destroy it
-                if(breakableTypeOne != null || breakableTypeTwo != null)
-                {
-                    return true;
-                }
-
-                return false;
             }
 
+            MelonLogger.Msg("Can see target");
             return true;
         }
 
@@ -587,7 +585,7 @@ namespace NEP.DOOMLAB.Entities
                 return;
             }
 
-            if (mobj.info.meleeState != StateNum.S_NULL && CheckObstructedByBreakable())
+            if (mobj.info.meleeState != StateNum.S_NULL && CheckMeleeRange() || CheckObstructedByBreakable())
             {
                 MelonLogger.Msg("Melee state");
                 if (mobj.info.attackSound != SoundType.sfx_None)
@@ -1080,12 +1078,6 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_Pain()
         {
-            // for now
-            if(mobj == Mobj.player)
-            {
-                return;
-            }
-
             if (mobj.info.painSound != SoundType.sfx_None)
             {
                 SoundManager.Instance.PlaySound(mobj.info.painSound, mobj.transform.position, false);
@@ -1130,8 +1122,8 @@ namespace NEP.DOOMLAB.Entities
 
                         corpse.SetState(info.raiseState);
                         mobj.collider.center = Vector3.zero;
-                        mobj.collider.center = Vector3.up * (mobj.height / 32f) / 2f;
-                        mobj.collider.size = new Vector3(mobj.radius / 32f, mobj.height / 32f, mobj.radius / 32f);
+                        mobj.collider.center = Vector3.up * (info.height / 32f) / 2f;
+                        mobj.collider.size = new Vector3(info.radius / 32f, info.height / 32f, info.radius / 32f);
                         corpse.flags = info.flags;
                         corpse.health = info.spawnHealth;
                         corpse.target = null;
@@ -1165,6 +1157,11 @@ namespace NEP.DOOMLAB.Entities
             Mobj dest = mobj.tracer;
 
             if(dest == null)
+            {
+                return;
+            }
+
+            if(!mobj.brain.CheckSight(dest))
             {
                 return;
             }
@@ -1205,13 +1202,13 @@ namespace NEP.DOOMLAB.Entities
 
             if(mobj.target == Mobj.player)
             {
-                Mobj.player.playerHealth.TAKEDAMAGE(2f);
-                Mobj.player.playerHealth._rigManager.physicsRig.rbKnee.AddForce(Vector3.up * 300f, ForceMode.Impulse);
+                Mobj.player.playerHealth.TAKEDAMAGE(7f);
+                Mobj.player.playerHealth._rigManager.physicsRig.rbKnee.AddForce(Vector3.up * 450f, ForceMode.Impulse);
             }
             else
             {
                 MobjInteraction.DamageMobj(mobj.target, mobj, mobj, 20);
-                mobj.rigidbody.AddForce(Vector3.up * 350f);
+                mobj.rigidbody.AddForce(Vector3.up * mobj.target.info.mass * 10f);
             }
 
             var fire = mobj.tracer;

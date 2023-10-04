@@ -12,12 +12,10 @@ namespace NEP.DOOMLAB.Entities
         public MobjCollisionEvents(System.IntPtr ptr) : base(ptr) { }
 
         private Mobj mobj;
-        private RigidbodyProjectile rigidbodyProjectile;
 
         private void Awake()
         {
             mobj = GetComponent<Mobj>();
-            rigidbodyProjectile = gameObject.AddComponent<RigidbodyProjectile>();
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -35,7 +33,15 @@ namespace NEP.DOOMLAB.Entities
 
             if(mobj.flags.HasFlag(MobjFlags.MF_MISSILE))
             {
-                ExplodeMissile(mobj, other);
+                if(collision.collider.gameObject.layer == LayerMask.NameToLayer("Player")
+                || collision.collider.gameObject.layer == LayerMask.NameToLayer("Feet"))
+                {
+                    ExplodeMissile(mobj, Mobj.player);
+                }
+                else
+                {
+                    ExplodeMissile(mobj, other);
+                }
             }
 
             if(mobj.flags.HasFlag(MobjFlags.MF_SKULLFLY))
@@ -45,6 +51,16 @@ namespace NEP.DOOMLAB.Entities
                 mobj.rigidbody.drag = 10f;
                 mobj.SetState(mobj.info.spawnState);
                 MobjInteraction.CheckThing(other, mobj);
+
+                if(collision.collider.gameObject.layer == LayerMask.NameToLayer("Player")
+                || collision.collider.gameObject.layer == LayerMask.NameToLayer("Feet"))
+                {
+                    MobjInteraction.CheckThing(Mobj.player, mobj);
+                }
+                else
+                {
+                    MobjInteraction.CheckThing(other, mobj);
+                }
             }
         }
 
@@ -74,5 +90,4 @@ namespace NEP.DOOMLAB.Entities
             }
         }
     }
-
 }

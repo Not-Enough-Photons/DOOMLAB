@@ -1,4 +1,5 @@
-﻿using NEP.DOOMLAB.Entities;
+﻿using MelonLoader;
+using NEP.DOOMLAB.Entities;
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
 using SLZ.Combat;
@@ -67,6 +68,58 @@ namespace NEP.DOOMLAB.Patches
 
                 hitMobj.rigidbody.AddForce(c.impactForceSum, ForceMode.Impulse);
                 MobjInteraction.DamageMobj(hitMobj, Mobj.player, Mobj.player, impulse);
+                SoundManager.Instance.PlaySound(SoundType.sfx_punch, c.contacts[0].point, false);
+            }
+        }
+    }
+
+    [HarmonyLib.HarmonyPatch(typeof(ImpactSFX))]
+    [HarmonyLib.HarmonyPatch(nameof(ImpactSFX.BluntAttack))]
+    public static class BluntPatch
+    {
+        public static void Postfix(float impulse, Collision c)
+        {
+            Mobj hitMobj = c.collider.GetComponent<Mobj>();
+
+            if (hitMobj != null)
+            {
+                if (!hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
+                {
+                    MobjManager.Instance.SpawnMobj(c.contacts[0].point, Data.MobjType.MT_BLOOD);
+                }
+                else
+                {
+                    MobjManager.Instance.SpawnMobj(c.contacts[0].point, Data.MobjType.MT_PUFF);
+                }
+
+                hitMobj.rigidbody.AddForce(c.impactForceSum, ForceMode.Impulse);
+                MobjInteraction.DamageMobj(hitMobj, Mobj.player, Mobj.player, impulse);
+                SoundManager.Instance.PlaySound(SoundType.sfx_punch, c.contacts[0].point, false);
+            }
+        }
+    }
+
+    [HarmonyLib.HarmonyPatch(typeof(StabSlash))]
+    [HarmonyLib.HarmonyPatch(nameof(StabSlash.OnCollisionEnter))]
+    public static class StabPatch
+    {
+        public static void Postfix(Collision c)
+        {
+            Mobj hitMobj = c.collider.GetComponent<Mobj>();
+
+            if (hitMobj != null && c.impulse.magnitude > 0.35f)
+            {
+                if (!hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
+                {
+                    MobjManager.Instance.SpawnMobj(c.contacts[0].point, Data.MobjType.MT_BLOOD);
+                }
+                else
+                {
+                    MobjManager.Instance.SpawnMobj(c.contacts[0].point, Data.MobjType.MT_PUFF);
+                }
+
+                hitMobj.rigidbody.AddForce(c.impactForceSum, ForceMode.Impulse);
+                MobjInteraction.DamageMobj(hitMobj, Mobj.player, Mobj.player, c.impulse.sqrMagnitude * 0.95f);
                 SoundManager.Instance.PlaySound(SoundType.sfx_punch, c.contacts[0].point, false);
             }
         }

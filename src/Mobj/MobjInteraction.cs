@@ -81,6 +81,7 @@ namespace NEP.DOOMLAB.Entities
 
                 float damage = ((DoomGame.RNG.P_Random() % 8) + 1) * tmThing.info.damage;
                 DamageMobj(thing, tmThing, tmThing.target, damage);
+                MelonLogger.Msg(thing.name);
 
                 return true;
             }
@@ -202,6 +203,11 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
+            if(thing == Mobj.player)
+            {
+                DamageMobj(Mobj.player, spot, source, (damage / 10) - distance);
+            }
+
             if (thing.brain == null)
             {
                 return false;
@@ -234,6 +240,7 @@ namespace NEP.DOOMLAB.Entities
 
             if(target == Mobj.player)
             {
+                MelonLogger.Msg("Damaging player");
                 Mobj.player.playerHealth.TAKEDAMAGE(damage);
             }
             else

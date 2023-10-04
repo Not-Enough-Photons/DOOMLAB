@@ -1,6 +1,8 @@
 using UnityEngine;
 
 using SLZ.AI;
+using SLZ.Bonelab;
+using SLZ.Data;
 
 namespace NEP.DOOMLAB.Entities
 {
@@ -13,35 +15,19 @@ namespace NEP.DOOMLAB.Entities
 
         private Mobj mobj;
         private AIBrain aiBrain;
-        private TriggerRefProxy triggerRefProxy;
         private SphereCollider sphereCollider;
+        private TriggerRefProxy triggerRefProxy;
 
         private void Awake()
         {
-            gameObject.name = "TriggerRefProxy";
-            transform.localPosition = Vector3.zero;
-
             mobj = GetComponentInParent<Mobj>();
 
-            if(GetComponent<TriggerRefProxy>())
-            {
-                return;
-            }
-
-            aiBrain = mobj.gameObject.AddComponent<AIBrain>();
-            triggerRefProxy = gameObject.AddComponent<TriggerRefProxy>();
-            sphereCollider = gameObject.AddComponent<SphereCollider>();
+            sphereCollider = GetComponent<SphereCollider>();
         }
 
         private void Start()
         {
-            sphereCollider.isTrigger = true;
-            sphereCollider.radius = 5f;
-
-            // has to be set. otherwise, other NPCs won't target us
-            gameObject.layer = LayerMask.NameToLayer("Trigger");
-
-            InitializeRefProxy();
+            
         }
 
         private void OnEnable()
@@ -52,16 +38,6 @@ namespace NEP.DOOMLAB.Entities
         private void OnDisable()
         {
             Mobj.OnDeath -= (mobj) => OnAIBrainDeath();
-        }
-
-        private void InitializeRefProxy()
-        {
-            triggerRefProxy.triggerType = TriggerRefProxy.TriggerType.Npc;
-            triggerRefProxy.npcType = TriggerRefProxy.NpcType.FordShortHair;
-            triggerRefProxy.root = mobj.gameObject;
-            triggerRefProxy.chestTran = mobj.transform;
-            triggerRefProxy.targetHead = mobj.rigidbody;
-            triggerRefProxy._aiManager = aiBrain;
         }
 
         private void OnAIBrainDeath()

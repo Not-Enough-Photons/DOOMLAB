@@ -1,6 +1,4 @@
 DOOMLAB ISSUE LIST
 ----------------------------
-> Pickups don't have player effects yet
-> Player isn't affected by projectile damage
+> Player isn't affected by projectile damage (sometimes)
 > Mancubus attacks don't spawn two fireballs at the right locations
-> Arch-vile attacks freeze the game due to an error in a reference

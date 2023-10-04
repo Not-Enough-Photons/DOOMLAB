@@ -15,17 +15,15 @@ using System.Reflection;
 
 using BoneLib.BoneMenu.Elements;
 using BoneLib.BoneMenu;
-using SLZ.Marrow.Warehouse;
-using UnityEngine.SearchService;
 
 namespace NEP.DOOMLAB
 {
     public static class BuildInfo
     {
         public const string Name = "DOOMLAB"; // Name of the Mod.  (MUST BE SET)
-        public const string Description = ""; // Description for the Mod.  (Set as null if none)
-        public const string Author = ""; // Author of the Mod.  (MUST BE SET)
-        public const string Company = null; // Company that made the Mod.  (Set as null if none)
+        public const string Description = "Hell has encroached into MythOS. Pick up Doomguy's skills and slay endless demons."; // Description for the Mod.  (Set as null if none)
+        public const string Author = "Not Enough Photons, adamdev"; // Author of the Mod.  (MUST BE SET)
+        public const string Company = "Not Enough Photons"; // Company that made the Mod.  (Set as null if none)
         public const string Version = "0.0.1"; // Version of the Mod.  (MUST BE SET)
         public const string DownloadLink = null; // Download Link for the Mod.  (Set as null if none)
     }

@@ -35,7 +35,16 @@ namespace NEP.DOOMLAB.Data
         public static void A_FireBFG(Mobj mobj){}
         public static void A_BFGSpray(Mobj mobj){}
         public static void A_Explode(Mobj mobj){ mobj.brain.A_Explode(); }
-        public static void A_Pain(Mobj mobj){ mobj?.brain.A_Pain(); }
+        public static void A_Pain(Mobj mobj)
+        {
+            if(mobj == Mobj.player)
+            {
+                return;
+            }
+
+            mobj.brain.A_Pain();
+        }
+
         public static void A_PlayerScream(Mobj mobj){  }
         public static void A_Fall(Mobj mobj){ mobj.brain.A_Fall(); }
         public static void A_XScream(Mobj mobj){ mobj.brain.A_XScream(); }

@@ -42,8 +42,7 @@ namespace NEP.DOOMLAB.Entities
 
             if(mobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE) || mobj.flags.HasFlag(MobjFlags.MF_COUNTKILL))
             {
-                var trpSphere = new GameObject();
-                trpSphere.transform.parent = mobj.transform;
+                var trpSphere = mobjBase.transform.GetChild(0).gameObject;
                 trpSphere.AddComponent<MobjProxy>();
             }
 
@@ -64,6 +63,8 @@ namespace NEP.DOOMLAB.Entities
 
             mobj.collider.center = Vector3.up * (mobj.height / 32f) / 2f;
             mobj.collider.size = new Vector3(mobj.radius / 32f, mobj.height / 32f, mobj.radius / 32f);
+
+            ImpactProperties impactProperties = mobjBase.GetComponent<ImpactProperties>();
 
             if (!mobj.flags.HasFlag(MobjFlags.MF_SOLID))
             {
@@ -86,6 +87,11 @@ namespace NEP.DOOMLAB.Entities
                 mobj.collider.enabled = true;
                 mobj.rigidbody.drag = 0;
                 mobj.gameObject.AddComponent<MobjCollisionEvents>();
+            }
+
+            if(mobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
+            {
+                impactProperties.enabled = false;
             }
 
             if(mobj.type == MobjType.MT_SKULL)
