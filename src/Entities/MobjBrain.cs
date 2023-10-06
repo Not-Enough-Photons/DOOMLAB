@@ -452,23 +452,25 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            // MobjInteraction.LineAttack(mobj, mobj.transform.position + Vector3.up, mobj.target.transform.position, damage / 10, 128);
-
             Vector3 origin = mobj.transform.position + Vector3.up;
-            Vector3 direction = other.transform.position;
+            Vector3 direction = other.transform.position + Vector3.up;
             Ray ray = new Ray(origin, direction - origin);
 
             if (Physics.Raycast(ray, out RaycastHit hit, 20))
             {
                 Mobj hitMobj = hit.collider.GetComponent<Mobj>();
 
-                if(hitMobj != null && hitMobj == other)
+                if(hitMobj == other)
                 {
                     return true;
                 }
+
+                if(hit.collider)
+                {
+                    return false;
+                }
             }
 
-            MelonLogger.Msg("Can see target");
             return true;
         }
 
@@ -483,12 +485,15 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
+            // Out of sight
             if (angle > 45f)
             {
                 if (Vector3.Distance(Mobj.player.position, mobj.transform.position) > 1.5f)
                 {
                     return false;
                 }
+
+                return false;
             }
 
             mobj.target = Mobj.player;
@@ -1006,20 +1011,38 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_FatAttack1()
         {
+            float fatSpread = (90 / 8);
             A_FaceTarget();
-            MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
+            mobj.transform.rotation *= Quaternion.AngleAxis(fatSpread, Vector3.up);
+            var firstBall = MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
+
+            var secondBall = MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
+            Physics.IgnoreCollision(firstBall.collider, secondBall.collider);
+            secondBall.transform.rotation *= Quaternion.AngleAxis(fatSpread, Vector3.up);
         }
 
         public void A_FatAttack2()
         {
+            float fatSpread = (90 / 8);
             A_FaceTarget();
-            MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
+            mobj.transform.rotation *= Quaternion.AngleAxis(-fatSpread, Vector3.up);
+            var firstBall = MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
+
+            var secondBall = MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
+            Physics.IgnoreCollision(firstBall.collider, secondBall.collider);
+            secondBall.transform.rotation *= Quaternion.AngleAxis(-fatSpread * 2, Vector3.up);
         }
 
         public void A_FatAttack3()
         {
+            float fatSpread = (90 / 8);
             A_FaceTarget();
-            MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
+            mobj.transform.rotation *= Quaternion.AngleAxis(-fatSpread / 2, Vector3.up);
+            var firstBall = MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
+
+            var secondBall = MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
+            Physics.IgnoreCollision(firstBall.collider, secondBall.collider);
+            secondBall.transform.rotation *= Quaternion.AngleAxis(-fatSpread / 2, Vector3.up);
         }
 
         public void A_Hoof()

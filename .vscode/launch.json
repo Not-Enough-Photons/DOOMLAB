@@ -9,6 +9,11 @@
             "name": "Launch MelonLoader Mod Game",
             "request": "launch",
             "program": "${workspaceFolder}/run_build.bat"
+        },
+        {
+            "name": "Launch MelonLoader Mod Game (Quest)",
+            "request": "launch",
+            "program": "${workspaceFolder}/python build.py quest logcat qrun"
         }
     ]
 }

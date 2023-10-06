@@ -76,8 +76,6 @@ namespace NEP.DOOMLAB.Entities
 
         public AudioSource audioSource;
 
-        private bool removedMobj;
-
         private void Awake()
         {
             info = Info.MobjInfos[(int)type];
@@ -98,12 +96,6 @@ namespace NEP.DOOMLAB.Entities
         {
             position = transform.position;
             Mobj.player.health = Mobj.player.playerHealth.curr_Health;
-
-            if(Settings.DisableAI)
-            {
-                return;
-            }
-
             UpdateThinker();
         }
 

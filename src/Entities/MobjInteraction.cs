@@ -240,8 +240,7 @@ namespace NEP.DOOMLAB.Entities
 
             if(target == Mobj.player)
             {
-                MelonLogger.Msg("Damaging player");
-                Mobj.player.playerHealth.TAKEDAMAGE(damage);
+                Mobj.player.playerHealth.TAKEDAMAGE(damage / 10);
             }
             else
             {

@@ -14,6 +14,10 @@
             "problemMatcher": "$msCompile"
         },
         {
+          "label": "Run Game (Quest)",
+          "command": "python build.py quest logcat qrun"
+        },
+        {
             "label": "publish",
             "command": "dotnet",
             "type": "process",
