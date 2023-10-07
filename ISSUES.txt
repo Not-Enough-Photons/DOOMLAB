@@ -1,4 +1,3 @@
 DOOMLAB ISSUE LIST
 ----------------------------
 > Player isn't affected by projectile damage (sometimes)
-> Mancubus attacks don't spawn two fireballs at the right locations

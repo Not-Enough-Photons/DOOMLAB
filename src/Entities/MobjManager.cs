@@ -11,23 +11,20 @@ using System.Collections.Generic;
 
 namespace NEP.DOOMLAB.Entities
 {
-    [MelonLoader.RegisterTypeInIl2Cpp]
-    public class MobjManager : MonoBehaviour
+    public class MobjManager
     {
-        public MobjManager(System.IntPtr ptr) : base(ptr) { }
+        public MobjManager()
+        {
+            Instance = this;
+            mobjs = new List<Mobj>();
+            mobjPrefab = Main.mobjTemplate;
+        }
 
         public static MobjManager Instance { get; private set; }
 
         public GameObject mobjPrefab;
 
         public List<Mobj> mobjs;
-
-        private void Awake()
-        {
-            Instance = this;
-            mobjs = new List<Mobj>();
-            mobjPrefab = Main.mobjTemplate;
-        }
 
         public Mobj SpawnMobj(Vector3 position, MobjType type, float angle = 0f)
         {
@@ -123,7 +120,7 @@ namespace NEP.DOOMLAB.Entities
 
             projectile.rigidbody.velocity = (destination.transform.position - position).normalized * projectile.info.speed;
 
-            Physics.IgnoreCollision(source.collider, projectile.collider, true);
+            UnityEngine.Physics.IgnoreCollision(source.collider, projectile.collider, true);
 
             if (projectile.info.seeSound != Sound.SoundType.sfx_None)
             {

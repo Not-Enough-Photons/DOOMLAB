@@ -89,11 +89,46 @@ namespace NEP.DOOMLAB.Entities
             return !thing.flags.HasFlag(MobjFlags.MF_SOLID);
         }
 
+        // Checks if a raycast line is unobstructed.
+        public static bool CheckSight(Mobj thing, Mobj other)
+        {
+            if (other == null)
+            {
+                thing.brain.SeesTarget = false;
+                return false;
+            }
+
+            Vector3 origin = thing.transform.position + Vector3.up;
+            Vector3 direction = other.transform.position + Vector3.up;
+            Ray ray = new Ray(origin, direction - origin);
+
+            if (UnityEngine.Physics.Raycast(ray, out RaycastHit hit, 20))
+            {
+                Mobj hitMobj = hit.collider.GetComponent<Mobj>();
+
+                if(hitMobj == other)
+                {
+                    thing.brain.SeesTarget = true;
+                    return true;
+                }
+
+                if(hit.collider)
+                {
+                    thing.brain.SeesTarget = false;
+
+                    return false;
+                }
+            }
+
+            thing.brain.SeesTarget = true;
+            return true;
+        }
+
         public static bool LineAttack(Mobj shootThing, Vector3 origin, Vector3 direction, float damage, float distance)
         {
             Ray ray = new Ray(origin, direction - origin);
 
-            if (Physics.Raycast(ray, out RaycastHit hit, distance))
+            if (UnityEngine.Physics.Raycast(ray, out RaycastHit hit, distance))
             {
                 Collider collider = hit.collider;
                 Prop_Health firstBreakableType = collider.GetComponentInParent<Prop_Health>();
@@ -160,7 +195,7 @@ namespace NEP.DOOMLAB.Entities
 
         public static void RadiusAttack(Mobj spot, Mobj source, float damage)
         {
-            var hits = Physics.BoxCastAll(spot.position, Vector3.one * 4, spot.position);
+            var hits = UnityEngine.Physics.BoxCastAll(spot.position, Vector3.one * 4, spot.position);
 
             for (int i = 0; i < hits.Length; i++)
             {
@@ -191,21 +226,16 @@ namespace NEP.DOOMLAB.Entities
             float dz = Mathf.Abs(thing.position.z - spot.position.z);
 
             float distance = dx > dz ? dx : dz;
-            distance = (distance - thing.radius / 32f) / 2;
+            distance = distance - thing.radius / 32f;
 
             if (distance < 0)
             {
                 distance = 0;
             }
 
-            if (distance > damage / 10)
+            if (distance > damage)
             {
                 return false;
-            }
-
-            if(thing == Mobj.player)
-            {
-                DamageMobj(Mobj.player, spot, source, (damage / 10) - distance);
             }
 
             if (thing.brain == null)
@@ -213,9 +243,9 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            if (thing.brain.CheckSight(spot))
+            if (CheckSight(thing, spot))
             {
-                DamageMobj(thing, spot, source, (damage / 10) - distance);
+                DamageMobj(thing, spot, source, damage - distance);
             }
 
             return true;
@@ -268,7 +298,7 @@ namespace NEP.DOOMLAB.Entities
                 target.target = source;
                 target.threshold = 8;
 
-                if (target.state == Info.GetState(target.info.spawnState) && target.info.seeState != StateNum.S_NULL)
+                if (target.currentState == target.info.spawnState && target.info.seeState != StateNum.S_NULL)
                 {
                     target.SetState(target.info.seeState);
                 }

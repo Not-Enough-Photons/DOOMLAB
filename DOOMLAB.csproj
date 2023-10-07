@@ -47,6 +47,7 @@
     <Compile Include="src\Info\State.cs" />
     <Compile Include="src\Info\StateNum.cs" />
     <Compile Include="src\Main.cs" />
+    <Compile Include="src\Debug\DebugMobjStats.cs" />
     <Compile Include="src\Entities\Mobj.cs" />
     <Compile Include="src\Entities\MobjBrain.cs" />
     <Compile Include="src\Entities\MobjCollisionEvents.cs" />
@@ -146,6 +147,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\BONELAB\MelonLoader\Managed\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Users\adamdev.NOTENOUGHPHOTON\Documents\DOOMLAB\bin\Release\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime" />
+    <Reference Include="System" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

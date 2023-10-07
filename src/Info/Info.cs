@@ -994,11 +994,6 @@ namespace NEP.DOOMLAB.Data
     new State(SpriteNum.SPR_TLP2, 32771, 4, null, StateNum.S_TECH2LAMP),
         };
 
-        public static State GetState(StateNum stateNum)
-        {
-            return states[(int)stateNum];
-        }
-
         public static readonly MobjInfo[] MobjInfos = new MobjInfo[]
         {
             new MobjInfo( // MobjType.Player

@@ -32,6 +32,7 @@ namespace NEP.DOOMLAB
     {
         public AssetBundle bundle;
         public static GameObject mobjTemplate;
+        public static Material unlitMaterial;
         public static Mobj player;
 
         public static readonly string UserDataDirectory = MelonUtils.UserDataDirectory;
@@ -69,6 +70,8 @@ namespace NEP.DOOMLAB
             mobjTemplate.hideFlags = HideFlags.DontUnloadUnusedAsset;
             MissingSprite = bundle.LoadAsset("faila0").Cast<Texture2D>();
             MissingSprite.hideFlags = HideFlags.DontUnloadUnusedAsset;
+            unlitMaterial = bundle.LoadAsset("mat_unlit").Cast<Material>();
+            unlitMaterial.hideFlags = HideFlags.DontUnloadUnusedAsset;
 
             new WADManager();
             WADManager.Instance.LoadWAD(WADManager.Instance.GetIWAD());
@@ -87,10 +90,10 @@ namespace NEP.DOOMLAB
         {
             DoomGame.Instance.gameTic = 0;
 
-            new GameObject("[DOOMLAB] - Sound Manager").AddComponent<SoundManager>();
-            new GameObject("[DOOMLAB] - MOBJ Manager").AddComponent<MobjManager>();
+            new SoundManager();
+            new MobjManager();
 
-            player = Player.physicsRig.m_head.gameObject.AddComponent<Mobj>();
+            player = Player.physicsRig.m_chest.gameObject.AddComponent<Mobj>();
             player.gameObject.AddComponent<DoomPlayer>();
             player.flags ^= MobjFlags.MF_SHOOTABLE;
             player.playerHealth = Player.rigManager.GetComponent<Player_Health>();
@@ -101,14 +104,22 @@ namespace NEP.DOOMLAB
             MenuCategory menuCategory = MenuManager.CreateCategory("Not Enough Photons", Color.white);
             var doomCategory = menuCategory.CreateCategory("DOOMLAB", Color.white);
 
-            doomCategory.CreateBoolElement("Disable Thinking", Color.white, false, (value) => Settings.DisableAI = value);
-            doomCategory.CreateBoolElement("No Target", Color.white, false, null);
-            doomCategory.CreateBoolElement("Fast Monsters", Color.white, false, (value) => 
+            var gameFlagsCategory = doomCategory.CreateCategory("Game Flags", Color.white);
+            var debugCategory = doomCategory.CreateCategory("Debug", Color.white);
+
+            gameFlagsCategory.CreateBoolElement("Disable Thinking", Color.white, false, (value) => Settings.DisableAI = value);
+            gameFlagsCategory.CreateBoolElement("No Target", Color.white, false, null);
+            gameFlagsCategory.CreateBoolElement("Fast Monsters", Color.white, false, (value) => 
             {
                 Settings.FastMonsters = value;
                 DoomGame.Instance.UpdateFastMonsters(Settings.FastMonsters);
             });
-            doomCategory.CreateBoolElement("Respawn Monsters", Color.white, false, (value) => Settings.RespawnMonsters = value);
+            gameFlagsCategory.CreateBoolElement("Respawn Monsters", Color.white, false, (value) => Settings.RespawnMonsters = value);
+
+            debugCategory.CreateFloatElement("Projectile Pruning Distance", Color.white, 128f, 32f, 0f, 4096f, (value) => Settings.ProjectilePruneDistance = value);
+            debugCategory.CreateBoolElement("MOBJ Debug Stats", Color.white, false, (value) => Settings.EnableMobjDebug = value);
+            debugCategory.CreateBoolElement("MOBJ Debug Lines", Color.white, false, (value) => Settings.EnableMobjDebugLines = value);
+            debugCategory.CreateBoolElement("MOBJ Debug Colliders", Color.white, false, (value) => Settings.EnableMobjDebugColliders = value);
 
             var wadCategory = doomCategory.CreateCategory("WADS", Color.white);
             string[] iwadNames = WADManager.Instance.GetWADsInFolder(WADFile.WADType.IWAD, false);

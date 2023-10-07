@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Il2CppSystem.Numerics;
-using MelonLoader;
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
-using SLZ.Marrow.Forklift;
 using SLZ.Props;
-using UnhollowerBaseLib;
 using UnityEngine;
 
 namespace NEP.DOOMLAB.Entities
@@ -16,6 +12,8 @@ namespace NEP.DOOMLAB.Entities
     public class MobjBrain : MonoBehaviour
     {
         public MobjBrain(System.IntPtr ptr) : base(ptr) { }
+
+        public bool SeesTarget;
 
         public Mobj mobj;
 
@@ -366,7 +364,7 @@ namespace NEP.DOOMLAB.Entities
                 return false;
             }
 
-            if(!CheckSight(mobj.target))
+            if(!MobjInteraction.CheckSight(mobj, mobj.target))
             {
                 return false;
             }
@@ -376,7 +374,7 @@ namespace NEP.DOOMLAB.Entities
 
         public bool CheckMissileRange()
         {
-            if (!CheckSight(mobj.target))
+            if (!MobjInteraction.CheckSight(mobj, mobj.target))
             {
                 return false;
             }
@@ -444,42 +442,12 @@ namespace NEP.DOOMLAB.Entities
             return true;
         }
 
-        // Checks if a raycast line is unobstructed.
-        public bool CheckSight(Mobj other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
-
-            Vector3 origin = mobj.transform.position + Vector3.up;
-            Vector3 direction = other.transform.position + Vector3.up;
-            Ray ray = new Ray(origin, direction - origin);
-
-            if (Physics.Raycast(ray, out RaycastHit hit, 20))
-            {
-                Mobj hitMobj = hit.collider.GetComponent<Mobj>();
-
-                if(hitMobj == other)
-                {
-                    return true;
-                }
-
-                if(hit.collider)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         public bool FindPlayer()
         {
             Vector3 direction = Mobj.player.transform.position - mobj.transform.position;
             float angle = Vector3.Angle(direction, mobj.transform.forward);
 
-            if (!CheckSight(Mobj.player))
+            if (!MobjInteraction.CheckSight(mobj, Mobj.player))
             {
                 // Out of sight
                 return false;
@@ -548,6 +516,7 @@ namespace NEP.DOOMLAB.Entities
             mobj.SetState(mobj.info.seeState);
         }
 
+
         public void A_Chase()
         {
             if (mobj.reactionTime != 0)
@@ -592,7 +561,6 @@ namespace NEP.DOOMLAB.Entities
 
             if (mobj.info.meleeState != StateNum.S_NULL && CheckMeleeRange() || CheckObstructedByBreakable())
             {
-                MelonLogger.Msg("Melee state");
                 if (mobj.info.attackSound != SoundType.sfx_None)
                 {
                     SoundManager.Instance.PlaySound(mobj.info.attackSound, mobj.transform.position, false);
@@ -626,7 +594,7 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_NoMissile()
         {
-            if (mobj.threshold == 0 && !CheckSight(mobj.target))
+            if (mobj.threshold == 0 && !MobjInteraction.CheckSight(mobj, mobj.target))
             {
                 if (FindPlayer())
                 {
@@ -678,16 +646,20 @@ namespace NEP.DOOMLAB.Entities
                 MobjInteraction.DamageMobj(mobj.target, mobj, mobj, damage);
                 return;
             }
-            else if(CheckObstructedByBreakable(out Prop_Health destructibleProp))
+            if(CheckObstructedByBreakable())
             {
-                destructibleProp?.TAKEDAMAGE(damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
-                return;
-            }
-            else if(CheckObstructedByBreakable(out ObjectDestructable objectDestructable))
-            {
-                objectDestructable?.TakeDamage(mobj.transform.forward, damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
-                return;
-            }
+                if (CheckObstructedByBreakable(out Prop_Health destructibleProp))
+                {
+                    destructibleProp?.TAKEDAMAGE(damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
+                    return;
+                }
+
+                if (CheckObstructedByBreakable(out ObjectDestructable objectDestructable))
+                {
+                    objectDestructable?.TakeDamage(mobj.transform.forward, damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
+                    return;
+                }
+            }   
 
             MobjManager.Instance.SpawnMissile(mobj, mobj.target, Data.MobjType.MT_TROOPSHOT);
         }
@@ -756,7 +728,7 @@ namespace NEP.DOOMLAB.Entities
                 return;
             }
 
-            if (mobj.target == null || mobj.target.health <= 0 || !CheckSight(mobj.target))
+            if (mobj.target == null || mobj.target.health <= 0 || !MobjInteraction.CheckSight(mobj, mobj.target))
             {
                 mobj.SetState(mobj.info.seeState);
             }
@@ -771,7 +743,7 @@ namespace NEP.DOOMLAB.Entities
                 return;
             }
 
-            if (mobj.target == null || mobj.target.health == 0 || !CheckSight(mobj.target))
+            if (mobj.target == null || mobj.target.health == 0 || !MobjInteraction.CheckSight(mobj, mobj.target))
             {
                 mobj.SetState(mobj.info.seeState);
             }
@@ -1011,38 +983,41 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_FatAttack1()
         {
-            float fatSpread = (90 / 8);
+            float fatSpread = (90 / 8) / 32f;
             A_FaceTarget();
             mobj.transform.rotation *= Quaternion.AngleAxis(fatSpread, Vector3.up);
             var firstBall = MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
 
             var secondBall = MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
             Physics.IgnoreCollision(firstBall.collider, secondBall.collider);
-            secondBall.transform.rotation *= Quaternion.AngleAxis(fatSpread, Vector3.up);
+            secondBall.transform.rotation = mobj.transform.rotation;
+            secondBall.rigidbody.velocity = secondBall.transform.forward * secondBall.info.speed;
         }
 
         public void A_FatAttack2()
         {
-            float fatSpread = (90 / 8);
+            float fatSpread = (90 / 8) / 32f;
             A_FaceTarget();
             mobj.transform.rotation *= Quaternion.AngleAxis(-fatSpread, Vector3.up);
             var firstBall = MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
 
             var secondBall = MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
             Physics.IgnoreCollision(firstBall.collider, secondBall.collider);
-            secondBall.transform.rotation *= Quaternion.AngleAxis(-fatSpread * 2, Vector3.up);
+            secondBall.transform.rotation = mobj.transform.rotation;
+            secondBall.rigidbody.velocity = secondBall.transform.forward * secondBall.info.speed;
         }
 
         public void A_FatAttack3()
         {
-            float fatSpread = (90 / 8);
+            float fatSpread = (90 / 8) / 32f;
             A_FaceTarget();
             mobj.transform.rotation *= Quaternion.AngleAxis(-fatSpread / 2, Vector3.up);
             var firstBall = MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
 
             var secondBall = MobjManager.Instance.SpawnMissile(mobj, mobj.target, MobjType.MT_FATSHOT);
             Physics.IgnoreCollision(firstBall.collider, secondBall.collider);
-            secondBall.transform.rotation *= Quaternion.AngleAxis(-fatSpread / 2, Vector3.up);
+            secondBall.transform.rotation = mobj.transform.rotation;
+            secondBall.rigidbody.velocity = secondBall.transform.forward * secondBall.info.speed;
         }
 
         public void A_Hoof()
@@ -1184,7 +1159,7 @@ namespace NEP.DOOMLAB.Entities
                 return;
             }
 
-            if(!mobj.brain.CheckSight(dest))
+            if(!MobjInteraction.CheckSight(mobj, dest))
             {
                 return;
             }
@@ -1216,7 +1191,7 @@ namespace NEP.DOOMLAB.Entities
 
             A_FaceTarget();
 
-            if(!CheckSight(mobj.target))
+            if(!MobjInteraction.CheckSight(mobj, mobj.target))
             {
                 return;
             }

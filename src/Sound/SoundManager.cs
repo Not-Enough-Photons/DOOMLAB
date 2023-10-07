@@ -7,10 +7,12 @@ using System.Linq;
 
 namespace NEP.DOOMLAB.Sound
 {
-    [MelonLoader.RegisterTypeInIl2Cpp]
-    public class SoundManager : MonoBehaviour
+    public class SoundManager
     {
-        public SoundManager(System.IntPtr ptr) : base(ptr) { }
+        public SoundManager()
+        {
+            Awake();
+        }
 
         public static SoundManager Instance { get; private set; }
 
@@ -26,10 +28,11 @@ namespace NEP.DOOMLAB.Sound
 
             pooledAudioObjects = new List<GameObject>();
             GameObject listObj = new GameObject("Pooled Audio");
-            listObj.transform.parent = transform;
+            GameObject parent = new GameObject("Sound Manager");
+            listObj.transform.parent = parent.transform;
 
             for (int i = 0; i < 64; i++)
-        {
+            {
                 GameObject pooledAudio = new GameObject("Poolee Audio");
                 pooledAudio.transform.parent = listObj.transform;
 

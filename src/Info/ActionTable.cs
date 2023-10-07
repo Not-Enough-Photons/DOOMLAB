@@ -8,7 +8,10 @@ namespace NEP.DOOMLAB.Data
     {
         public static Dictionary<int, Action<Mobj>> DeHACKEDPointers = new Dictionary<int, Action<Mobj>>()
         {
-            { 1, A_Light0 }
+            { 1, A_Light0 },
+            { 2, A_WeaponReady },
+            { 3, A_Lower },
+            { 4, A_Raise }
         };
 
         public static void A_Light0(Mobj mobj) { }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Harmony;
 using Il2CppSystem.Numerics;
 using MelonLoader;
@@ -30,6 +31,9 @@ namespace NEP.DOOMLAB.Rendering
         private static WAD.DataTypes.Patch missingPatch;
         private static SpriteFrame missingFrame;
 
+        private Material original;
+        private Material unlit;
+
         private void Awake()
         {
             meshRenderer = GetComponentInChildren<MeshRenderer>();
@@ -37,6 +41,9 @@ namespace NEP.DOOMLAB.Rendering
             game = DoomGame.Instance;
             camera = Camera.main;
             drawQuad = transform.GetChild(0);
+
+            original = meshRenderer.material;
+            unlit = Main.unlitMaterial;
 
             missingPatch = new WAD.DataTypes.Patch("FAILA0", 32, 32, 16, 38);
             missingPatch.output = Main.MissingSprite;
@@ -87,6 +94,7 @@ namespace NEP.DOOMLAB.Rendering
 
         public void UpdateSprite()
         {
+            
             float angle = Vector3.SignedAngle(mobj.transform.forward, camera.transform.forward, Vector3.up);
             angle = Mathf.Repeat(angle + 180f, 360f) - 180f;
             int index = (int)((angle - (45 / 2) * 9) / 45) & 7;
@@ -96,6 +104,11 @@ namespace NEP.DOOMLAB.Rendering
             if (mobj.frame >= 32768)
             {
                 stateFrame = mobj.frame - 32768;
+                meshRenderer.material = unlit;
+            }
+            else
+            {
+                meshRenderer.material = original;
             }
 
             SpriteDef spriteDef = spriteDefs[(int)mobj.sprite];

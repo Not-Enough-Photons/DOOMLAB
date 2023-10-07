@@ -9,7 +9,7 @@ using SLZ.Marrow.Pool;
 using SLZ.Marrow.Warehouse;
 
 using System;
-
+using System.Diagnostics;
 using UnityEngine;
 
 namespace NEP.DOOMLAB.Entities
@@ -76,6 +76,9 @@ namespace NEP.DOOMLAB.Entities
 
         public AudioSource audioSource;
 
+        public Action<Mobj> CurrentAction { get; private set; }
+        public Stopwatch ActionStopwatch { get; private set; } = new Stopwatch();
+
         private void Awake()
         {
             info = Info.MobjInfos[(int)type];
@@ -84,6 +87,7 @@ namespace NEP.DOOMLAB.Entities
 
         private void Start()
         {
+            player.health = player.playerHealth.curr_Health;
             DoomGame.Instance.OnTick += WorldTick;
         }
 
@@ -95,7 +99,6 @@ namespace NEP.DOOMLAB.Entities
         private void WorldTick()
         {
             position = transform.position;
-            Mobj.player.health = Mobj.player.playerHealth.curr_Health;
             UpdateThinker();
         }
 
@@ -111,10 +114,13 @@ namespace NEP.DOOMLAB.Entities
                 target = null;
             }
 
-            // Too far away, stop updating
-            if(Vector3.Distance(transform.position, BoneLib.Player.playerHead.position) > 2048)
+            if(Vector3.Distance(transform.position, player.transform.position) > Settings.ProjectilePruneDistance)
             {
-                return;
+                if(flags.HasFlag(MobjFlags.MF_MISSILE))
+                {
+                    MobjManager.Instance.RemoveMobj(this);
+                    return;
+                }
             }
 
             if (tics != -1)
@@ -159,26 +165,28 @@ namespace NEP.DOOMLAB.Entities
 
         public bool SetState(StateNum state)
         {
-            State st;
-
             currentState = state;
+
+            State st;
 
             if (state == StateNum.S_NULL)
             {
-                this.state = Info.GetState(StateNum.S_NULL);
+                this.state = Info.states[(int)StateNum.S_NULL];
                 MobjManager.Instance.RemoveMobj(this);
                 return false;
             }
 
-            st = Info.GetState(state);
+            st = Info.states[(int)state];
             this.state = st;
             this.tics = st.tics;
             this.sprite = st.sprite;
             this.frame = st.frame;
 
-            System.Action<Mobj> action = st.action;
-
-            BoneLib.SafeActions.InvokeActionSafe(action, this);
+            ActionStopwatch = new Stopwatch();
+            ActionStopwatch.Start();
+            st.action?.Invoke(this);
+            CurrentAction = st.action;
+            ActionStopwatch.Stop();
 
             return true;
         }
@@ -194,7 +202,7 @@ namespace NEP.DOOMLAB.Entities
             this.health = info.spawnHealth;
             this.reactionTime = info.reactionTime;
 
-            State st = Info.GetState(info.spawnState);
+            State st = Info.states[(int)info.spawnState];
 
             this.state = st;
             this.tics = st.tics;

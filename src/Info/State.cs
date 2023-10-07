@@ -4,7 +4,6 @@ using NEP.DOOMLAB.Entities;
 
 namespace NEP.DOOMLAB.Data
 {
-    [System.Serializable]
     public class State
     {
         public State(SpriteNum sprite, int frame, int tics, Action<Mobj> action, StateNum nextstate)

@@ -57,6 +57,11 @@ namespace NEP.DOOMLAB.Patches
 
             if(hitMobj != null)
             {
+                if(!hitMobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
+                {
+                    return;
+                }
+
                 if(!hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
                 {
                     MobjManager.Instance.SpawnMobj(c.contacts[0].point, Data.MobjType.MT_BLOOD);
@@ -83,6 +88,11 @@ namespace NEP.DOOMLAB.Patches
 
             if (hitMobj != null)
             {
+                if(!hitMobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
+                {
+                    return;
+                }
+
                 if (!hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
                 {
                     MobjManager.Instance.SpawnMobj(c.contacts[0].point, Data.MobjType.MT_BLOOD);
@@ -109,6 +119,11 @@ namespace NEP.DOOMLAB.Patches
 
             if (hitMobj != null && c.impulse.magnitude > 0.35f)
             {
+                if(!hitMobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
+                {
+                    return;
+                }
+                
                 if (!hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
                 {
                     MobjManager.Instance.SpawnMobj(c.contacts[0].point, Data.MobjType.MT_BLOOD);
