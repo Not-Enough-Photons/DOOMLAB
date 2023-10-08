@@ -70,7 +70,7 @@ namespace NEP.DOOMLAB.Game
             }
         }
 
-        public DoomGame()
+        public DoomGame()   
         {
             Instance = this;
         }

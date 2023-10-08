@@ -49,11 +49,6 @@ namespace NEP.DOOMLAB.Entities
             mobj = GetComponent<Mobj>();
         }
 
-        private void OnEnable()
-        {
-            SetMoveDirection(mobj.moveDirection);
-        }
-
         public void SetMoveDirection(Mobj.MoveDirection direction)
         {
             if (mobj == null || direction == Mobj.MoveDirection.NODIR)
@@ -95,7 +90,7 @@ namespace NEP.DOOMLAB.Entities
                     }
                 }
 
-                if(hit.collider)
+                if(hit.collider && !hit.collider.isTrigger)
                 {
                     return false;
                 }
@@ -106,12 +101,13 @@ namespace NEP.DOOMLAB.Entities
                 if (!mobj.flags.HasFlag(MobjFlags.MF_SKULLFLY) && !mobj.flags.HasFlag(MobjFlags.MF_INFLOAT))
                 {
                     float delta = ((mobj.target.transform.position.y - 1f + (mobj.info.height / 32f) / 2) - mobj.transform.position.y);
+                    float closeDistance = Vector3.Distance(mobj.transform.position, mobj.target.transform.position);
 
-                    if (delta < -0.075)
+                    if (delta < -0.075 && closeDistance < 5f)
                     {
                         mobj.rigidbody.position -= (mobj.transform.up * mobj.info.speed) * Time.deltaTime;
                     }
-                    else if (delta > 0.075)
+                    else if (delta > 0.075 && closeDistance < 5f)
                     {
                         mobj.rigidbody.position += (mobj.transform.up * mobj.info.speed) * Time.deltaTime;
                     }
@@ -454,18 +450,19 @@ namespace NEP.DOOMLAB.Entities
             }
 
             // Out of sight
-            if (angle > 45f)
+            if (angle < 45f)
             {
-                if (Vector3.Distance(Mobj.player.position, mobj.transform.position) > 1.5f)
-                {
-                    return false;
-                }
-
-                return false;
+                mobj.target = Mobj.player;
+                mobj.sightedPlayer = true;
+                return true;
+            }
+            else if (Vector3.Distance(Mobj.player.transform.position, mobj.transform.position) < (mobj.radius / 32f) + 2f)
+            {
+                mobj.target = Mobj.player;
+                mobj.sightedPlayer = true;
+                return true;
             }
 
-            mobj.target = Mobj.player;
-            mobj.sightedPlayer = true;
             return true;
         }
 

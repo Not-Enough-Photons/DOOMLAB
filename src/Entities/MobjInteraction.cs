@@ -112,7 +112,7 @@ namespace NEP.DOOMLAB.Entities
                     return true;
                 }
 
-                if(hit.collider)
+                if(hit.collider && !hit.collider.isTrigger)
                 {
                     thing.brain.SeesTarget = false;
 
@@ -177,14 +177,7 @@ namespace NEP.DOOMLAB.Entities
 
                 if (damage > 0f)
                 {
-                    if (hitMobj == Mobj.player)
-                    {
-                        Mobj.player.playerHealth.TAKEDAMAGE(damage);
-                    }
-                    else
-                    {
-                        DamageMobj(hitMobj, shootThing, shootThing, damage);
-                    }
+                    DamageMobj(hitMobj, shootThing, shootThing, damage);
                 }
 
                 return true;
@@ -226,7 +219,7 @@ namespace NEP.DOOMLAB.Entities
             float dz = Mathf.Abs(thing.position.z - spot.position.z);
 
             float distance = dx > dz ? dx : dz;
-            distance = distance - thing.radius / 32f;
+            distance = distance - (thing.radius / 32f);
 
             if (distance < 0)
             {

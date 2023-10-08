@@ -95,6 +95,7 @@ namespace NEP.DOOMLAB
 
             player = Player.physicsRig.m_chest.gameObject.AddComponent<Mobj>();
             player.gameObject.AddComponent<DoomPlayer>();
+            player.flags ^= MobjFlags.MF_SOLID;
             player.flags ^= MobjFlags.MF_SHOOTABLE;
             player.playerHealth = Player.rigManager.GetComponent<Player_Health>();
         }

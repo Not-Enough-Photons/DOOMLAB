@@ -55,7 +55,7 @@ namespace NEP.DOOMLAB.Patches
         {
             Mobj hitMobj = c.collider.GetComponent<Mobj>();
 
-            if(hitMobj != null)
+            if(hitMobj != null && hitMobj != Mobj.player)
             {
                 if(!hitMobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
                 {
@@ -86,7 +86,7 @@ namespace NEP.DOOMLAB.Patches
         {
             Mobj hitMobj = c.collider.GetComponent<Mobj>();
 
-            if (hitMobj != null)
+            if (hitMobj != null && hitMobj != Mobj.player)
             {
                 if(!hitMobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
                 {
@@ -117,7 +117,7 @@ namespace NEP.DOOMLAB.Patches
         {
             Mobj hitMobj = c.collider.GetComponent<Mobj>();
 
-            if (hitMobj != null && c.impulse.magnitude > 0.35f)
+            if (hitMobj != null && hitMobj != Mobj.player && c.impulse.magnitude > 0.1f)
             {
                 if(!hitMobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
                 {
