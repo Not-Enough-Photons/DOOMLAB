@@ -289,7 +289,7 @@ namespace NEP.DOOMLAB.Entities
                 && source.type != MobjType.MT_VILE)
             {
                 target.target = source;
-                target.threshold = 8;
+                target.threshold = 100;
 
                 if (target.currentState == target.info.spawnState && target.info.seeState != StateNum.S_NULL)
                 {
