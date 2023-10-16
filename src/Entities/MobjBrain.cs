@@ -74,7 +74,10 @@ namespace NEP.DOOMLAB.Entities
 
             }
 
-            if(Physics.BoxCast(mobj.transform.position + Vector3.up * 0.5f, new Vector3(0.25f, 0.25f, 0.075f), mobj.transform.forward, out RaycastHit hit, mobj.transform.rotation, 1f))
+            Transform mobjTransform = mobj.transform;
+            Transform targetTransform = mobj.target.transform;
+
+            if(Physics.BoxCast(mobjTransform.position + Vector3.up * 0.5f, new Vector3(0.25f, 0.25f, 0.075f), mobjTransform.forward, out RaycastHit hit, mobjTransform.rotation, 1f))
             {
                 Mobj other = hit.collider.GetComponent<Mobj>();
 
@@ -100,21 +103,21 @@ namespace NEP.DOOMLAB.Entities
             {
                 if (!mobj.flags.HasFlag(MobjFlags.MF_SKULLFLY) && !mobj.flags.HasFlag(MobjFlags.MF_INFLOAT))
                 {
-                    float delta = ((mobj.target.transform.position.y - 1f + (mobj.info.height / 32f) / 2) - mobj.transform.position.y);
-                    float closeDistance = Vector3.Distance(mobj.transform.position, mobj.target.transform.position);
+                    float delta = ((targetTransform.position.y - 1f + (mobj.info.height / 32f) / 2) - mobjTransform.position.y);
+                    float closeDistance = Vector3.Distance(mobjTransform.position, targetTransform.position);
 
                     if (delta < -0.075 && closeDistance < 5f)
                     {
-                        mobj.rigidbody.position -= (mobj.transform.up * mobj.info.speed) * Time.deltaTime;
+                        mobj.rigidbody.position -= (mobjTransform.up * mobj.info.speed) * Time.deltaTime;
                     }
                     else if (delta > 0.075 && closeDistance < 5f)
                     {
-                        mobj.rigidbody.position += (mobj.transform.up * mobj.info.speed) * Time.deltaTime;
+                        mobj.rigidbody.position += (mobjTransform.up * mobj.info.speed) * Time.deltaTime;
                     }
                 }
             }
 
-            mobj.rigidbody.position += (mobj.transform.forward * mobj.info.speed) * Time.deltaTime;
+            mobj.rigidbody.position += (mobjTransform.forward * mobj.info.speed) * Time.deltaTime;
             return true;
         }
 
@@ -440,8 +443,11 @@ namespace NEP.DOOMLAB.Entities
 
         public bool FindPlayer()
         {
-            Vector3 direction = Mobj.player.transform.position - mobj.transform.position;
-            float angle = Vector3.Angle(direction, mobj.transform.forward);
+            Transform playerTransform = Mobj.player.transform;
+            Transform mobjTransform = mobj.transform;
+
+            Vector3 direction = playerTransform.position - mobjTransform.position;
+            float angle = Vector3.Angle(direction, mobjTransform.forward);
 
             if (!MobjInteraction.CheckSight(mobj, Mobj.player))
             {
@@ -456,7 +462,7 @@ namespace NEP.DOOMLAB.Entities
                 mobj.sightedPlayer = true;
                 return true;
             }
-            else if (Vector3.Distance(Mobj.player.transform.position, mobj.transform.position) < (mobj.radius / 32f) + 2f)
+            else if (Vector3.Distance(playerTransform.position, mobjTransform.position) < (mobj.radius / 32f) + 2f)
             {
                 mobj.target = Mobj.player;
                 mobj.sightedPlayer = true;
