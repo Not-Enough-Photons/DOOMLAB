@@ -102,9 +102,18 @@ namespace NEP.DOOMLAB.Entities
             Vector3 direction = other.transform.position + Vector3.up;
             Ray ray = new Ray(origin, direction - origin);
 
-            if (UnityEngine.Physics.Raycast(ray, out RaycastHit hit, 20))
+            if (Physics.Raycast(ray, out RaycastHit hit, 20))
             {
-                Mobj hitMobj = hit.collider.GetComponent<Mobj>();
+                Collider collider = hit.collider;
+                GameObject hitObject = collider.gameObject;
+                var lookup = Mobj.ComponentCache.CacheLookup;
+
+                if(!lookup.ContainsKey(hitObject.GetInstanceID()))
+                {
+                    return false;
+                }
+
+                Mobj hitMobj = lookup[hitObject.GetInstanceID()];
 
                 if(hitMobj == other)
                 {
@@ -112,7 +121,7 @@ namespace NEP.DOOMLAB.Entities
                     return true;
                 }
 
-                if(hit.collider && !hit.collider.isTrigger)
+                if(collider != null && !collider.isTrigger)
                 {
                     thing.brain.SeesTarget = false;
 
@@ -188,11 +197,20 @@ namespace NEP.DOOMLAB.Entities
 
         public static void RadiusAttack(Mobj spot, Mobj source, float damage)
         {
-            var hits = UnityEngine.Physics.BoxCastAll(spot.position, Vector3.one * 4, spot.position);
+            var hits = Physics.BoxCastAll(spot.position, Vector3.one * 4, spot.position);
 
             for (int i = 0; i < hits.Length; i++)
             {
-                Mobj hit = hits[i].collider.GetComponent<Mobj>();
+                GameObject obj = hits[i].collider.gameObject;
+                var lookup = Mobj.ComponentCache.CacheLookup;
+                int id = obj.GetInstanceID();
+                
+                if(!lookup.ContainsKey(id))
+                {
+                    continue;
+                }
+
+                Mobj hit = lookup[id];
                 RadiusAttackIterator(hit, spot, source, damage);
             }
         }

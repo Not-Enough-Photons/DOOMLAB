@@ -19,6 +19,8 @@ namespace NEP.DOOMLAB.Entities
     {
         public Mobj(System.IntPtr ptr) : base(ptr) { }
 
+        public static Instances<Mobj> ComponentCache { get; private set; }
+
         public static Action<Mobj> OnDeath;
 
         public enum MoveDirection
@@ -83,6 +85,15 @@ namespace NEP.DOOMLAB.Entities
         {
             info = Info.MobjInfos[(int)type];
             playerHealth = BoneLib.Player.rigManager.GetComponent<Player_Health>();
+
+            if(ComponentCache == null)
+            {
+                ComponentCache = new Instances<Mobj>();
+            }
+            else
+            {
+                ComponentCache.AddInstance(GetInstanceID(), this);
+            }
         }
 
         private void Start()
