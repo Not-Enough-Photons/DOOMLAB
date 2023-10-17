@@ -48,7 +48,7 @@
     <Compile Include="src\Data\StateNum.cs" />
     <Compile Include="src\Data\Instances.cs" />
     <Compile Include="src\Main.cs" />
-    <Compile Include="src\Debug\DebugMobjStats.cs" />
+    <Compile Include="src\DebugMobjStats.cs" />
     <Compile Include="src\Entities\Mobj.cs" />
     <Compile Include="src\Entities\MobjBrain.cs" />
     <Compile Include="src\Entities\MobjCollisionEvents.cs" />

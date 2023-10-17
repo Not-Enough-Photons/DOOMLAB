@@ -16,9 +16,16 @@ namespace NEP.DOOMLAB.Patches
         {
             __instance.onCollision.AddListener(new System.Action<Collider, Vector3, Vector3>((hitCol, world, normal) =>
             {
-                Mobj hitMobj = hitCol.GetComponent<Mobj>();
+                var lookup = Mobj.ComponentCache.CacheLookup;
 
-                if (hitMobj == null)
+                if (!lookup.ContainsKey(hitCol.gameObject.GetInstanceID()))
+                {
+                    return;
+                }
+
+                Mobj hitMobj = lookup[hitCol.gameObject.GetInstanceID()];
+
+                if (hitMobj == null || hitMobj == Mobj.player)
                 {
                     return;
                 }
@@ -53,7 +60,14 @@ namespace NEP.DOOMLAB.Patches
     {
         public static void Postfix(Collision c, float impulse, float relVelSqr)
         {
-            Mobj hitMobj = c.collider.GetComponent<Mobj>();
+            var lookup = Mobj.ComponentCache.CacheLookup;
+
+            if(!lookup.ContainsKey(c.gameObject.GetInstanceID()))
+            {
+                return;
+            }
+
+            Mobj hitMobj = lookup[c.gameObject.GetInstanceID()];
 
             if(hitMobj != null && hitMobj != Mobj.player)
             {
@@ -84,7 +98,14 @@ namespace NEP.DOOMLAB.Patches
     {
         public static void Postfix(float impulse, Collision c)
         {
-            Mobj hitMobj = c.collider.GetComponent<Mobj>();
+            var lookup = Mobj.ComponentCache.CacheLookup;
+
+            if(!lookup.ContainsKey(c.gameObject.GetInstanceID()))
+            {
+                return;
+            }
+
+            Mobj hitMobj = lookup[c.gameObject.GetInstanceID()];
 
             if (hitMobj != null && hitMobj != Mobj.player)
             {
@@ -104,7 +125,6 @@ namespace NEP.DOOMLAB.Patches
 
                 hitMobj.rigidbody.AddForce(c.impactForceSum, ForceMode.Impulse);
                 MobjInteraction.DamageMobj(hitMobj, Mobj.player, Mobj.player, impulse);
-                SoundManager.Instance.PlaySound(SoundType.sfx_punch, c.contacts[0].point, false);
             }
         }
     }
@@ -115,15 +135,22 @@ namespace NEP.DOOMLAB.Patches
     {
         public static void Postfix(Collision c)
         {
-            Mobj hitMobj = c.collider.GetComponent<Mobj>();
+            var lookup = Mobj.ComponentCache.CacheLookup;
 
-            if (hitMobj != null && hitMobj != Mobj.player && c.impulse.magnitude > 0.1f)
+            if(!lookup.ContainsKey(c.gameObject.GetInstanceID()))
             {
-                if(!hitMobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
+                return;
+            }
+
+            Mobj hitMobj = lookup[c.gameObject.GetInstanceID()];
+
+            if (hitMobj != null && hitMobj != Mobj.player && c.impulse.magnitude > 0.25f)
+            {
+                if (!hitMobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
                 {
                     return;
                 }
-                
+
                 if (!hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
                 {
                     MobjManager.Instance.SpawnMobj(c.contacts[0].point, Data.MobjType.MT_BLOOD);
@@ -134,8 +161,9 @@ namespace NEP.DOOMLAB.Patches
                 }
 
                 hitMobj.rigidbody.AddForce(c.impactForceSum, ForceMode.Impulse);
-                MobjInteraction.DamageMobj(hitMobj, Mobj.player, Mobj.player, c.impulse.sqrMagnitude * 0.95f);
-                SoundManager.Instance.PlaySound(SoundType.sfx_punch, c.contacts[0].point, false);
+
+                // damage balancing is hard :(
+                MobjInteraction.DamageMobj(hitMobj, Mobj.player, Mobj.player, c.impulse.sqrMagnitude * 0.25f);
             }
         }
     }

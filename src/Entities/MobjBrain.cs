@@ -808,7 +808,7 @@ namespace NEP.DOOMLAB.Entities
             // var dest = th.tracer;
 
             Quaternion targetRot = Quaternion.LookRotation(mobj.tracer.position - mobj.transform.position, Vector3.up);
-            mobj.transform.rotation = Quaternion.Slerp(mobj.transform.rotation, targetRot, 16f * Time.deltaTime);
+            mobj.transform.rotation = Quaternion.Slerp(mobj.transform.rotation, targetRot, 4f * Time.deltaTime);
             mobj.rigidbody.velocity = mobj.transform.forward * mobj.info.speed;
         }
 

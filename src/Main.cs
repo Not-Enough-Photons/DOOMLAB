@@ -15,6 +15,8 @@ using System.Reflection;
 
 using BoneLib.BoneMenu.Elements;
 using BoneLib.BoneMenu;
+using SLZ.Data;
+using SLZ.Combat;
 
 namespace NEP.DOOMLAB
 {
@@ -34,6 +36,7 @@ namespace NEP.DOOMLAB
         public static GameObject mobjTemplate;
         public static Material unlitMaterial;
         public static Mobj player;
+        public static SurfaceData mobjSurfaceData;
 
         public static readonly string UserDataDirectory = MelonUtils.UserDataDirectory;
         public static readonly string TeamDirectory = Path.Combine(UserDataDirectory, "Not Enough Photons");
@@ -93,11 +96,22 @@ namespace NEP.DOOMLAB
             new SoundManager();
             new MobjManager();
 
+            if(player != null)
+            {
+                Mobj.ComponentCache.RemoveInstance(player.gameObject.GetInstanceID());
+            }
+
             player = Player.physicsRig.m_chest.gameObject.AddComponent<Mobj>();
             player.gameObject.AddComponent<DoomPlayer>();
             player.flags ^= MobjFlags.MF_SOLID;
             player.flags ^= MobjFlags.MF_SHOOTABLE;
             player.playerHealth = Player.rigManager.GetComponent<Player_Health>();
+            Mobj.ComponentCache.AddInstance(player.gameObject.GetInstanceID(), player);
+
+            if(mobjSurfaceData == null)
+            {
+                mobjSurfaceData = Player.physicsRig.GetComponent<ImpactPropertiesManager>().surfaceData;
+            }
         }
 
         internal void BoneMenuStuff()

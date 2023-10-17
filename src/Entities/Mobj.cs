@@ -92,7 +92,7 @@ namespace NEP.DOOMLAB.Entities
             }
             else
             {
-                ComponentCache.AddInstance(GetInstanceID(), this);
+                ComponentCache.AddInstance(gameObject.GetInstanceID(), this);
             }
         }
 
@@ -105,6 +105,7 @@ namespace NEP.DOOMLAB.Entities
         private void OnDestroy()
         {
             DoomGame.Instance.OnTick -= WorldTick;
+            ComponentCache.RemoveInstance(gameObject.GetInstanceID());
         }
 
         private void WorldTick()

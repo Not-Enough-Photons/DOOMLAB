@@ -100,6 +100,12 @@ namespace NEP.DOOMLAB.Entities
 
             Vector3 origin = thing.transform.position + Vector3.up;
             Vector3 direction = other.transform.position + Vector3.up;
+
+            if(other == Mobj.player)
+            {
+                direction = other.transform.position;
+            }
+
             Ray ray = new Ray(origin, direction - origin);
 
             if (Physics.Raycast(ray, out RaycastHit hit, 20))
@@ -108,23 +114,22 @@ namespace NEP.DOOMLAB.Entities
                 GameObject hitObject = collider.gameObject;
                 var lookup = Mobj.ComponentCache.CacheLookup;
 
-                if(!lookup.ContainsKey(hitObject.GetInstanceID()))
+                if(lookup.ContainsKey(hitObject.GetInstanceID()))
                 {
-                    return false;
-                }
+                    Mobj hitMobj = lookup[hitObject.GetInstanceID()];
 
-                Mobj hitMobj = lookup[hitObject.GetInstanceID()];
-
-                if(hitMobj == other)
-                {
-                    thing.brain.SeesTarget = true;
-                    return true;
+                    if (hitMobj == other)
+                    {
+                        MelonLogger.Msg("Hit other mobj");
+                        thing.brain.SeesTarget = true;
+                        return true;
+                    }
                 }
 
                 if(collider != null && !collider.isTrigger)
                 {
+                    MelonLogger.Msg($"Hit collider (non-trigger) {hit.collider.name}");
                     thing.brain.SeesTarget = false;
-
                     return false;
                 }
             }

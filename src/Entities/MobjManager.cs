@@ -62,6 +62,7 @@ namespace NEP.DOOMLAB.Entities
             mobj.collider.size = new Vector3(mobj.radius / 32f, mobj.height / 32f, mobj.radius / 32f);
 
             ImpactProperties impactProperties = mobjBase.GetComponent<ImpactProperties>();
+            impactProperties.surfaceData = Main.mobjSurfaceData;
 
             if (!mobj.flags.HasFlag(MobjFlags.MF_SOLID))
             {

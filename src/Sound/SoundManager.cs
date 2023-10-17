@@ -31,7 +31,7 @@ namespace NEP.DOOMLAB.Sound
             GameObject parent = new GameObject("Sound Manager");
             listObj.transform.parent = parent.transform;
 
-            for (int i = 0; i < 64; i++)
+            for (int i = 0; i < 256; i++)
             {
                 GameObject pooledAudio = new GameObject("Poolee Audio");
                 pooledAudio.transform.parent = listObj.transform;
