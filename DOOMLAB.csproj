@@ -152,6 +152,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Users\adamdev.NOTENOUGHPHOTON\Documents\DOOMLAB\bin\Release\Unity.TextMeshPro.dll</HintPath>
     </Reference>
+    <Reference Include="UniTask, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\BONELAB\MelonLoader\Managed\UniTask.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime" />
     <Reference Include="System" />
   </ItemGroup>

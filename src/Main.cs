@@ -17,6 +17,7 @@ using BoneLib.BoneMenu.Elements;
 using BoneLib.BoneMenu;
 using SLZ.Data;
 using SLZ.Combat;
+using SLZ.Marrow.Warehouse;
 
 namespace NEP.DOOMLAB
 {
@@ -101,7 +102,7 @@ namespace NEP.DOOMLAB
                 Mobj.ComponentCache.RemoveInstance(player.gameObject.GetInstanceID());
             }
 
-            player = Player.physicsRig.m_chest.gameObject.AddComponent<Mobj>();
+            player = Player.physicsRig.m_head.gameObject.AddComponent<Mobj>();
             player.gameObject.AddComponent<DoomPlayer>();
             player.flags ^= MobjFlags.MF_SOLID;
             player.flags ^= MobjFlags.MF_SHOOTABLE;

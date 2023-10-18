@@ -48,7 +48,7 @@ namespace NEP.DOOMLAB.Patches
 
                 Vector3 truePlacePosition = __instance.truePlacePosition;
                 Quaternion truePlaceRotation = __instance.truePlaceRotation;
-                Vector3 placePosition = new Vector3(truePlacePosition.x, truePlacePosition.y + mobjInfo.height / 32f, truePlacePosition.z);
+                Vector3 placePosition = new Vector3(truePlacePosition.x, truePlacePosition.y, truePlacePosition.z);
                 Quaternion placeRotation = Quaternion.Euler(new Vector3(0f, truePlaceRotation.y, 0f));
 
                 var mobj = MobjManager.Instance.SpawnMobj(placePosition, mobjType, placeRotation.eulerAngles.y);
@@ -65,7 +65,7 @@ namespace NEP.DOOMLAB.Patches
 
                 Vector3 truePlacePosition = __instance.truePlacePosition;
                 Quaternion truePlaceRotation = __instance.truePlaceRotation;
-                Vector3 placePosition = new Vector3(truePlacePosition.x, truePlacePosition.y + mobjInfo.height / 32f, truePlacePosition.z);
+                Vector3 placePosition = new Vector3(truePlacePosition.x, truePlacePosition.y, truePlacePosition.z);
                 Quaternion placeRotation = Quaternion.Euler(new Vector3(0f, truePlaceRotation.y, 0f));
 
                 var mobj = MobjManager.Instance.SpawnMobj(placePosition, mobjType, placeRotation.eulerAngles.y);

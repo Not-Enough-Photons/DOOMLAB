@@ -144,7 +144,7 @@ namespace NEP.DOOMLAB.Patches
 
             Mobj hitMobj = lookup[c.gameObject.GetInstanceID()];
 
-            if (hitMobj != null && hitMobj != Mobj.player && c.impulse.magnitude > 0.25f)
+            if (hitMobj != null && hitMobj != Mobj.player && c.impulse.magnitude > 0.125f)
             {
                 if (!hitMobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
                 {
@@ -163,7 +163,7 @@ namespace NEP.DOOMLAB.Patches
                 hitMobj.rigidbody.AddForce(c.impactForceSum, ForceMode.Impulse);
 
                 // damage balancing is hard :(
-                MobjInteraction.DamageMobj(hitMobj, Mobj.player, Mobj.player, c.impulse.sqrMagnitude * 0.25f);
+                MobjInteraction.DamageMobj(hitMobj, Mobj.player, Mobj.player, c.impulse.magnitude * 2f);
             }
         }
     }
