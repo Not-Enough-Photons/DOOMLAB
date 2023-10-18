@@ -3,6 +3,9 @@ using SLZ.Props.Weapons;
 
 using NEP.DOOMLAB.Entities;
 
+using UnityEngine;
+using MelonLoader;
+
 namespace NEP.DOOMLAB.Patches
 {
     [HarmonyLib.HarmonyPatch(typeof(Gun), nameof(Gun.OnFire))]
@@ -10,32 +13,46 @@ namespace NEP.DOOMLAB.Patches
     {
         public static void Postfix(Gun __instance)
         {
-            // PropagateSound(__instance.proxyOverride);
+            PropagateSound(__instance);
         }
 
-        public static void PropagateSound(TriggerRefProxy source)
+        public static void PropagateSound(Gun gun)
         {
-            Mobj[] mobjs = MobjManager.Instance.mobjs.ToArray();
+            LayerMask mask = ~LayerMask.NameToLayer("EnemyColliders");
+            var stuff = Physics.BoxCastAll(
+                gun.firePointTransform.position, 
+                Vector3.one * 16f, 
+                gun.firePointTransform.position, 
+                Quaternion.identity, 
+                16f, 
+                mask, 
+                QueryTriggerInteraction.Ignore);
 
-            for (int i = 0; i < mobjs.Length; i++)
+            for(int i = 0; i < stuff.Length; i++)
             {
-                Mobj mobj = mobjs[i];
+                var gameObject = stuff[i].collider.gameObject;
+                int instanceId = gameObject.GetInstanceID();
+                var lookup = Mobj.ComponentCache.CacheLookup;
 
-                if (mobj.health <= 0)
+                if(!lookup.ContainsKey(instanceId))
                 {
                     continue;
                 }
 
-                if(mobj.currentState == mobj.info.seeState)
+                Mobj heardMobj = lookup[instanceId];
+
+                if(heardMobj == Mobj.player)
                 {
                     continue;
                 }
 
-                if(mobj.currentState != mobj.info.seeState)
+                if(heardMobj.target != null)
                 {
-                    mobj.target = source.GetComponent<Mobj>();
-                    mobj.SetState(mobj.info.seeState);
+                    continue;
                 }
+
+                heardMobj.target = Mobj.player;
+                heardMobj.brain.A_SeeYou();
             }
         }
     }

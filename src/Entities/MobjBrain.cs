@@ -1122,10 +1122,44 @@ namespace NEP.DOOMLAB.Entities
                         var info = corpse.info;
 
                         corpse.SetState(info.raiseState);
-                        mobj.collider.center = Vector3.zero;
-                        mobj.collider.center = Vector3.up * (info.height / 32f) / 2f;
-                        mobj.collider.size = new Vector3(info.radius / 32f, info.height / 32f, info.radius / 32f);
+                        corpse.collider.center = Vector3.up * (info.height / 32f) / 2f;
+                        corpse.collider.size = new Vector3(info.radius / 32f, info.height / 32f, info.radius / 32f);
                         corpse.flags = info.flags;
+
+                        // TODO: method for dynamically setting flags
+                        if (!corpse.flags.HasFlag(MobjFlags.MF_SOLID))
+                        {
+                            corpse.collider.enabled = false;
+                        }
+
+                        if (corpse.flags.HasFlag(MobjFlags.MF_SPECIAL))
+                        {
+                            corpse.collider.enabled = true;
+                            corpse.gameObject.AddComponent<MobjCollisionEvents>();
+                        }
+
+                        if (corpse.flags.HasFlag(MobjFlags.MF_NOGRAVITY))
+                        {
+                            corpse.rigidbody.useGravity = false;
+                        }
+
+                        if (corpse.flags.HasFlag(MobjFlags.MF_MISSILE))
+                        {
+                            corpse.collider.enabled = true;
+                            corpse.rigidbody.drag = 0;
+                            corpse.gameObject.AddComponent<MobjCollisionEvents>();
+                        }
+
+                        if (corpse.type == MobjType.MT_SKULL)
+                        {
+                            corpse.gameObject.AddComponent<MobjCollisionEvents>();
+                        }
+
+                        if (corpse.flags.HasFlag(MobjFlags.MF_FLOAT))
+                        {
+                            corpse.rigidbody.drag = 10f;
+                        }
+
                         corpse.health = info.spawnHealth;
                         corpse.target = null;
 

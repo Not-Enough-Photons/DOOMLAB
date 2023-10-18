@@ -119,7 +119,8 @@ namespace NEP.DOOMLAB.Entities
 
             projectile.transform.rotation = rotation;
 
-            projectile.rigidbody.velocity = (destination.transform.position - position).normalized * projectile.info.speed;
+            Vector3 destVector = destination != Mobj.player ? destination.transform.position + Vector3.up * destination.height / 32f : destination.transform.position;
+            projectile.rigidbody.velocity = (destVector - position).normalized * projectile.info.speed;
 
             UnityEngine.Physics.IgnoreCollision(source.collider, projectile.collider, true);
 

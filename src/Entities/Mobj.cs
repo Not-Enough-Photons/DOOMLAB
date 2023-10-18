@@ -258,6 +258,7 @@ namespace NEP.DOOMLAB.Entities
                 if(rigidbody != null)
                 {
                     rigidbody.useGravity = true;
+                    rigidbody.drag = 1;
                 }
             }
 

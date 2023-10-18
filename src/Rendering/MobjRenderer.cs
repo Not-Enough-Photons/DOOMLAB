@@ -137,11 +137,6 @@ namespace NEP.DOOMLAB.Rendering
             bool flipBit = spriteFrame.flipBits[rotation];
             int xScale = flipBit ? 1 : -1;
 
-            if(rotation == 0)
-            {
-                xScale = -1;
-            }
-
             float width = patch.width / 32f;
             float height = patch.height / 32f;
 

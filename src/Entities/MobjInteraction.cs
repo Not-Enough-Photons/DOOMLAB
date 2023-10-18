@@ -120,7 +120,6 @@ namespace NEP.DOOMLAB.Entities
 
                     if (hitMobj == other)
                     {
-                        MelonLogger.Msg("Hit other mobj");
                         thing.brain.SeesTarget = true;
                         return true;
                     }
@@ -128,7 +127,6 @@ namespace NEP.DOOMLAB.Entities
 
                 if(collider != null && !collider.isTrigger)
                 {
-                    MelonLogger.Msg($"Hit collider (non-trigger) {hit.collider.name}");
                     thing.brain.SeesTarget = false;
                     return false;
                 }
