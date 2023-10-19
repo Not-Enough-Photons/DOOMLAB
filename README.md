@@ -15,9 +15,20 @@ Some PWAD files will load, and others will not. This is because WADs use DeHACKE
 
 # Installation
 ### PCVR
+1. Navigate to the DOOMLAB folder in the ZIP
+2. Drag and drop both the Mods folder and the UserData folder into your game directory.
+3. Next, navigate to where you install your custom maps and avatars.
+4. Drag the "NotEnoughPhotons.DOOMLAB" folder into the folder where you install your maps and avatars
+5. Place an IWAD (see above) inside of UserData/Not Enough Photons/DOOMLAB/IWADS, so that the mod works properly
+6. You're done!
 
 ### Meta Quest 2
-
+1. Navigate to the DOOMLAB folder in the ZIP
+2. Drag and drop both the Mods folder and the UserData folder into your game directory.
+3. Next, navigate to where you install your custom maps and avatars.
+4. Drag the "NotEnoughPhotons.DOOMLAB" folder into the folder where you install your maps and avatars
+5. Place an IWAD (see above) inside of UserData/Not Enough Photons/DOOMLAB/IWADS, so that the mod works properly
+6. You're done!
 
 # Port Overview
 
