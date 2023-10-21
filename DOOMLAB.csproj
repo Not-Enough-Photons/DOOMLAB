@@ -60,7 +60,7 @@
     <Compile Include="src\Entities\MobjInteraction.cs" />
     <Compile Include="src\Patches\DamagePatches.cs" />
     <Compile Include="src\Patches\GunPatches.cs" />
-    <Compile Include="src\Patches\SpawnGunPatches.cs" />
+    <Compile Include="src\Patches\SpawnPatches.cs" />
     <Compile Include="src\Patches\NPCPatches.cs" />
     <Compile Include="src\Rendering\MobjRenderer.cs" />
     <Compile Include="src\Rendering\SpriteDef.cs" />

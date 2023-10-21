@@ -7,6 +7,7 @@ using SLZ.Marrow.Warehouse;
 using NEP.DOOMLAB.Entities;
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Sound;
+using MelonLoader;
 
 namespace NEP.DOOMLAB.Patches
 {
@@ -44,7 +45,6 @@ namespace NEP.DOOMLAB.Patches
             if (MobjLookup.npcLookup.ContainsKey(selectedCrate.Title))
             {
                 MobjType mobjType = MobjLookup.npcLookup[selectedCrate.Title];
-                MobjInfo mobjInfo = Info.MobjInfos[(int)mobjType];
 
                 Vector3 truePlacePosition = __instance.truePlacePosition;
                 Quaternion truePlaceRotation = __instance.truePlaceRotation;
@@ -60,7 +60,6 @@ namespace NEP.DOOMLAB.Patches
             else if (MobjLookup.itemLookup.ContainsKey(selectedCrate.Title))
             {
                 MobjType mobjType = MobjLookup.itemLookup[selectedCrate.Title];
-                MobjInfo mobjInfo = Info.MobjInfos[(int)mobjType];
 
                 Vector3 truePlacePosition = __instance.truePlacePosition;
                 Quaternion truePlaceRotation = __instance.truePlaceRotation;
@@ -72,6 +71,48 @@ namespace NEP.DOOMLAB.Patches
                 MobjManager.Instance.SpawnMobj(placePosition, MobjType.MT_TFOG);
                 SoundManager.Instance.PlaySound(SoundType.sfx_telept, mobj.transform.position, false);
 
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+    [HarmonyPatch(typeof(SpawnableCratePlacer), nameof(SpawnableCratePlacer.PlaceSpawnable))]
+    public static class CrateSpawnerPatch
+    {
+        public static bool Prefix(SpawnableCratePlacer __instance)
+        {
+            MelonLogger.Msg("Spawnable Crate Placer Run");
+
+            Crate selectedCrate = __instance.spawnableCrateReference.Crate;
+
+            if (selectedCrate == null)
+            {
+                return false;
+            }
+
+            if (MobjLookup.npcLookup.ContainsKey(selectedCrate.Title))
+            {
+                MobjType mobjType = MobjLookup.npcLookup[selectedCrate.Title];
+
+                Vector3 truePlacePosition = __instance.transform.position;
+                Quaternion truePlaceRotation = __instance.transform.rotation;
+                Vector3 placePosition = new Vector3(truePlacePosition.x, truePlacePosition.y, truePlacePosition.z);
+
+                MobjManager.Instance.SpawnMobj(placePosition, mobjType, truePlaceRotation.eulerAngles.y);
+                return false;
+            }
+            else if (MobjLookup.itemLookup.ContainsKey(selectedCrate.Title))
+            {
+                MobjType mobjType = MobjLookup.itemLookup[selectedCrate.Title];
+
+                Vector3 truePlacePosition = __instance.transform.position;
+                Quaternion truePlaceRotation = __instance.transform.rotation;
+                Vector3 placePosition = new Vector3(truePlacePosition.x, truePlacePosition.y, truePlacePosition.z);
+                Quaternion placeRotation = Quaternion.Euler(new Vector3(0f, truePlaceRotation.y, 0f));
+
+                MobjManager.Instance.SpawnMobj(placePosition, mobjType, placeRotation.eulerAngles.y);
                 return false;
             }
 

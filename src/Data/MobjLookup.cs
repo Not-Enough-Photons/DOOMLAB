@@ -49,7 +49,7 @@ namespace NEP.DOOMLAB.Data
             { "Red Skull Key", MobjType.MT_MISC8 },
             { "Soulsphere", MobjType.MT_MISC12 },
             { "Stimpack", MobjType.MT_MISC10 },
-            { "Suit", MobjType.MT_MISC14 },
+            { "Radiation Suit", MobjType.MT_MISC14 },
             { "Yellow Keycard", MobjType.MT_MISC6 },
             { "Yellow Skull Key", MobjType.MT_MISC7 }
         };

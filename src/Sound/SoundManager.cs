@@ -112,10 +112,10 @@ namespace NEP.DOOMLAB.Sound
             }
 
             GameObject first = pooledAudioObjects.FirstOrDefault((inactive) => !inactive.activeInHierarchy);
-            AudioSource src = first.GetComponent<AudioSource>();
 
             if (first != null)
             {
+                AudioSource src = first.GetComponent<AudioSource>();
                 src.clip = sound;
                 src.spatialBlend = fullVolume ? 0f : 0.75f;
                 first.transform.position = position;

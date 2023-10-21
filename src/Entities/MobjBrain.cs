@@ -108,16 +108,16 @@ namespace NEP.DOOMLAB.Entities
 
                     if (delta < -0.075 && closeDistance < 5f)
                     {
-                        mobj.rigidbody.position -= (mobjTransform.up * mobj.info.speed) * Time.deltaTime;
+                        mobj.rigidbody.position -= (mobjTransform.up * mobj.info.speed) * Time.fixedDeltaTime;
                     }
                     else if (delta > 0.075 && closeDistance < 5f)
                     {
-                        mobj.rigidbody.position += (mobjTransform.up * mobj.info.speed) * Time.deltaTime;
+                        mobj.rigidbody.position += (mobjTransform.up * mobj.info.speed) * Time.fixedDeltaTime;
                     }
                 }
             }
 
-            mobj.rigidbody.position += (mobjTransform.forward * mobj.info.speed) * Time.deltaTime;
+            mobj.rigidbody.position += (mobjTransform.forward * mobj.info.speed) * Time.fixedDeltaTime;
             return true;
         }
 

@@ -81,7 +81,6 @@ namespace NEP.DOOMLAB.Entities
 
                 float damage = ((DoomGame.RNG.P_Random() % 8) + 1) * tmThing.info.damage;
                 DamageMobj(thing, tmThing, tmThing.target, damage);
-                MelonLogger.Msg(thing.name);
 
                 return true;
             }

@@ -100,7 +100,7 @@ namespace NEP.DOOMLAB.Game
                     ticTimer = 0f;
                 }
             }
-            catch(Exception e)
+            catch(System.Exception e)
             {
                 MelonLogger.Error(e);
             }

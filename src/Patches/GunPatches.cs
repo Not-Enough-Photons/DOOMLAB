@@ -19,18 +19,16 @@ namespace NEP.DOOMLAB.Patches
         public static void PropagateSound(Gun gun)
         {
             LayerMask mask = ~LayerMask.NameToLayer("EnemyColliders");
-            var stuff = Physics.BoxCastAll(
+            var colliders = Physics.OverlapBox(
                 gun.firePointTransform.position, 
                 Vector3.one * 16f, 
-                gun.firePointTransform.position, 
                 Quaternion.identity, 
-                16f, 
                 mask, 
                 QueryTriggerInteraction.Ignore);
 
-            for(int i = 0; i < stuff.Length; i++)
+            for(int i = 0; i < colliders.Length; i++)
             {
-                var gameObject = stuff[i].collider.gameObject;
+                var gameObject = colliders[i].gameObject;
                 int instanceId = gameObject.GetInstanceID();
                 var lookup = Mobj.ComponentCache.CacheLookup;
 

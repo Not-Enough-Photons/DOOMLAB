@@ -13,7 +13,10 @@ namespace NEP.DOOMLAB.Data
         public void AddInstance(int id, T instance)
         {
             Cache.Add(instance);
-            CacheLookup.Add(id, instance);
+            if(!CacheLookup.ContainsKey(id))
+            {
+                CacheLookup.Add(id, instance);
+            }
         }
 
         public void RemoveInstance(int id)
