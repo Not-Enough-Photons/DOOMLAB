@@ -42,7 +42,7 @@ namespace NEP.DOOMLAB.Patches
                 return false;
             }
 
-            if (MobjLookup.npcLookup.ContainsKey(selectedCrate.Title))
+            if (MobjLookup.npcLookup.ContainsKey(selectedCrate.Title) && selectedCrate.Barcode.ID.StartsWith("NEP.DOOMLAB"))
             {
                 MobjType mobjType = MobjLookup.npcLookup[selectedCrate.Title];
 
@@ -57,7 +57,7 @@ namespace NEP.DOOMLAB.Patches
 
                 return false;
             }
-            else if (MobjLookup.itemLookup.ContainsKey(selectedCrate.Title))
+            else if (MobjLookup.itemLookup.ContainsKey(selectedCrate.Title) && selectedCrate.Barcode.ID.StartsWith("NEP.DOOMLAB"))
             {
                 MobjType mobjType = MobjLookup.itemLookup[selectedCrate.Title];
 
