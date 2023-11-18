@@ -83,9 +83,6 @@ namespace NEP.DOOMLAB.Entities
 
         private void Awake()
         {
-            info = Info.MobjInfos[(int)type];
-            playerHealth = BoneLib.Player.rigManager.GetComponent<Player_Health>();
-
             if(ComponentCache == null)
             {
                 ComponentCache = new Instances<Mobj>();
@@ -98,6 +95,9 @@ namespace NEP.DOOMLAB.Entities
 
         private void Start()
         {
+            info = Info.MobjInfos[(int)type];
+            playerHealth = BoneLib.Player.rigManager.GetComponent<Player_Health>();
+            
             player.health = player.playerHealth.curr_Health;
             DoomGame.Instance.OnTick += WorldTick;
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using MelonLoader;
 using NEP.DOOMLAB.Data;
+using NEP.DOOMLAB.Entities;
 using UnityEngine;
 
 namespace NEP.DOOMLAB.Game
@@ -86,6 +87,16 @@ namespace NEP.DOOMLAB.Game
         public bool fastMonsters = false;
 
         private float ticTimer;
+
+        public static void DeleteCorpses()
+        {
+            var corpses = MobjManager.Instance.mobjs.FindAll((mobj) => mobj.flags.HasFlag(MobjFlags.MF_CORPSE));
+
+            foreach(var corpse in corpses)
+            {
+                MobjManager.Instance.RemoveMobj(corpse);
+            }
+        }
 
         public void Update()
         {

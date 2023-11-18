@@ -36,13 +36,6 @@ namespace NEP.DOOMLAB.Entities
             GameObject mobjBase = GameObject.Instantiate(mobjPrefab, position, Quaternion.AngleAxis(angle, Vector3.up));
             Mobj mobj = mobjBase.GetComponent<Mobj>();
             mobj.brain = mobjBase.GetComponent<MobjBrain>();
-
-            if(mobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE) || mobj.flags.HasFlag(MobjFlags.MF_COUNTKILL))
-            {
-                var trpSphere = mobjBase.transform.GetChild(0).gameObject;
-                trpSphere.AddComponent<MobjProxy>();
-            }
-
             mobj.rigidbody = mobjBase.GetComponent<Rigidbody>();
             mobj.collider = mobjBase.GetComponent<BoxCollider>();
             mobj.audioSource = mobjBase.GetComponent<AudioSource>();
@@ -60,6 +53,12 @@ namespace NEP.DOOMLAB.Entities
 
             mobj.collider.center = Vector3.up * (mobj.height / 32f) / 2f;
             mobj.collider.size = new Vector3(mobj.radius / 32f, mobj.height / 32f, mobj.radius / 32f);
+
+            if(mobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE) || mobj.flags.HasFlag(MobjFlags.MF_COUNTKILL))
+            {
+                var trpSphere = mobjBase.transform.GetChild(0).gameObject;
+                trpSphere.transform.localPosition = Vector3.up * mobj.height / 32f;
+            }
 
             ImpactProperties impactProperties = mobjBase.GetComponent<ImpactProperties>();
             impactProperties.surfaceData = Main.mobjSurfaceData;

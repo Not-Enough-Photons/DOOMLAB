@@ -18,6 +18,7 @@ using BoneLib.BoneMenu;
 using SLZ.Data;
 using SLZ.Combat;
 using SLZ.Marrow.Warehouse;
+using NEP.DOOMLAB.Patches;
 
 namespace NEP.DOOMLAB
 {
@@ -120,7 +121,7 @@ namespace NEP.DOOMLAB
             MenuCategory menuCategory = MenuManager.CreateCategory("Not Enough Photons", Color.white);
             var doomCategory = menuCategory.CreateCategory("DOOMLAB", Color.white);
 
-            var gameFlagsCategory = doomCategory.CreateCategory("Game Flags", Color.white);
+            var gameFlagsCategory = doomCategory.CreateCategory("Game Settings", Color.white);
             var debugCategory = doomCategory.CreateCategory("Debug", Color.white);
 
             gameFlagsCategory.CreateBoolElement("Disable Thinking", Color.white, false, (value) => Settings.DisableAI = value);
@@ -131,6 +132,7 @@ namespace NEP.DOOMLAB
                 DoomGame.Instance.UpdateFastMonsters(Settings.FastMonsters);
             });
             gameFlagsCategory.CreateBoolElement("Respawn Monsters", Color.white, false, (value) => Settings.RespawnMonsters = value);
+            gameFlagsCategory.CreateFunctionElement("Clear Corpses", Color.red, () => DoomGame.DeleteCorpses());
 
             debugCategory.CreateFloatElement("Projectile Pruning Distance", Color.white, 128f, 32f, 0f, 4096f, (value) => Settings.ProjectilePruneDistance = value);
             debugCategory.CreateBoolElement("MOBJ Debug Stats", Color.white, false, (value) => Settings.EnableMobjDebug = value);
