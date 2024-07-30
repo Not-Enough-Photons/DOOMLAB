@@ -1,13 +1,9 @@
+using System.Collections.Generic;
+
 using UnityEngine;
 
 using NEP.DOOMLAB.Data;
-using NEP.DOOMLAB.Rendering;
 using NEP.DOOMLAB.Sound;
-using NEP.DOOMLAB.Game;
-
-using SLZ.Combat;
-
-using System.Collections.Generic;
 
 namespace NEP.DOOMLAB.Entities
 {
@@ -60,9 +56,6 @@ namespace NEP.DOOMLAB.Entities
                 trpSphere.transform.localPosition = Vector3.up * mobj.height / 32f;
             }
 
-            ImpactProperties impactProperties = mobjBase.GetComponent<ImpactProperties>();
-            impactProperties.surfaceData = Main.mobjSurfaceData;
-
             if (!mobj.flags.HasFlag(MobjFlags.MF_SOLID))
             {
                 mobj.collider.enabled = false;
@@ -88,7 +81,7 @@ namespace NEP.DOOMLAB.Entities
 
             if(mobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
             {
-                impactProperties.enabled = false;
+                // impactProperties.enabled = false;
             }
 
             if(mobj.type == MobjType.MT_SKULL)
@@ -125,7 +118,7 @@ namespace NEP.DOOMLAB.Entities
 
             if (projectile.info.seeSound != Sound.SoundType.sfx_None)
             {
-                SoundManager.Instance.PlaySound(projectile.info.seeSound, projectile.audioSource, false);
+                SoundManager.Instance.PlaySound(projectile.info.seeSound, projectile.position, false);
             }
 
             return projectile;

@@ -6,15 +6,15 @@ using UnityEngine;
 
 using MelonLoader;
 
-using SLZ.AI;
-using SLZ.Combat;
-using SLZ.Marrow.Data;
+using Il2CppSLZ.Marrow;
+using Il2CppSLZ.Marrow.AI;
+using Il2CppSLZ.Marrow.Combat;
+using Il2CppSLZ.Marrow.Data;
 
 namespace NEP.DOOMLAB.Patches
 {
     internal static class AttackPatch
     {
-
         public static Action<Attack> OnAttackReceived;
 
         private static AttackPatchDelegate _original;
@@ -27,7 +27,6 @@ namespace NEP.DOOMLAB.Patches
             string nativeInfoName = "NativeMethodInfoPtr_ReceiveAttack_Public_Virtual_Final_New_Void_Attack_0";
             var tgtPtr = *(IntPtr*)(IntPtr)typeof(ImpactProperties).GetField(nativeInfoName, BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
             var dstPtr = patch.Method.MethodHandle.GetFunctionPointer();
-
             MelonUtils.NativeHookAttach((IntPtr)(&tgtPtr), dstPtr);
             _original = Marshal.GetDelegateForFunctionPointer<AttackPatchDelegate>(tgtPtr);
         }

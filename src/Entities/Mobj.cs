@@ -1,23 +1,25 @@
-using MelonLoader;
+using System;
+using System.Diagnostics;
+
+using UnityEngine;
+
+using Il2CppSLZ.Marrow;
+using Il2CppSLZ.Marrow.AI;
+using Il2CppSLZ.Marrow.Data;
+using Il2CppSLZ.Marrow.Pool;
+using Il2CppSLZ.Marrow.Warehouse;
+
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
-using SLZ.AI;
-using SLZ.Combat;
-using SLZ.Marrow.Data;
-using SLZ.Marrow.Pool;
-using SLZ.Marrow.Warehouse;
-
-using System;
-using System.Diagnostics;
-using UnityEngine;
+using BoneLib;
 
 namespace NEP.DOOMLAB.Entities
 {
     [MelonLoader.RegisterTypeInIl2Cpp]
     public class Mobj : MonoBehaviour
     {
-        public Mobj(System.IntPtr ptr) : base(ptr) { }
+        public Mobj(IntPtr ptr) : base(ptr) { }
 
         public static Instances<Mobj> ComponentCache { get; private set; }
 
@@ -96,7 +98,7 @@ namespace NEP.DOOMLAB.Entities
         private void Start()
         {
             info = Info.MobjInfos[(int)type];
-            playerHealth = BoneLib.Player.rigManager.GetComponent<Player_Health>();
+            playerHealth = BoneLib.Player.RigManager.GetComponent<Player_Health>();
             
             player.health = player.playerHealth.curr_Health;
             DoomGame.Instance.OnTick += WorldTick;
@@ -335,13 +337,7 @@ namespace NEP.DOOMLAB.Entities
             }
 
             SpawnableCrateReference ammoCrateRef = new SpawnableCrateReference(targetBarcode);
-            Spawnable ammo = new Spawnable()
-            {
-                crateRef = ammoCrateRef
-            };
-            
-            AssetSpawner.Register(ammo);
-            BoneLib.Nullables.NullableMethodExtensions.PoolManager_Spawn(ammo, transform.position, default, default);
+            HelperMethods.SpawnCrate(ammoCrateRef, transform.position, default, default);
         }
     }
 }

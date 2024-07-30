@@ -1,8 +1,11 @@
 ﻿using System;
+
 using MelonLoader;
+
+using UnityEngine;
+
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Entities;
-using UnityEngine;
 
 namespace NEP.DOOMLAB.Game
 {

@@ -1,10 +1,12 @@
 ﻿using MelonLoader;
+
+using UnityEngine;
+
+using Il2CppSLZ.Marrow;
+
 using NEP.DOOMLAB.Entities;
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
-using SLZ.Combat;
-using SLZ.SFX;
-using UnityEngine;
 
 namespace NEP.DOOMLAB.Patches
 {
@@ -93,39 +95,39 @@ namespace NEP.DOOMLAB.Patches
     }
 
     [HarmonyLib.HarmonyPatch(typeof(ImpactSFX))]
-    [HarmonyLib.HarmonyPatch(nameof(ImpactSFX.BluntAttack))]
+    [HarmonyLib.HarmonyPatch(nameof(ImpactSFX.CheckImpact))]
     public static class BluntPatch
     {
-        public static void Postfix(float impulse, Collision c)
+        public static void Postfix(float impulse)
         {
-            var lookup = Mobj.ComponentCache.CacheLookup;
+            //var lookup = Mobj.ComponentCache.CacheLookup;
 
-            if(!lookup.ContainsKey(c.gameObject.GetInstanceID()))
-            {
-                return;
-            }
+            //if(!lookup.ContainsKey(c.gameObject.GetInstanceID()))
+            //{
+            //    return;
+            //}
 
-            Mobj hitMobj = lookup[c.gameObject.GetInstanceID()];
+            //Mobj hitMobj = lookup[c.gameObject.GetInstanceID()];
 
-            if (hitMobj != null && hitMobj != Mobj.player)
-            {
-                if(!hitMobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
-                {
-                    return;
-                }
+            //if (hitMobj != null && hitMobj != Mobj.player)
+            //{
+            //    if(!hitMobj.flags.HasFlag(MobjFlags.MF_SHOOTABLE))
+            //    {
+            //        return;
+            //    }
 
-                if (!hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
-                {
-                    MobjManager.Instance.SpawnMobj(c.contacts[0].point, Data.MobjType.MT_BLOOD);
-                }
-                else
-                {
-                    MobjManager.Instance.SpawnMobj(c.contacts[0].point, Data.MobjType.MT_PUFF);
-                }
+            //    if (!hitMobj.flags.HasFlag(MobjFlags.MF_NOBLOOD))
+            //    {
+            //        MobjManager.Instance.SpawnMobj(c.contacts[0].point, Data.MobjType.MT_BLOOD);
+            //    }
+            //    else
+            //    {
+            //        MobjManager.Instance.SpawnMobj(c.contacts[0].point, Data.MobjType.MT_PUFF);
+            //    }
 
-                hitMobj.rigidbody.AddForce(c.impactForceSum, ForceMode.Impulse);
-                MobjInteraction.DamageMobj(hitMobj, Mobj.player, Mobj.player, impulse);
-            }
+            //    hitMobj.rigidbody.AddForce(c.impactForceSum, ForceMode.Impulse);
+            //    MobjInteraction.DamageMobj(hitMobj, Mobj.player, Mobj.player, impulse);
+            //}
         }
     }
 

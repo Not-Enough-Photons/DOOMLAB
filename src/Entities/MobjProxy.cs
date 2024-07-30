@@ -1,8 +1,7 @@
 using UnityEngine;
 
-using SLZ.AI;
-using SLZ.Bonelab;
-using SLZ.Data;
+using Il2CppSLZ.Marrow.AI;
+using Il2CppSLZ.Marrow.Data;
 
 namespace NEP.DOOMLAB.Entities
 {

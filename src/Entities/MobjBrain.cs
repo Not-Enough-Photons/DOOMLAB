@@ -1,10 +1,14 @@
-using System;
 using System.Collections.Generic;
+
+using UnityEngine;
+
+using Il2CppSLZ.Marrow;
+using Il2CppSLZ.Marrow.Data;
+
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
-using SLZ.Props;
-using UnityEngine;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace NEP.DOOMLAB.Entities
 {
@@ -289,27 +293,16 @@ namespace NEP.DOOMLAB.Entities
             Vector3 origin = mobj.transform.position + Vector3.up * 0.5f;
             Vector3 direction = mobj.transform.forward;
             Ray ray = new Ray(origin, direction);
-            
-            if(Physics.Raycast(ray, out RaycastHit hit, 2f))
+
+            if (Physics.Raycast(ray, out RaycastHit hit, 2f))
             {
-                Prop_Health destructible = hit.collider.GetComponentInParent<Prop_Health>();
-                ObjectDestructable objectDestructable = hit.collider.GetComponentInParent<ObjectDestructable>();
-
-                if(destructible != null)
-                {
-                    return true;
-                }
-
-                if(objectDestructable != null)
-                {
-                    return true;
-                }
+                return ObjectDestructible.Cache.Get(hit.collider.gameObject);
             }
 
             return false;
         }
 
-        public bool CheckObstructedByBreakable(out Prop_Health destructibleProp)
+        public bool CheckObstructedByBreakable(out ObjectDestructible destructibleProp)
         {
             Vector3 origin = mobj.transform.position + Vector3.up * 0.5f;
             Vector3 direction = mobj.transform.forward;
@@ -317,34 +310,14 @@ namespace NEP.DOOMLAB.Entities
             
             if(Physics.Raycast(ray, out RaycastHit hit, 2f))
             {
-                Prop_Health destructible = hit.collider.GetComponentInParent<Prop_Health>();
+                if (!ObjectDestructible.Cache.TryGet(hit.collider.gameObject, out ObjectDestructible destructible))
+                {
+                    destructibleProp = null;
+                    return false;
+                }
+
                 destructibleProp = destructible;
-
-                if(destructible != null) 
-                {
-                    return true;
-                }
-            }
-
-            destructibleProp = null;
-            return false;
-        }
-
-        public bool CheckObstructedByBreakable(out ObjectDestructable destructibleProp)
-        {
-            Vector3 origin = mobj.transform.position + Vector3.up * 0.5f;
-            Vector3 direction = mobj.transform.forward;
-            Ray ray = new Ray(origin, direction);
-            
-            if(Physics.Raycast(ray, out RaycastHit hit, 2f))
-            {
-                ObjectDestructable objectDestructable = hit.collider.GetComponentInParent<ObjectDestructable>();
-                destructibleProp = objectDestructable;
-
-                if(objectDestructable != null) 
-                {
-                    return true;
-                }
+                return true;
             }
 
             destructibleProp = null;
@@ -651,15 +624,10 @@ namespace NEP.DOOMLAB.Entities
             }
             if(CheckObstructedByBreakable())
             {
-                if (CheckObstructedByBreakable(out Prop_Health destructibleProp))
+                if (CheckObstructedByBreakable(out ObjectDestructible objectDestructable))
                 {
-                    destructibleProp?.TAKEDAMAGE(damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
-                    return;
-                }
-
-                if (CheckObstructedByBreakable(out ObjectDestructable objectDestructable))
-                {
-                    objectDestructable?.TakeDamage(mobj.transform.forward, damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
+                    AttackType attackType = AttackType.Stabbing;
+                    objectDestructable?.TakeDamage(mobj.transform.forward, damage, false, attackType);
                     return;
                 }
             }   
@@ -780,14 +748,10 @@ namespace NEP.DOOMLAB.Entities
             {
                 MobjInteraction.DamageMobj(mobj.target, mobj, mobj, damage);
             }
-            else if(CheckObstructedByBreakable(out Prop_Health destructibleProp))
+            else if(CheckObstructedByBreakable(out ObjectDestructible objectDestructable))
             {
-                destructibleProp?.TAKEDAMAGE(damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
-                return;
-            }
-            else if(CheckObstructedByBreakable(out ObjectDestructable objectDestructable))
-            {
-                objectDestructable?.TakeDamage(mobj.transform.forward, damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
+                AttackType attackType = AttackType.Stabbing;
+                objectDestructable?.TakeDamage(mobj.transform.forward, damage, false, attackType);
                 return;
             }
         }
@@ -853,14 +817,10 @@ namespace NEP.DOOMLAB.Entities
                 SoundManager.Instance.PlaySound(SoundType.sfx_skepch, mobj.transform.position, false);
                 // damage
             }
-            else if(CheckObstructedByBreakable(out Prop_Health destructibleProp))
+            else if (CheckObstructedByBreakable(out ObjectDestructible objectDestructable))
             {
-                destructibleProp?.TAKEDAMAGE(5f, false, SLZ.Marrow.Data.AttackType.Stabbing);
-                return;
-            }
-            else if(CheckObstructedByBreakable(out ObjectDestructable objectDestructable))
-            {
-                objectDestructable?.TakeDamage(mobj.transform.forward, 5f, false, SLZ.Marrow.Data.AttackType.Stabbing);
+                AttackType attackType = AttackType.Stabbing;
+                objectDestructable.TakeDamage(mobj.transform.forward, 5f, false, attackType);
                 return;
             }
         }
@@ -894,7 +854,7 @@ namespace NEP.DOOMLAB.Entities
             mobj.flags |= MobjFlags.MF_SKULLFLY;
             mobj.rigidbody.drag = 0f;
 
-            SoundManager.Instance.PlaySound(mobj.info.attackSound, mobj.audioSource, false);
+            SoundManager.Instance.PlaySound(mobj.info.attackSound, mobj.transform.position, false);
             A_FaceTarget();
             mobj.rigidbody.velocity += mobj.transform.forward * 6.25f;
         }
@@ -934,14 +894,10 @@ namespace NEP.DOOMLAB.Entities
                 MobjInteraction.DamageMobj(mobj.target, mobj, mobj, damage);
                 return;
             }
-            else if(CheckObstructedByBreakable(out Prop_Health destructibleProp))
+            else if (CheckObstructedByBreakable(out ObjectDestructible objectDestructable))
             {
-                destructibleProp?.TAKEDAMAGE(damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
-                return;
-            }
-            else if(CheckObstructedByBreakable(out ObjectDestructable objectDestructable))
-            {
-                objectDestructable?.TakeDamage(mobj.transform.forward, damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
+                AttackType attackType = AttackType.Stabbing;
+                objectDestructable?.TakeDamage(mobj.transform.forward, damage, false, attackType);
                 return;
             }
 
@@ -963,14 +919,10 @@ namespace NEP.DOOMLAB.Entities
                 MobjInteraction.DamageMobj(mobj.target, mobj, mobj, damage);
                 return;
             }
-            else if(CheckObstructedByBreakable(out Prop_Health destructibleProp))
+            else if (CheckObstructedByBreakable(out ObjectDestructible objectDestructable))
             {
-                destructibleProp?.TAKEDAMAGE(damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
-                return;
-            }
-            else if(CheckObstructedByBreakable(out ObjectDestructable objectDestructable))
-            {
-                objectDestructable?.TakeDamage(mobj.transform.forward, damage, false, SLZ.Marrow.Data.AttackType.Stabbing);
+                AttackType attackType = AttackType.Stabbing;
+                objectDestructable?.TakeDamage(mobj.transform.forward, damage, false, attackType);
                 return;
             }
 
@@ -981,7 +933,7 @@ namespace NEP.DOOMLAB.Entities
         public void A_FatRaise()
         {
             A_FaceTarget();
-            SoundManager.Instance.PlaySound(SoundType.sfx_manatk, mobj.audioSource, false);
+            SoundManager.Instance.PlaySound(SoundType.sfx_manatk, mobj.transform.position, false);
         }
 
         public void A_FatAttack1()
@@ -1173,7 +1125,7 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_VileStart()
         {
-            SoundManager.Instance.PlaySound(SoundType.sfx_vilatk, mobj.audioSource, false);
+            SoundManager.Instance.PlaySound(SoundType.sfx_vilatk, mobj.transform.position, false);
         }
 
         public void A_StartFire()
@@ -1286,7 +1238,7 @@ namespace NEP.DOOMLAB.Entities
 
         public void A_SpawnSound()
         {
-            SoundManager.Instance.PlaySound(SoundType.sfx_boscub, mobj.audioSource, false);
+            SoundManager.Instance.PlaySound(SoundType.sfx_boscub, mobj.transform.position, false);
             A_SpawnFly();
         }
 

@@ -3,10 +3,12 @@ using NEP.DOOMLAB.Data;
 
 using UnityEngine;
 
-using SLZ.Combat;
+using Il2CppSLZ.Combat;
 
 using MelonLoader;
-using SLZ.Props;
+using Il2CppSLZ.Props;
+using Il2CppSLZ.Marrow;
+using Il2CppSLZ.Marrow.Data;
 
 namespace NEP.DOOMLAB.Entities
 {
@@ -142,20 +144,13 @@ namespace NEP.DOOMLAB.Entities
             if (UnityEngine.Physics.Raycast(ray, out RaycastHit hit, distance))
             {
                 Collider collider = hit.collider;
-                Prop_Health firstBreakableType = collider.GetComponentInParent<Prop_Health>();
-                ObjectDestructable secondBreakableType = collider.GetComponentInParent<ObjectDestructable>();
+                ObjectDestructible breakable = ObjectDestructible.Cache.Get(collider.gameObject);
 
-                if(firstBreakableType != null)
+                if(breakable != null)
                 {
+                    AttackType attackType = AttackType.Piercing;
                     MobjManager.Instance.SpawnMobj(hit.point, MobjType.MT_PUFF);
-                    firstBreakableType.TAKEDAMAGE(damage, false, SLZ.Marrow.Data.AttackType.Piercing);
-                    return false;
-                }
-
-                if(secondBreakableType != null)
-                {
-                    MobjManager.Instance.SpawnMobj(hit.point, MobjType.MT_PUFF);
-                    secondBreakableType.TakeDamage(hit.normal, damage, false, SLZ.Marrow.Data.AttackType.Piercing);
+                    breakable.TakeDamage(direction, damage, false, attackType);
                     return false;
                 }
 

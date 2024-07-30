@@ -1,24 +1,22 @@
-﻿using MelonLoader;
+﻿using System.IO;
+using System.Reflection;
+
+using MelonLoader;
+using MelonLoader.Utils;
+
+using UnityEngine;
 
 using BoneLib;
+using BoneLib.BoneMenu;
+
+using Il2CppSLZ.Marrow;
 
 using NEP.DOOMLAB.WAD;
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Entities;
 using NEP.DOOMLAB.Rendering;
 using NEP.DOOMLAB.Sound;
-
-using UnityEngine;
-
-using System.IO;
-using System.Reflection;
-
-using BoneLib.BoneMenu.Elements;
-using BoneLib.BoneMenu;
-using SLZ.Data;
-using SLZ.Combat;
-using SLZ.Marrow.Warehouse;
-using NEP.DOOMLAB.Patches;
+using Il2CppSLZ.Marrow.Warehouse;
 
 namespace NEP.DOOMLAB
 {
@@ -28,7 +26,7 @@ namespace NEP.DOOMLAB
         public const string Description = "Hell has encroached into MythOS. Pick up Doomguy's skills and slay endless demons."; // Description for the Mod.  (Set as null if none)
         public const string Author = "Not Enough Photons, adamdev"; // Author of the Mod.  (MUST BE SET)
         public const string Company = "Not Enough Photons"; // Company that made the Mod.  (Set as null if none)
-        public const string Version = "0.0.1"; // Version of the Mod.  (MUST BE SET)
+        public const string Version = "0.1.0"; // Version of the Mod.  (MUST BE SET)
         public const string DownloadLink = null; // Download Link for the Mod.  (Set as null if none)
     }
 
@@ -38,9 +36,9 @@ namespace NEP.DOOMLAB
         public static GameObject mobjTemplate;
         public static Material unlitMaterial;
         public static Mobj player;
-        public static SurfaceData mobjSurfaceData;
+        public static SurfaceDataCard mobjSurfaceData;
 
-        public static readonly string UserDataDirectory = MelonUtils.UserDataDirectory;
+        public static readonly string UserDataDirectory = MelonEnvironment.UserDataDirectory;
         public static readonly string TeamDirectory = Path.Combine(UserDataDirectory, "Not Enough Photons");
         public static readonly string ModDirectory = Path.Combine(TeamDirectory, "DOOMLAB");
         public static readonly string IWADDirectory = Path.Combine(ModDirectory, "IWADS");
@@ -48,32 +46,17 @@ namespace NEP.DOOMLAB
         
         public static Texture2D MissingSprite;
 
-        private static AssetBundle GetEmbeddedBundle()
-        {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-
-            string fileName = HelperMethods.IsAndroid() ? "doomlab_quest.pack" : "doomlab_pcvr.pack";
-
-            using (Stream resourceStream = assembly.GetManifestResourceStream("NEP.DOOMLAB.Resources." + fileName))
-            {
-                using (MemoryStream memoryStream = new MemoryStream())
-                {
-                    resourceStream.CopyTo(memoryStream);
-                    return AssetBundle.LoadFromMemory(memoryStream.ToArray());
-                }
-            }
-        }
-
         public override void OnInitializeMelon()
         {
             Directory.CreateDirectory(ModDirectory);
             Directory.CreateDirectory(IWADDirectory);
             Directory.CreateDirectory(PWADDirectory);
 
-            bundle = GetEmbeddedBundle();
-            mobjTemplate = bundle.LoadAsset("[MOBJ] - Null").Cast<GameObject>();
-            mobjTemplate.hideFlags = HideFlags.DontUnloadUnusedAsset;
-            MissingSprite = bundle.LoadAsset("faila0").Cast<Texture2D>();
+            var assembly = Assembly.GetExecutingAssembly();
+            string fileName = HelperMethods.IsAndroid() ? "doomlab_quest.pack" : "doomlab_pcvr.pack";
+            bundle = HelperMethods.LoadEmbeddedAssetBundle(assembly, "NEP.DOOMLAB.Resources." + fileName);
+            mobjTemplate = bundle.LoadPersistentAsset<GameObject>("[MOBJ] - Null");
+            MissingSprite = bundle.LoadPersistentAsset<Texture2D>("faila0");
             MissingSprite.hideFlags = HideFlags.DontUnloadUnusedAsset;
             unlitMaterial = bundle.LoadAsset("mat_unlit").Cast<Material>();
             unlitMaterial.hideFlags = HideFlags.DontUnloadUnusedAsset;
@@ -84,7 +67,7 @@ namespace NEP.DOOMLAB
 
             DoomGame game = new DoomGame();
 
-            BoneLib.Hooking.OnLevelInitialized += OnSceneLoaded;
+            Hooking.OnLevelLoaded += OnSceneLoaded;
 
             BoneMenuStuff();
         }
@@ -103,50 +86,51 @@ namespace NEP.DOOMLAB
                 Mobj.ComponentCache.RemoveInstance(player.gameObject.GetInstanceID());
             }
 
-            player = Player.physicsRig.m_head.gameObject.AddComponent<Mobj>();
+            player = Player.PhysicsRig.m_head.gameObject.AddComponent<Mobj>();
             player.gameObject.AddComponent<DoomPlayer>();
             player.flags ^= MobjFlags.MF_SOLID;
             player.flags ^= MobjFlags.MF_SHOOTABLE;
-            player.playerHealth = Player.rigManager.GetComponent<Player_Health>();
+            player.playerHealth = Player.RigManager.GetComponent<Player_Health>();
             Mobj.ComponentCache.AddInstance(player.gameObject.GetInstanceID(), player);
 
             if(mobjSurfaceData == null)
             {
-                mobjSurfaceData = Player.physicsRig.GetComponent<ImpactPropertiesManager>().surfaceData;
+                AssetWarehouse.Instance.TryGetDataCard(new Barcode("SLZ.Backlot.SurfaceDataCard.Blood"), out SurfaceDataCard card);
+                mobjSurfaceData = card;
             }
         }
 
         internal void BoneMenuStuff()
         {
-            MenuCategory menuCategory = MenuManager.CreateCategory("Not Enough Photons", Color.white);
-            var doomCategory = menuCategory.CreateCategory("DOOMLAB", Color.white);
+            Page menuCategory = Page.Root.CreatePage("Not Enough Photons", Color.white);
+            var doomCategory = menuCategory.CreatePage("DOOMLAB", Color.white);
 
-            var gameFlagsCategory = doomCategory.CreateCategory("Game Settings", Color.white);
-            var debugCategory = doomCategory.CreateCategory("Debug", Color.white);
+            var gameFlagsCategory = doomCategory.CreatePage("Game Settings", Color.white);
+            var debugCategory = doomCategory.CreatePage("Debug", Color.white);
 
-            gameFlagsCategory.CreateBoolElement("Disable Thinking", Color.white, false, (value) => Settings.DisableAI = value);
-            gameFlagsCategory.CreateBoolElement("No Target", Color.white, false, null);
-            gameFlagsCategory.CreateBoolElement("Fast Monsters", Color.white, false, (value) => 
+            gameFlagsCategory.CreateBool("Disable Thinking", Color.white, false, (value) => Settings.DisableAI = value);
+            gameFlagsCategory.CreateBool("No Target", Color.white, false, null);
+            gameFlagsCategory.CreateBool("Fast Monsters", Color.white, false, (value) => 
             {
                 Settings.FastMonsters = value;
                 DoomGame.Instance.UpdateFastMonsters(Settings.FastMonsters);
             });
-            gameFlagsCategory.CreateBoolElement("Respawn Monsters", Color.white, false, (value) => Settings.RespawnMonsters = value);
-            gameFlagsCategory.CreateFunctionElement("Clear Corpses", Color.red, () => DoomGame.DeleteCorpses());
+            gameFlagsCategory.CreateBool("Respawn Monsters", Color.white, false, (value) => Settings.RespawnMonsters = value);
+            gameFlagsCategory.CreateFunction("Clear Corpses", Color.red, () => DoomGame.DeleteCorpses());
 
-            debugCategory.CreateFloatElement("Projectile Pruning Distance", Color.white, 128f, 32f, 0f, 4096f, (value) => Settings.ProjectilePruneDistance = value);
-            debugCategory.CreateBoolElement("MOBJ Debug Stats", Color.white, false, (value) => Settings.EnableMobjDebug = value);
-            debugCategory.CreateBoolElement("MOBJ Debug Lines", Color.white, false, (value) => Settings.EnableMobjDebugLines = value);
-            debugCategory.CreateBoolElement("MOBJ Debug Colliders", Color.white, false, (value) => Settings.EnableMobjDebugColliders = value);
+            debugCategory.CreateFloat("Projectile Pruning Distance", Color.white, 128f, 32f, 0f, 4096f, (value) => Settings.ProjectilePruneDistance = value);
+            debugCategory.CreateBool("MOBJ Debug Stats", Color.white, false, (value) => Settings.EnableMobjDebug = value);
+            debugCategory.CreateBool("MOBJ Debug Lines", Color.white, false, (value) => Settings.EnableMobjDebugLines = value);
+            debugCategory.CreateBool("MOBJ Debug Colliders", Color.white, false, (value) => Settings.EnableMobjDebugColliders = value);
 
-            var wadCategory = doomCategory.CreateCategory("WADS", Color.white);
+            var wadCategory = doomCategory.CreatePage("WADS", Color.white);
             string[] iwadNames = WADManager.Instance.GetWADsInFolder(WADFile.WADType.IWAD, false);
             string[] pwadNames = WADManager.Instance.GetWADsInFolder(WADFile.WADType.PWAD, false);
 
             for (int i = 0; i < iwadNames.Length; i++)
             {
                 int index = i;
-                wadCategory.CreateFunctionElement(WADManager.Instance.GetWADFileName(iwadNames[index], true), Color.white, () =>
+                wadCategory.CreateFunction(WADManager.Instance.GetWADFileName(iwadNames[index], true), Color.white, () =>
                 {
                     WADManager.Instance.LoadWAD(WADManager.Instance.IWADS[index]);
                     FrameBuilder.GenerateTable();
@@ -158,7 +142,7 @@ namespace NEP.DOOMLAB
             for (int i = 0; i < pwadNames.Length; i++)
             {
                 int index = i;
-                wadCategory.CreateFunctionElement(WADManager.Instance.GetWADFileName(pwadNames[index], true), Color.white, () =>
+                wadCategory.CreateFunction(WADManager.Instance.GetWADFileName(pwadNames[index], true), Color.white, () =>
                 {
                     WADManager.Instance.LoadWAD(WADManager.Instance.PWADS[index]);
                     FrameBuilder.GenerateTable();

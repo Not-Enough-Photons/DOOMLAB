@@ -1,8 +1,7 @@
-using MelonLoader;
+using UnityEngine;
+
 using NEP.DOOMLAB.Game;
 using NEP.DOOMLAB.Sound;
-
-using UnityEngine;
 
 namespace NEP.DOOMLAB.Entities
 {

@@ -1,13 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
-
 using System.IO;
+using System.Linq;
 
 using UnityEngine;
 
 using Patch = NEP.DOOMLAB.WAD.DataTypes.Patch;
-using MelonLoader;
-using System.Linq;
 
 namespace NEP.DOOMLAB.WAD
 {

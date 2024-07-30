@@ -1,13 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using Harmony;
-using Il2CppSystem.Numerics;
-using MelonLoader;
+﻿using UnityEngine;
+
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Entities;
 using NEP.DOOMLAB.Game;
-
-using UnityEngine;
 
 namespace NEP.DOOMLAB.Rendering
 {

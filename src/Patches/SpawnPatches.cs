@@ -1,13 +1,14 @@
 using UnityEngine;
 using HarmonyLib;
 
-using SLZ.Props;
-using SLZ.Marrow.Warehouse;
+using MelonLoader;
+
+using Il2CppSLZ.Bonelab;
+using Il2CppSLZ.Marrow.Warehouse;
 
 using NEP.DOOMLAB.Entities;
 using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.Sound;
-using MelonLoader;
 
 namespace NEP.DOOMLAB.Patches
 {
@@ -42,7 +43,7 @@ namespace NEP.DOOMLAB.Patches
                 return false;
             }
 
-            if (MobjLookup.npcLookup.ContainsKey(selectedCrate.Title) && selectedCrate.Barcode.ID.StartsWith("NEP.DOOMLAB"))
+            if (MobjLookup.npcLookup.ContainsKey(selectedCrate.Title) && selectedCrate.Barcode.ID.StartsWith("NotEnoughPhotons.DOOMLAB"))
             {
                 MobjType mobjType = MobjLookup.npcLookup[selectedCrate.Title];
 
@@ -57,7 +58,7 @@ namespace NEP.DOOMLAB.Patches
 
                 return false;
             }
-            else if (MobjLookup.itemLookup.ContainsKey(selectedCrate.Title) && selectedCrate.Barcode.ID.StartsWith("NEP.DOOMLAB"))
+            else if (MobjLookup.itemLookup.ContainsKey(selectedCrate.Title) && selectedCrate.Barcode.ID.StartsWith("NotEnoughPhotons.DOOMLAB"))
             {
                 MobjType mobjType = MobjLookup.itemLookup[selectedCrate.Title];
 
@@ -78,10 +79,10 @@ namespace NEP.DOOMLAB.Patches
         }
     }
 
-    [HarmonyPatch(typeof(SpawnableCratePlacer), nameof(SpawnableCratePlacer.PlaceSpawnable))]
+    [HarmonyPatch(typeof(CrateSpawner), nameof(CrateSpawner.SpawnSpawnable))]
     public static class CrateSpawnerPatch
     {
-        public static bool Prefix(SpawnableCratePlacer __instance)
+        public static bool Prefix(CrateSpawner __instance)
         {
             MelonLogger.Msg("Spawnable Crate Placer Run");
 

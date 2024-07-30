@@ -1,9 +1,8 @@
-using NEP.DOOMLAB.Entities;
-
 using UnityEngine;
-using TMPro;
-using Il2CppSystem.Numerics;
-using MelonLoader;
+
+using Il2CppTMPro;
+
+using NEP.DOOMLAB.Entities;
 
 namespace NEP.DOOMLAB.Debug
 {

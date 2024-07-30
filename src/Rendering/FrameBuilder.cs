@@ -1,9 +1,8 @@
-﻿using NEP.DOOMLAB.Data;
+﻿using System.Collections.Generic;
+
+using NEP.DOOMLAB.Data;
 using NEP.DOOMLAB.WAD;
 using NEP.DOOMLAB.WAD.DataTypes;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace NEP.DOOMLAB.Rendering
 {

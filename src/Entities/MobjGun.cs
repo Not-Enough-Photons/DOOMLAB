@@ -1,7 +1,6 @@
 using UnityEngine;
 
-using SLZ.Props.Weapons;
-using SLZ.SFX;
+using Il2CppSLZ.Marrow;
 
 using NEP.DOOMLAB.Sound;
 

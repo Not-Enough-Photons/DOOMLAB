@@ -1,10 +1,10 @@
-using SLZ.AI;
-using SLZ.Props.Weapons;
-
-using NEP.DOOMLAB.Entities;
+using MelonLoader;
 
 using UnityEngine;
-using MelonLoader;
+
+using Il2CppSLZ.Marrow;
+
+using NEP.DOOMLAB.Entities;
 
 namespace NEP.DOOMLAB.Patches
 {
