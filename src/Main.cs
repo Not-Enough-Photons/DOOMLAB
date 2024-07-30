@@ -57,9 +57,7 @@ namespace NEP.DOOMLAB
             bundle = HelperMethods.LoadEmbeddedAssetBundle(assembly, "NEP.DOOMLAB.Resources." + fileName);
             mobjTemplate = bundle.LoadPersistentAsset<GameObject>("[MOBJ] - Null");
             MissingSprite = bundle.LoadPersistentAsset<Texture2D>("faila0");
-            MissingSprite.hideFlags = HideFlags.DontUnloadUnusedAsset;
-            unlitMaterial = bundle.LoadAsset("mat_unlit").Cast<Material>();
-            unlitMaterial.hideFlags = HideFlags.DontUnloadUnusedAsset;
+            unlitMaterial = bundle.LoadPersistentAsset<Material>("mat_unlit");
 
             new WADManager();
             WADManager.Instance.LoadWAD(WADManager.Instance.GetIWAD());
