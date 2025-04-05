@@ -59,9 +59,3 @@ Currently, DOOMLAB has support for loading both IWADs and PWADS, **but as of now
 - iD Software - DOOM source code
 - decino - Extensive research into DOOM logic from his amazing videos
 - sinshu - Frame builder algorithm from Managed Doom
-
-# Links
-- Source Code
-- Release Trailer
-- Not Enough Photons TikTok
-
